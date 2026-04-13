@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Encerrar Chamado</title>
+</head>
+<body>
+    <h1>Encerrar Chamado {{ chamado.pk }} - {{ chamado.titulo }}</h1>
+
+    <p><a href="{% url "chamado_detalhe" chamado.pk %}">Voltar para o chamado</a></p>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+        <tr><th>Solicitante</th><td>{{ chamado.solicitante.nome_completo }}</td></tr>
+        <tr><th>Categoria</th><td>{{ chamado.categoria.nome }}</td></tr>
+        <tr><th>Prioridade</th><td>{{ chamado.get_prioridade_display }}</td></tr>
+        <tr><th>Status atual</th><td>{{ chamado.get_status_display }}</td></tr>
+        <tr><th>Descrição</th><td>{{ chamado.descricao }}</td></tr>
+    </table>
+
+    <br>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Confirmar encerramento</button>
+    </form>
+</body>
+</html>

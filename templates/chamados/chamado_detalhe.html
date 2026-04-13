@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Chamado {{ chamado.pk }}</title>
+</head>
+<body>
+    <h1>Chamado {{ chamado.pk }} - {{ chamado.titulo }}</h1>
+
+    <p><a href="{% url "chamado_lista" %}">Voltar para a lista</a></p>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+        <tr><th>Solicitante</th><td>{{ chamado.solicitante.nome_completo }}</td></tr>
+        <tr><th>Categoria</th><td>{{ chamado.categoria.nome }}</td></tr>
+        <tr><th>Prioridade</th><td>{{ chamado.get_prioridade_display }}</td></tr>
+        <tr><th>Status</th><td>{{ chamado.get_status_display }}</td></tr>
+        <tr><th>Técnico</th><td>{{ chamado.tecnico.nome_completo|default:"Não atribuído" }}</td></tr>
+        <tr><th>Aberto em</th><td>{{ chamado.criado_em|date:"d/m/Y H:i" }}</td></tr>
+        <tr><th>Atualizado em</th><td>{{ chamado.atualizado_em|date:"d/m/Y H:i" }}</td></tr>
+        {% if chamado.encerrado_em %}
+        <tr><th>Encerrado em</th><td>{{ chamado.encerrado_em|date:"d/m/Y H:i" }}</td></tr>
+        <tr><th>Encerrado por</th><td>{{ chamado.encerrado_por.nome_completo|default:"-" }}</td></tr>
+        {% endif %}
+        <tr><th>Descrição</th><td>{{ chamado.descricao }}</td></tr>
+        {% if chamado.solucao_tecnica %}
+        <tr><th>Solução técnica</th><td>{{ chamado.solucao_tecnica }}</td></tr>
+        {% endif %}
+    </table>
+
+    <h2>Anexos</h2>
+    {% if anexos %}
+    <ul>
+        {% for anexo in anexos %}
+        <li><a href="{{ anexo.arquivo.url }}">{{ anexo.arquivo.name }}</a> - {{ anexo.enviado_em|date:"d/m/Y H:i" }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Nenhum anexo.</p>
+    {% endif %}
+
+    <h2>Ações</h2>
+    {% if perms.chamados.can_manage_chamados %}
+        {% if chamado.status == "aberto" %}
+        <form method="post" action="{% url "chamado_atender" chamado.pk %}">
+            {% csrf_token %}
+            <button type="submit">Assumir atendimento</button>
+        </form>
+        {% endif %}
+
+        {% if chamado.status == "em_atendimento" or chamado.status == "aguardando_usuario" %}
+        <p><a href="{% url "chamado_encerrar" chamado.pk %}">Encerrar chamado</a></p>
+        {% endif %}
+    {% endif %}
+
+    {% if chamado.status == "encerrado" %}
+        {% if chamado.solicitante == request.user or perms.usuarios.change_usuario %}
+        <form method="post" action="{% url "chamado_reabrir" chamado.pk %}">
+            {% csrf_token %}
+            <button type="submit">Reabrir chamado</button>
+        </form>
+        {% endif %}
+    {% endif %}
+
+</body>
+</html>

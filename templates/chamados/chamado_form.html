@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo }}</title>
+</head>
+<body>
+    <h1>{{ titulo }}</h1>
+
+    <p><a href="{% url "chamado_lista" %}">Voltar para a lista</a></p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <p>
+            <label for="anexo">Anexo (opcional):</label>
+            <input type="file" name="anexo" id="anexo">
+        </p>
+        <button type="submit">Salvar</button>
+    </form>
+</body>
+</html>

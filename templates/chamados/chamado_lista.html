@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Chamados</title>
+</head>
+<body>
+    <h1>Lista de Chamados</h1>
+
+    <p><a href="{% url "painel" %}">Voltar ao painel</a></p>
+
+    {% if perms.chamados.can_manage_chamados %}
+    <p><a href="{% url "chamado_novo" %}">Novo Chamado</a></p>
+    {% endif %}
+
+    <form method="get">
+        {{ form_filtro.status.label_tag }} {{ form_filtro.status }}
+        {{ form_filtro.categoria.label_tag }} {{ form_filtro.categoria }}
+        {{ form_filtro.prioridade.label_tag }} {{ form_filtro.prioridade }}
+        <button type="submit">Filtrar</button>
+        <a href="{% url "chamado_lista" %}">Limpar</a>
+    </form>
+
+    <br>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Número</th>
+                <th>Título</th>
+                <th>Solicitante</th>
+                <th>Categoria</th>
+                <th>Prioridade</th>
+                <th>Status</th>
+                <th>Técnico</th>
+                <th>Aberto em</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for chamado in chamados %}
+            <tr>
+                <td>{{ chamado.pk }}</td>
+                <td><a href="{% url "chamado_detalhe" chamado.pk %}">{{ chamado.titulo }}</a></td>
+                <td>{{ chamado.solicitante.nome_completo }}</td>
+                <td>{{ chamado.categoria.nome }}</td>
+                <td>{{ chamado.get_prioridade_display }}</td>
+                <td>{{ chamado.get_status_display }}</td>
+                <td>{{ chamado.tecnico.nome_completo|default:"-" }}</td>
+                <td>{{ chamado.criado_em|date:"d/m/Y H:i" }}</td>
+                <td><a href="{% url "chamado_detalhe" chamado.pk %}">Ver</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9">Nenhum chamado encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
