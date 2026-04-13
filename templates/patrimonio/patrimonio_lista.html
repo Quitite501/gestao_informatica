@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Patrimonio - Sistema de Gestao de TI</title>
+</head>
+<body>
+
+<h1>Patrimonio</h1>
+
+<p>
+    <a href="{% url 'painel' %}">Painel</a>
+    {% if perms.patrimonio.can_manage_patrimonio %}
+    | <a href="{% url 'patrimonio_novo' %}">+ Novo patrimonio</a>
+    {% endif %}
+</p>
+
+<form method="get">
+    Etiqueta: {{ form_filtro.etiqueta }}
+    Tipo: {{ form_filtro.tipo }}
+    Status: {{ form_filtro.status }}
+    <button type="submit">Filtrar</button>
+    <a href="{% url 'patrimonio_lista' %}">Limpar</a>
+</form>
+
+<p>Total encontrado: <strong>{{ total }}</strong></p>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Etiqueta</th>
+            <th>Tipo</th>
+            <th>Marca / Modelo</th>
+            <th>Setor</th>
+            <th>Usuario atual</th>
+            <th>Status</th>
+            <th>Acoes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in patrimonios %}
+        <tr>
+            <td><a href="{% url 'patrimonio_detalhe' p.pk %}">{{ p.etiqueta }}</a></td>
+            <td>{{ p.tipo|default:"-" }}</td>
+            <td>{{ p.marca|default:"" }} {{ p.modelo|default:"-" }}</td>
+            <td>{{ p.setor|default:"-" }}</td>
+            <td>{{ p.usuario_atual|default:"-" }}</td>
+            <td>{{ p.get_status_display }}</td>
+            <td>
+                <a href="{% url 'patrimonio_detalhe' p.pk %}">Ver</a>
+                {% if perms.patrimonio.can_manage_patrimonio %}
+                | <a href="{% url 'patrimonio_editar' p.pk %}">Editar</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7">Nenhum patrimonio encontrado.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

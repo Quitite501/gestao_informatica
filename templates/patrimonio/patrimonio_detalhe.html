@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ patrimonio.etiqueta }} - Patrimonio</title>
+</head>
+<body>
+
+<h1>Patrimonio: {{ patrimonio.etiqueta }}</h1>
+
+<p>
+    <a href="{% url 'patrimonio_lista' %}">Lista de patrimonios</a>
+    {% if perms.patrimonio.can_manage_patrimonio %}
+    | <a href="{% url 'patrimonio_editar' patrimonio.pk %}">Editar</a>
+    {% endif %}
+</p>
+
+<h2>Dados do equipamento</h2>
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr><th>Etiqueta</th><td>{{ patrimonio.etiqueta }}</td></tr>
+    <tr><th>Numero de serie</th><td>{{ patrimonio.numero_serie|default:"-" }}</td></tr>
+    <tr><th>Tipo</th><td>{{ patrimonio.tipo|default:"-" }}</td></tr>
+    <tr><th>Marca</th><td>{{ patrimonio.marca|default:"-" }}</td></tr>
+    <tr><th>Modelo</th><td>{{ patrimonio.modelo|default:"-" }}</td></tr>
+    <tr><th>Descricao</th><td>{{ patrimonio.descricao|default:"-" }}</td></tr>
+    <tr><th>Setor</th><td>{{ patrimonio.setor|default:"-" }}</td></tr>
+    <tr><th>Usuario atual</th><td>{{ patrimonio.usuario_atual|default:"-" }}</td></tr>
+    <tr><th>Status</th><td><strong>{{ patrimonio.get_status_display }}</strong></td></tr>
+    <tr><th>Observacoes</th><td>{{ patrimonio.observacoes|default:"-" }}</td></tr>
+    <tr><th>Cadastrado por</th><td>{{ patrimonio.criado_por|default:"-" }}</td></tr>
+    <tr><th>Cadastrado em</th><td>{{ patrimonio.criado_em|date:"d/m/Y H:i" }}</td></tr>
+    <tr><th>Ultima atualizacao</th><td>{{ patrimonio.atualizado_em|date:"d/m/Y H:i" }}</td></tr>
+</table>
+
+<h2>Historico de movimentacoes</h2>
+{% if movimentacoes %}
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Usuario anterior</th>
+            <th>Usuario novo</th>
+            <th>Setor anterior</th>
+            <th>Setor novo</th>
+            <th>Status anterior</th>
+            <th>Status novo</th>
+            <th>Registrado por</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in movimentacoes %}
+        <tr>
+            <td>{{ m.data|date:"d/m/Y H:i" }}</td>
+            <td>{{ m.get_tipo_display }}</td>
+            <td>{{ m.usuario_anterior|default:"-" }}</td>
+            <td>{{ m.usuario_novo|default:"-" }}</td>
+            <td>{{ m.setor_anterior|default:"-" }}</td>
+            <td>{{ m.setor_novo|default:"-" }}</td>
+            <td>{{ m.status_anterior|default:"-" }}</td>
+            <td>{{ m.status_novo|default:"-" }}</td>
+            <td>{{ m.registrado_por|default:"-" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Nenhuma movimentacao registrada.</p>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuários</title>
+</head>
+<body>
+    <h1>Lista de Usuários</h1>
+
+    <p><a href="{% url 'painel' %}">Voltar ao painel</a></p>
+    <p><a href="{% url 'usuario_novo' %}">Novo usuário</a></p>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Nome completo</th>
+                <th>Usuário</th>
+                <th>E-mail</th>
+                <th>Login de rede</th>
+                <th>Setor</th>
+                <th>Ativo</th>
+                <th>Staff</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.nome_completo }}</td>
+                <td>{{ usuario.username }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>{{ usuario.login_rede }}</td>
+                <td>{{ usuario.setor|default:"-" }}</td>
+                <td>{% if usuario.ativo %}Sim{% else %}Não{% endif %}</td>
+                <td>{% if usuario.is_staff %}Sim{% else %}Não{% endif %}</td>
+                <td>
+                    <a href="{% url 'usuario_editar' usuario.pk %}">Editar</a>
+                    |
+                    <a href="{% url 'usuario_desativar' usuario.pk %}">Desativar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">Nenhum usuário encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

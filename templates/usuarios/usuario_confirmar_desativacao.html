@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Desativar usuário</title>
+</head>
+<body>
+    <h1>Desativar usuário</h1>
+
+    <p>Confirma a desativação do usuário abaixo?</p>
+
+    <ul>
+        <li><strong>Nome:</strong> {{ usuario.nome_completo }}</li>
+        <li><strong>Usuário:</strong> {{ usuario.username }}</li>
+        <li><strong>Login de rede:</strong> {{ usuario.login_rede }}</li>
+    </ul>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Confirmar desativação</button>
+    </form>
+
+    <p><a href="{% url 'usuario_lista' %}">Cancelar</a></p>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel</title>
+</head>
+<body>
+    <h1>Painel do Sistema de Gestao de TI</h1>
+    <p>Usuario logado: {{ request.user.nome_completo }}</p>
+    <p>Login de rede: {{ request.user.login_rede }}</p>
+    <ul>
+        <li><a href="/admin/">Ir para o administrador</a></li>
+        <li><a href="{% url 'usuario_lista' %}">Listar usuarios</a></li>
+        <li><a href="{% url 'patrimonio_lista' %}">Patrimonio</a></li>
+    </ul>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Sair</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login do Sistema</title>
+</head>
+<body>
+    <h1>Login do Sistema de Gestão de TI</h1>
+
+    {% if form.errors %}
+        <p style="color: red;">Usuário ou senha inválidos.</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Entrar</button>
+    </form>
+</body>
+</html>
