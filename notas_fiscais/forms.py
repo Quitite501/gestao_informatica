@@ -15,8 +15,15 @@ class NotaFiscalForm(forms.ModelForm):
             "observacoes",
         ]
         widgets = {
-            "data_emissao": forms.DateInput(attrs={"type": "date"}),
+            "data_emissao": forms.DateInput(
+                attrs={"type": "date"},
+                format="%Y-%m-%d",
+            ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["data_emissao"].input_formats = ["%Y-%m-%d"]
 
 
 class NotaFiscalFiltroForm(forms.Form):
