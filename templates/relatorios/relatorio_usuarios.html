@@ -1,52 +1,39 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>Relatório de Usuários</title></head>
-<body>
-  <h1>Relatório de Usuários</h1>
-  <p><a href="{% url 'painel' %}">Voltar ao painel</a></p>
-  <p>Total ativos: {{ ativos.count }} | Total inativos: {{ inativos.count }}</p>
-
-  <h2>Usuários Ativos ({{ ativos.count }})</h2>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Nome</th><th>Usuário</th><th>Login de rede</th><th>Setor</th><th>Cargo</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for u in ativos %}
-      <tr>
-        <td>{{ u.nome_completo }}</td>
-        <td>{{ u.username }}</td>
-        <td>{{ u.login_rede }}</td>
-        <td>{{ u.setor.nome|default:"-" }}</td>
-        <td>{{ u.cargo|default:"-" }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5">Nenhum usuário ativo.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h2>Usuários Inativos ({{ inativos.count }})</h2>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Nome</th><th>Usuário</th><th>Login de rede</th><th>Setor</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for u in inativos %}
-      <tr>
-        <td>{{ u.nome_completo }}</td>
-        <td>{{ u.username }}</td>
-        <td>{{ u.login_rede }}</td>
-        <td>{{ u.setor.nome|default:"-" }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="4">Nenhum usuário inativo.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Relatório de Usuários{% endblock %}
+{% block page_title %}Relatório de Usuários{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div class="grid grid-cols-2 gap-4">
+    <div class="card text-center">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Usuários ativos</p>
+      <p class="text-3xl font-semibold text-green-600 dark:text-green-400">{{ ativos.count }}</p>
+    </div>
+    <div class="card text-center">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Usuários inativos</p>
+      <p class="text-3xl font-semibold text-gray-400">{{ inativos.count }}</p>
+    </div>
+  </div>
+  <div class="card">
+    <h2 class="section-title">Ativos ({{ ativos.count }})</h2>
+    <table class="table-base">
+      <thead><tr><th>Nome</th><th>Usuário</th><th>Login de rede</th><th>Setor</th><th>Cargo</th></tr></thead>
+      <tbody>
+        {% for u in ativos %}
+        <tr><td class="font-medium text-gray-900 dark:text-gray-100">{{ u.nome_completo }}</td><td>{{ u.username }}</td><td>{{ u.login_rede }}</td><td>{{ u.setor.nome|default:"—" }}</td><td>{{ u.cargo|default:"—" }}</td></tr>
+        {% empty %}<tr><td colspan="5" class="text-center text-gray-400 py-4">Nenhum usuário ativo.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h2 class="section-title">Inativos ({{ inativos.count }})</h2>
+    <table class="table-base">
+      <thead><tr><th>Nome</th><th>Usuário</th><th>Login de rede</th><th>Setor</th></tr></thead>
+      <tbody>
+        {% for u in inativos %}
+        <tr><td class="font-medium text-gray-900 dark:text-gray-100">{{ u.nome_completo }}</td><td>{{ u.username }}</td><td>{{ u.login_rede }}</td><td>{{ u.setor.nome|default:"—" }}</td></tr>
+        {% empty %}<tr><td colspan="4" class="text-center text-gray-400 py-4">Nenhum usuário inativo.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

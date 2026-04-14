@@ -1,28 +1,61 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Encerrar Chamado</title>
-</head>
-<body>
-    <h1>Encerrar Chamado {{ chamado.pk }} - {{ chamado.titulo }}</h1>
+{% extends 'base.html' %}
 
-    <p><a href="{% url "chamado_detalhe" chamado.pk %}">Voltar para o chamado</a></p>
+{% block title %}Encerrar Chamado #{{ chamado.pk }} — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Encerrar Chamado #{{ chamado.pk }}{% endblock %}
 
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr><th>Solicitante</th><td>{{ chamado.solicitante.nome_completo }}</td></tr>
-        <tr><th>Categoria</th><td>{{ chamado.categoria.nome }}</td></tr>
-        <tr><th>Prioridade</th><td>{{ chamado.get_prioridade_display }}</td></tr>
-        <tr><th>Status atual</th><td>{{ chamado.get_status_display }}</td></tr>
-        <tr><th>Descrição</th><td>{{ chamado.descricao }}</td></tr>
-    </table>
+{% block topbar_actions %}
+  <a href="{% url 'chamado_detalhe' chamado.pk %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+{% endblock %}
 
-    <br>
+{% block content %}
+<div class="max-w-2xl space-y-6">
+  <div class="card">
+    <h2 class="section-title">Dados do chamado</h2>
+    <dl class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+      <div>
+        <dt class="text-gray-500 dark:text-gray-400">Solicitante</dt>
+        <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.solicitante.nome_completo }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 dark:text-gray-400">Categoria</dt>
+        <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.categoria.nome }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 dark:text-gray-400">Prioridade</dt>
+        <dd class="mt-0.5"><span class="badge-{{ chamado.prioridade }}">{{ chamado.get_prioridade_display }}</span></dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 dark:text-gray-400">Status</dt>
+        <dd class="mt-0.5"><span class="badge-{{ chamado.status }}">{{ chamado.get_status_display }}</span></dd>
+      </div>
+      <div class="col-span-2">
+        <dt class="text-gray-500 dark:text-gray-400">Descrição</dt>
+        <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.descricao }}</dd>
+      </div>
+    </dl>
+  </div>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Confirmar encerramento</button>
+  <div class="card">
+    <h2 class="section-title">Solução técnica</h2>
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ field.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <div class="flex items-center gap-3 pt-2">
+        <button type="submit" class="btn-primary">Confirmar encerramento</button>
+        <a href="{% url 'chamado_detalhe' chamado.pk %}" class="btn-secondary">Cancelar</a>
+      </div>
     </form>
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}

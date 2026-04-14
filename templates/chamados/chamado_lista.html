@@ -1,61 +1,78 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Chamados</title>
-</head>
-<body>
-    <h1>Lista de Chamados</h1>
+{% extends 'base.html' %}
 
-    <p><a href="{% url "painel" %}">Voltar ao painel</a></p>
+{% block title %}Chamados — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Chamados{% endblock %}
 
-    {% if perms.chamados.can_manage_chamados %}
-    <p><a href="{% url "chamado_novo" %}">Novo Chamado</a></p>
-    {% endif %}
+{% block topbar_actions %}
+  {% if perms.chamados.can_manage_chamados %}
+  <a href="{% url 'chamado_novo' %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo chamado
+  </a>
+  {% endif %}
+{% endblock %}
 
-    <form method="get">
-        {{ form_filtro.status.label_tag }} {{ form_filtro.status }}
-        {{ form_filtro.categoria.label_tag }} {{ form_filtro.categoria }}
-        {{ form_filtro.prioridade.label_tag }} {{ form_filtro.prioridade }}
-        <button type="submit">Filtrar</button>
-        <a href="{% url "chamado_lista" %}">Limpar</a>
+{% block content %}
+<div class="space-y-4">
+
+  <div class="card">
+    <form method="get" class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="form-label">Status</label>
+        {{ form_filtro.status }}
+      </div>
+      <div>
+        <label class="form-label">Categoria</label>
+        {{ form_filtro.categoria }}
+      </div>
+      <div>
+        <label class="form-label">Prioridade</label>
+        {{ form_filtro.prioridade }}
+      </div>
+      <div class="flex gap-2">
+        <button type="submit" class="btn-primary">Filtrar</button>
+        <a href="{% url 'chamado_lista' %}" class="btn-secondary">Limpar</a>
+      </div>
     </form>
+  </div>
 
-    <br>
-
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Número</th>
-                <th>Título</th>
-                <th>Solicitante</th>
-                <th>Categoria</th>
-                <th>Prioridade</th>
-                <th>Status</th>
-                <th>Técnico</th>
-                <th>Aberto em</th>
-                <th>Ação</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for chamado in chamados %}
-            <tr>
-                <td>{{ chamado.pk }}</td>
-                <td><a href="{% url "chamado_detalhe" chamado.pk %}">{{ chamado.titulo }}</a></td>
-                <td>{{ chamado.solicitante.nome_completo }}</td>
-                <td>{{ chamado.categoria.nome }}</td>
-                <td>{{ chamado.get_prioridade_display }}</td>
-                <td>{{ chamado.get_status_display }}</td>
-                <td>{{ chamado.tecnico.nome_completo|default:"-" }}</td>
-                <td>{{ chamado.criado_em|date:"d/m/Y H:i" }}</td>
-                <td><a href="{% url "chamado_detalhe" chamado.pk %}">Ver</a></td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="9">Nenhum chamado encontrado.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+  <div class="card">
+    <table class="table-base">
+      <thead>
+        <tr>
+          <th>Nº</th>
+          <th>Título</th>
+          <th>Solicitante</th>
+          <th>Categoria</th>
+          <th>Prioridade</th>
+          <th>Status</th>
+          <th>Técnico</th>
+          <th>Aberto em</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for chamado in chamados %}
+        <tr>
+          <td class="text-gray-500 dark:text-gray-400">#{{ chamado.pk }}</td>
+          <td class="font-medium text-gray-900 dark:text-gray-100">{{ chamado.titulo }}</td>
+          <td>{{ chamado.solicitante.nome_completo }}</td>
+          <td>{{ chamado.categoria.nome }}</td>
+          <td><span class="badge-{{ chamado.prioridade }}">{{ chamado.get_prioridade_display }}</span></td>
+          <td><span class="badge-{{ chamado.status }}">{{ chamado.get_status_display }}</span></td>
+          <td>{{ chamado.tecnico.nome_completo|default:"—" }}</td>
+          <td class="text-gray-500 dark:text-gray-400">{{ chamado.criado_em|date:"d/m/Y H:i" }}</td>
+          <td>
+            <a href="{% url 'chamado_detalhe' chamado.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Ver</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum chamado encontrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}

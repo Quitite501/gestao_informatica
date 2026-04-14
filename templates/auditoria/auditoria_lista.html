@@ -1,61 +1,77 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>Auditoria</title></head>
-<body>
-  <h1>Registros de Auditoria</h1>
-  <p><a href="{% url 'painel' %}">Voltar ao painel</a></p>
-
-  <form method="get">
-    <label>Modelo:</label>
-    <input type="text" name="modelo" value="{{ filtro_modelo }}">
-
-    <label>Ação:</label>
-    <select name="acao">
-      <option value="">Todas</option>
-      {% for val, label in acoes %}
-      <option value="{{ val }}" {% if filtro_acao == val %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
-
-    <label>Usuário:</label>
-    <select name="usuario">
-      <option value="">Todos</option>
-      {% for u in usuarios %}
-      <option value="{{ u.pk }}" {% if filtro_usuario == u.pk|stringformat:"s" %}selected{% endif %}>{{ u.nome_completo }}</option>
-      {% endfor %}
-    </select>
-
-    <button type="submit">Filtrar</button>
-    <a href="{% url 'auditoria_lista' %}">Limpar</a>
-  </form>
-
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Data/Hora</th>
-        <th>Usuário</th>
-        <th>Ação</th>
-        <th>Modelo</th>
-        <th>ID</th>
-        <th>Descrição</th>
-        <th>IP</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in registros %}
-      <tr>
-        <td>{{ r.criado_em|date:"d/m/Y H:i" }}</td>
-        <td>{{ r.usuario.nome_completo|default:"Sistema" }}</td>
-        <td>{{ r.get_acao_display }}</td>
-        <td>{{ r.modelo_afetado }}</td>
-        <td>{{ r.objeto_id }}</td>
-        <td>{{ r.descricao }}</td>
-        <td>{{ r.ip|default:"-" }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="7">Nenhum registro encontrado.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Auditoria — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Registros de Auditoria{% endblock %}
+{% block content %}
+<div class="space-y-4">
+  <div class="card">
+    <form method="get" class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="form-label">Modelo</label>
+        <input type="text" name="modelo" value="{{ filtro_modelo }}" placeholder="Ex: Usuario" class="form-input w-40">
+      </div>
+      <div>
+        <label class="form-label">Ação</label>
+        <select name="acao" class="form-input">
+          <option value="">Todas</option>
+          {% for val, label in acoes %}
+          <option value="{{ val }}" {% if filtro_acao == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Usuário</label>
+        <select name="usuario" class="form-input">
+          <option value="">Todos</option>
+          {% for u in usuarios %}
+          <option value="{{ u.pk }}" {% if filtro_usuario == u.pk|stringformat:"s" %}selected{% endif %}>{{ u.nome_completo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex gap-2">
+        <button type="submit" class="btn-primary">Filtrar</button>
+        <a href="{% url 'auditoria_lista' %}" class="btn-secondary">Limpar</a>
+      </div>
+    </form>
+  </div>
+  <div class="card">
+    <table class="table-base">
+      <thead>
+        <tr>
+          <th>Data/Hora</th>
+          <th>Usuário</th>
+          <th>Ação</th>
+          <th>Modelo</th>
+          <th>ID</th>
+          <th>Descrição</th>
+          <th>IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in registros %}
+        <tr>
+          <td class="text-gray-500 dark:text-gray-400">{{ r.criado_em|date:"d/m/Y H:i" }}</td>
+          <td>{{ r.usuario.nome_completo|default:"Sistema" }}</td>
+          <td>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+              {% if r.acao == 'criacao' %}bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300
+              {% elif r.acao == 'edicao' %}bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300
+              {% elif r.acao == 'desativacao' %}bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300
+              {% elif r.acao == 'encerramento' %}bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300
+              {% elif r.acao == 'reabertura' %}bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300
+              {% else %}bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400{% endif %}">
+              {{ r.get_acao_display }}
+            </span>
+          </td>
+          <td>{{ r.modelo_afetado }}</td>
+          <td class="text-gray-500 dark:text-gray-400">{{ r.objeto_id }}</td>
+          <td>{{ r.descricao }}</td>
+          <td class="text-gray-500 dark:text-gray-400">{{ r.ip|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum registro encontrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

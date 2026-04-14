@@ -35,3 +35,16 @@
   .page-title { @apply text-xl font-semibold text-gray-900 dark:text-gray-100; }
   .section-title { @apply text-base font-medium text-gray-900 dark:text-gray-100 mb-4; }
 }
+
+@layer base {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="search"],
+  select,
+  textarea {
+    @apply dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400;
+  }
+}

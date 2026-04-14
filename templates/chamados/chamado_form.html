@@ -1,22 +1,38 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ titulo }}</title>
-</head>
-<body>
-    <h1>{{ titulo }}</h1>
+{% extends 'base.html' %}
 
-    <p><a href="{% url "chamado_lista" %}">Voltar para a lista</a></p>
+{% block title %}{{ titulo }} — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}{{ titulo }}{% endblock %}
 
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <p>
-            <label for="anexo">Anexo (opcional):</label>
-            <input type="file" name="anexo" id="anexo">
-        </p>
-        <button type="submit">Salvar</button>
+{% block topbar_actions %}
+  <a href="{% url 'chamado_lista' %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <div class="card">
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ field.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <div>
+        <label class="form-label">Anexo (opcional)</label>
+        <input type="file" name="anexo" class="block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/30 dark:file:text-blue-300 hover:file:bg-blue-100">
+      </div>
+      <div class="flex items-center gap-3 pt-2">
+        <button type="submit" class="btn-primary">Salvar</button>
+        <a href="{% url 'chamado_lista' %}" class="btn-secondary">Cancelar</a>
+      </div>
     </form>
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}

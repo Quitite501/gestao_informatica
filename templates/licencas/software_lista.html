@@ -1,49 +1,57 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>Softwares</title></head>
-<body>
-  <h1>Softwares</h1>
-  <p><a href="{% url "painel" %}">Voltar ao painel</a></p>
-  <p><a href="{% url "relatorio_conformidade" %}">Relatório de Conformidade</a></p>
-  {% if perms.licencas.add_software %}
-  <p><a href="{% url "software_novo" %}">Novo Software</a></p>
-  {% endif %}
+{% extends 'base.html' %}
 
-  <form method="get">
-    {{ form_filtro.nome.label_tag }} {{ form_filtro.nome }}
-    {{ form_filtro.fabricante.label_tag }} {{ form_filtro.fabricante }}
-    {{ form_filtro.controlado.label_tag }} {{ form_filtro.controlado }}
-    <button type="submit">Filtrar</button>
-    <a href="{% url "software_lista" %}">Limpar</a>
-  </form>
+{% block title %}Softwares e Licenças — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Softwares e Licenças{% endblock %}
 
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead><tr>
-      <th>Nome</th><th>Fabricante</th><th>Versão</th><th>Tipo</th>
-      <th>Controlado</th><th>Adquirido</th><th>Instalado</th><th>Saldo</th><th>Ações</th>
-    </tr></thead>
+{% block topbar_actions %}
+  <a href="{% url 'software_novo' %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo software
+  </a>
+  <a href="{% url 'relatorio_conformidade' %}" class="btn-secondary">Conformidade</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <table class="table-base">
+    <thead>
+      <tr>
+        <th>Software</th>
+        <th>Fabricante</th>
+        <th>Adquiridas</th>
+        <th>Instaladas</th>
+        <th>Saldo</th>
+        <th>Situação</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
     <tbody>
       {% for sw in softwares %}
       <tr>
-        <td><a href="{% url "software_detalhe" sw.pk %}">{{ sw.nome }}</a></td>
-        <td>{{ sw.fabricante|default:"-" }}</td>
-        <td>{{ sw.versao|default:"-" }}</td>
-        <td>{{ sw.get_tipo_licenca_display }}</td>
-        <td>{% if sw.controlado %}Sim{% else %}Não{% endif %}</td>
+        <td class="font-medium text-gray-900 dark:text-gray-100">{{ sw.nome }}</td>
+        <td>{{ sw.fabricante|default:"—" }}</td>
         <td>{{ sw.total_adquirido }}</td>
         <td>{{ sw.total_instalado }}</td>
         <td>{{ sw.saldo }}</td>
         <td>
-          <a href="{% url "software_detalhe" sw.pk %}">Ver</a>
-          {% if perms.licencas.change_software %}
-          | <a href="{% url "software_editar" sw.pk %}">Editar</a>
+          {% if sw.situacao == "OK" %}
+          <span class="badge-encerrado">OK</span>
+          {% elif "FALTAM" in sw.situacao %}
+          <span class="badge-critica">{{ sw.situacao }}</span>
+          {% else %}
+          <span class="badge-media">{{ sw.situacao }}</span>
           {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'software_detalhe' sw.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Ver</a>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="9">Nenhum software encontrado.</td></tr>
+      <tr>
+        <td colspan="7" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum software cadastrado.</td>
+      </tr>
       {% endfor %}
     </tbody>
   </table>
-</body>
-</html>
+</div>
+{% endblock %}

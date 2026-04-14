@@ -1,13 +1,34 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>{{ titulo }}</title></head>
-<body>
-  <h1>{{ titulo }}</h1>
-  <p><a href="{% url "nota_fiscal_lista" %}">Voltar para a lista</a></p>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Salvar</button>
-  </form>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'nota_fiscal_lista' %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <div class="card">
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ field.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <div class="flex items-center gap-3 pt-2">
+        <button type="submit" class="btn-primary">Salvar</button>
+        <a href="{% url 'nota_fiscal_lista' %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

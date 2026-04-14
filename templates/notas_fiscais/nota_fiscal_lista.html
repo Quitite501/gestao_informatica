@@ -1,45 +1,49 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>Notas Fiscais</title></head>
-<body>
-  <h1>Notas Fiscais</h1>
-  <p><a href="{% url "painel" %}">Voltar ao painel</a></p>
-  {% if perms.notas_fiscais.add_notafiscal %}
-  <p><a href="{% url "nota_fiscal_nova" %}">Nova Nota Fiscal</a></p>
-  {% endif %}
+{% extends 'base.html' %}
 
-  <form method="get">
-    {{ form_filtro.numero.label_tag }} {{ form_filtro.numero }}
-    {{ form_filtro.fornecedor.label_tag }} {{ form_filtro.fornecedor }}
-    {{ form_filtro.data_de.label_tag }} {{ form_filtro.data_de }}
-    {{ form_filtro.data_ate.label_tag }} {{ form_filtro.data_ate }}
-    <button type="submit">Filtrar</button>
-    <a href="{% url "nota_fiscal_lista" %}">Limpar</a>
-  </form>
+{% block title %}Notas Fiscais — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Notas Fiscais{% endblock %}
 
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead><tr>
-      <th>Número</th><th>Fornecedor</th><th>Data de emissão</th>
-      <th>Valor total</th><th>Ações</th>
-    </tr></thead>
-    <tbody>
-      {% for nota in notas %}
+{% block topbar_actions %}
+  <a href="{% url 'nota_fiscal_nova' %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Nova nota fiscal
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <table class="table-base">
+    <thead>
       <tr>
-        <td>{{ nota.numero }}</td>
-        <td>{{ nota.fornecedor }}</td>
-        <td>{{ nota.data_emissao|date:"d/m/Y" }}</td>
-        <td>R$ {{ nota.valor_total }}</td>
+        <th>Número</th>
+        <th>Fornecedor</th>
+        <th>Data de emissão</th>
+        <th>Valor total</th>
+        <th>Patrimônios</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for nf in notas %}
+      <tr>
+        <td class="font-medium text-gray-900 dark:text-gray-100">{{ nf.numero }}</td>
+        <td>{{ nf.fornecedor }}</td>
+        <td>{{ nf.data_emissao|date:"d/m/Y" }}</td>
+        <td>R$ {{ nf.valor_total|floatformat:2 }}</td>
+        <td>{{ nf.patrimonios.count }}</td>
         <td>
-          <a href="{% url "nota_fiscal_detalhe" nota.pk %}">Ver</a>
-          {% if perms.notas_fiscais.change_notafiscal %}
-          | <a href="{% url "nota_fiscal_editar" nota.pk %}">Editar</a>
-          {% endif %}
+          <div class="flex items-center gap-3">
+            <a href="{% url 'nota_fiscal_detalhe' nf.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Ver</a>
+            <a href="{% url 'nota_fiscal_editar' nf.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Editar</a>
+          </div>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="5">Nenhuma nota fiscal encontrada.</td></tr>
+      <tr>
+        <td colspan="6" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhuma nota fiscal encontrada.</td>
+      </tr>
       {% endfor %}
     </tbody>
   </table>
-</body>
-</html>
+</div>
+{% endblock %}

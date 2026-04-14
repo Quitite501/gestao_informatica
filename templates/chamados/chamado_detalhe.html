@@ -1,65 +1,117 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Chamado {{ chamado.pk }}</title>
-</head>
-<body>
-    <h1>Chamado {{ chamado.pk }} - {{ chamado.titulo }}</h1>
+{% extends 'base.html' %}
 
-    <p><a href="{% url "chamado_lista" %}">Voltar para a lista</a></p>
+{% block title %}Chamado #{{ chamado.pk }} — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Chamado #{{ chamado.pk }}{% endblock %}
 
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr><th>Solicitante</th><td>{{ chamado.solicitante.nome_completo }}</td></tr>
-        <tr><th>Categoria</th><td>{{ chamado.categoria.nome }}</td></tr>
-        <tr><th>Prioridade</th><td>{{ chamado.get_prioridade_display }}</td></tr>
-        <tr><th>Status</th><td>{{ chamado.get_status_display }}</td></tr>
-        <tr><th>Técnico</th><td>{{ chamado.tecnico.nome_completo|default:"Não atribuído" }}</td></tr>
-        <tr><th>Aberto em</th><td>{{ chamado.criado_em|date:"d/m/Y H:i" }}</td></tr>
-        <tr><th>Atualizado em</th><td>{{ chamado.atualizado_em|date:"d/m/Y H:i" }}</td></tr>
-        {% if chamado.encerrado_em %}
-        <tr><th>Encerrado em</th><td>{{ chamado.encerrado_em|date:"d/m/Y H:i" }}</td></tr>
-        <tr><th>Encerrado por</th><td>{{ chamado.encerrado_por.nome_completo|default:"-" }}</td></tr>
-        {% endif %}
-        <tr><th>Descrição</th><td>{{ chamado.descricao }}</td></tr>
-        {% if chamado.solucao_tecnica %}
-        <tr><th>Solução técnica</th><td>{{ chamado.solucao_tecnica }}</td></tr>
-        {% endif %}
-    </table>
+{% block topbar_actions %}
+  <a href="{% url 'chamado_lista' %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+{% endblock %}
 
-    <h2>Anexos</h2>
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <div class="lg:col-span-2 space-y-6">
+    <div class="card">
+      <div class="flex items-start justify-between mb-4">
+        <h2 class="section-title mb-0">{{ chamado.titulo }}</h2>
+        <div class="flex items-center gap-2">
+          <span class="badge-{{ chamado.prioridade }}">{{ chamado.get_prioridade_display }}</span>
+          <span class="badge-{{ chamado.status }}">{{ chamado.get_status_display }}</span>
+        </div>
+      </div>
+      <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-6">{{ chamado.descricao }}</p>
+
+      {% if chamado.solucao_tecnica %}
+      <div class="border-t border-gray-100 dark:border-gray-800 pt-4">
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Solução técnica</p>
+        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{{ chamado.solucao_tecnica }}</p>
+      </div>
+      {% endif %}
+    </div>
+
     {% if anexos %}
-    <ul>
-        {% for anexo in anexos %}
-        <li><a href="{{ anexo.arquivo.url }}">{{ anexo.arquivo.name }}</a> - {{ anexo.enviado_em|date:"d/m/Y H:i" }}</li>
+    <div class="card">
+      <h2 class="section-title">Anexos</h2>
+      <ul class="space-y-2">
+        {% for a in anexos %}
+        <li>
+          <a href="{{ a.arquivo.url }}" target="_blank" class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            {{ a.arquivo.name|slice:"8:" }}
+            <span class="text-gray-400 dark:text-gray-500">{{ a.enviado_em|date:"d/m/Y H:i" }}</span>
+          </a>
+        </li>
         {% endfor %}
-    </ul>
-    {% else %}
-    <p>Nenhum anexo.</p>
+      </ul>
+    </div>
     {% endif %}
 
-    <h2>Ações</h2>
-    {% if perms.chamados.can_manage_chamados %}
-        {% if chamado.status == "aberto" %}
-        <form method="post" action="{% url "chamado_atender" chamado.pk %}">
+    <div class="card">
+      <h2 class="section-title">Ações</h2>
+      <div class="flex flex-wrap gap-3">
+        {% if perms.chamados.can_manage_chamados %}
+          {% if chamado.status == "aberto" %}
+          <form method="post" action="{% url 'chamado_atender' chamado.pk %}">
             {% csrf_token %}
-            <button type="submit">Assumir atendimento</button>
-        </form>
+            <button type="submit" class="btn-primary">Assumir atendimento</button>
+          </form>
+          {% endif %}
+          {% if chamado.status == "em_atendimento" or chamado.status == "aguardando_usuario" %}
+          <a href="{% url 'chamado_encerrar' chamado.pk %}" class="btn-primary">Encerrar chamado</a>
+          {% endif %}
         {% endif %}
-
-        {% if chamado.status == "em_atendimento" or chamado.status == "aguardando_usuario" %}
-        <p><a href="{% url "chamado_encerrar" chamado.pk %}">Encerrar chamado</a></p>
-        {% endif %}
-    {% endif %}
-
-    {% if chamado.status == "encerrado" %}
-        {% if chamado.solicitante == request.user or perms.usuarios.change_usuario %}
-        <form method="post" action="{% url "chamado_reabrir" chamado.pk %}">
+        {% if chamado.status == "encerrado" %}
+          {% if chamado.solicitante == request.user or perms.usuarios.change_usuario %}
+          <form method="post" action="{% url 'chamado_reabrir' chamado.pk %}">
             {% csrf_token %}
-            <button type="submit">Reabrir chamado</button>
-        </form>
+            <button type="submit" class="btn-secondary">Reabrir chamado</button>
+          </form>
+          {% endif %}
         {% endif %}
-    {% endif %}
+      </div>
+    </div>
+  </div>
 
-</body>
-</html>
+  <div class="space-y-6">
+    <div class="card">
+      <h2 class="section-title">Informações</h2>
+      <dl class="space-y-3 text-sm">
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Solicitante</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.solicitante.nome_completo }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Categoria</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.categoria.nome }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Técnico responsável</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.tecnico.nome_completo|default:"Não atribuído" }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Aberto em</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.criado_em|date:"d/m/Y H:i" }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Atualizado em</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.atualizado_em|date:"d/m/Y H:i" }}</dd>
+        </div>
+        {% if chamado.encerrado_em %}
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Encerrado em</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.encerrado_em|date:"d/m/Y H:i" }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Encerrado por</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ chamado.encerrado_por.nome_completo|default:"—" }}</dd>
+        </div>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,57 +1,109 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>NF {{ nota.numero }}</title></head>
-<body>
-  <h1>Nota Fiscal {{ nota.numero }}</h1>
-  <p><a href="{% url "nota_fiscal_lista" %}">Voltar para a lista</a></p>
-  {% if perms.notas_fiscais.change_notafiscal %}
-  <p><a href="{% url "nota_fiscal_editar" nota.pk %}">Editar</a></p>
-  {% endif %}
+{% extends 'base.html' %}
 
-  <table border="1" cellpadding="8" cellspacing="0">
-    <tr><th>Número</th><td>{{ nota.numero }}</td></tr>
-    <tr><th>Fornecedor</th><td>{{ nota.fornecedor }}</td></tr>
-    <tr><th>Data de emissão</th><td>{{ nota.data_emissao|date:"d/m/Y" }}</td></tr>
-    <tr><th>Valor total</th><td>R$ {{ nota.valor_total }}</td></tr>
-    <tr><th>Observações</th><td>{{ nota.observacoes|default:"-" }}</td></tr>
-    <tr><th>Arquivo PDF</th><td>{% if nota.arquivo_pdf %}<a href="{{ nota.arquivo_pdf.url }}">Download PDF</a>{% else %}-{% endif %}</td></tr>
-    <tr><th>Arquivo XML</th><td>{% if nota.arquivo_xml %}<a href="{{ nota.arquivo_xml.url }}">Download XML</a>{% else %}-{% endif %}</td></tr>
-    <tr><th>Cadastrado por</th><td>{{ nota.criado_por.nome_completo|default:"-" }}</td></tr>
-    <tr><th>Cadastrado em</th><td>{{ nota.criado_em|date:"d/m/Y H:i" }}</td></tr>
-  </table>
+{% block title %}NF {{ nota.numero }} — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Nota Fiscal {{ nota.numero }}{% endblock %}
 
-  <h2>Patrimônios vinculados</h2>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead><tr><th>Etiqueta</th><th>Tipo</th><th>Modelo</th><th>Usuário atual</th><th>Status</th></tr></thead>
-    <tbody>
-      {% for p in patrimonios %}
-      <tr>
-        <td>{{ p.etiqueta }}</td>
-        <td>{{ p.tipo|default:"-" }}</td>
-        <td>{{ p.modelo|default:"-" }}</td>
-        <td>{{ p.usuario_atual.nome_completo|default:"-" }}</td>
-        <td>{{ p.get_status_display }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5">Nenhum patrimônio vinculado.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% block topbar_actions %}
+  <a href="{% url 'nota_fiscal_editar' nota.pk %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Editar
+  </a>
+  <a href="{% url 'nota_fiscal_lista' %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+{% endblock %}
 
-  <h2>Licenças vinculadas</h2>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead><tr><th>Software</th><th>Quantidade</th><th>Vencimento</th></tr></thead>
-    <tbody>
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <div class="lg:col-span-2 space-y-6">
+    <div class="card">
+      <h2 class="section-title">Dados da nota fiscal</h2>
+      <dl class="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Número</dt>
+          <dd class="font-medium text-gray-900 dark:text-gray-100 mt-0.5">{{ nota.numero }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Fornecedor</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ nota.fornecedor }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Data de emissão</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ nota.data_emissao|date:"d/m/Y" }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Valor total</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">R$ {{ nota.valor_total|floatformat:2 }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Arquivo PDF</dt>
+          <dd class="mt-0.5">
+            {% if nota.arquivo_pdf %}
+            <a href="{{ nota.arquivo_pdf.url }}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline text-sm">Download PDF</a>
+            {% else %}—{% endif %}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 dark:text-gray-400">Arquivo XML</dt>
+          <dd class="mt-0.5">
+            {% if nota.arquivo_xml %}
+            <a href="{{ nota.arquivo_xml.url }}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline text-sm">Download XML</a>
+            {% else %}—{% endif %}
+          </dd>
+        </div>
+        {% if nota.observacoes %}
+        <div class="col-span-2">
+          <dt class="text-gray-500 dark:text-gray-400">Observações</dt>
+          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ nota.observacoes }}</dd>
+        </div>
+        {% endif %}
+      </dl>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Patrimônios vinculados</h2>
+      <table class="table-base">
+        <thead>
+          <tr>
+            <th>Etiqueta</th>
+            <th>Tipo</th>
+            <th>Modelo</th>
+            <th>Usuário atual</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in patrimonios %}
+          <tr>
+            <td><a href="{% url 'patrimonio_detalhe' p.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ p.etiqueta }}</a></td>
+            <td>{{ p.tipo|default:"—" }}</td>
+            <td>{{ p.modelo|default:"—" }}</td>
+            <td>{{ p.usuario_atual.nome_completo|default:"—" }}</td>
+            <td><span class="badge-{{ p.status }}">{{ p.get_status_display }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center text-gray-400 dark:text-gray-500 py-4">Nenhum patrimônio vinculado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <div class="card">
+      <h2 class="section-title">Licenças vinculadas</h2>
       {% for lic in licencas %}
-      <tr>
-        <td><a href="{% url "software_detalhe" lic.software.pk %}">{{ lic.software }}</a></td>
-        <td>{{ lic.quantidade_adquirida }}</td>
-        <td>{{ lic.data_vencimento|date:"d/m/Y"|default:"-" }}</td>
-      </tr>
+      <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0 text-sm">
+        <a href="{% url 'software_detalhe' lic.software.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ lic.software }}</a>
+        <span class="text-gray-500 dark:text-gray-400">{{ lic.quantidade_adquirida }} lic.</span>
+      </div>
       {% empty %}
-      <tr><td colspan="3">Nenhuma licença vinculada.</td></tr>
+      <p class="text-sm text-gray-400 dark:text-gray-500">Nenhuma licença vinculada.</p>
       {% endfor %}
-    </tbody>
-  </table>
-</body>
-</html>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

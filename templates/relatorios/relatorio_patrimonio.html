@@ -1,53 +1,44 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>Relatório de Patrimônio</title></head>
-<body>
-  <h1>Relatório de Patrimônio</h1>
-  <p><a href="{% url 'painel' %}">Voltar ao painel</a></p>
-
-  <h2>Por Status</h2>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead><tr><th>Status</th><th>Total</th></tr></thead>
-    <tbody>
-      {% for item in por_status %}
-      <tr><td>{{ item.status }}</td><td>{{ item.total }}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h2>Por Setor</h2>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead><tr><th>Setor</th><th>Total</th></tr></thead>
-    <tbody>
-      {% for item in por_setor %}
-      <tr><td>{{ item.setor__nome|default:"Sem setor" }}</td><td>{{ item.total }}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h2>Lista Completa</h2>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Etiqueta</th><th>Hostname</th><th>Tipo</th>
-        <th>Marca/Modelo</th><th>Status</th><th>Setor</th><th>Usuário atual</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for pat in patrimonios %}
-      <tr>
-        <td>{{ pat.etiqueta }}</td>
-        <td>{{ pat.hostname|default:"-" }}</td>
-        <td>{{ pat.tipo.nome }}</td>
-        <td>{{ pat.marca }} {{ pat.modelo }}</td>
-        <td>{{ pat.get_status_display }}</td>
-        <td>{{ pat.setor.nome|default:"-" }}</td>
-        <td>{{ pat.usuario_atual.nome_completo|default:"-" }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="7">Nenhum patrimônio encontrado.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Relatório de Patrimônio{% endblock %}
+{% block page_title %}Relatório de Patrimônio{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div class="grid grid-cols-2 gap-4">
+    <div class="card">
+      <h2 class="section-title">Por Status</h2>
+      <table class="table-base">
+        <thead><tr><th>Status</th><th>Total</th></tr></thead>
+        <tbody>{% for item in por_status %}<tr><td>{{ item.status }}</td><td>{{ item.total }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2 class="section-title">Por Setor</h2>
+      <table class="table-base">
+        <thead><tr><th>Setor</th><th>Total</th></tr></thead>
+        <tbody>{% for item in por_setor %}<tr><td>{{ item.setor__nome|default:"Sem setor" }}</td><td>{{ item.total }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h2 class="section-title">Lista Completa</h2>
+    <table class="table-base">
+      <thead><tr><th>Etiqueta</th><th>Hostname</th><th>Tipo</th><th>Marca/Modelo</th><th>Status</th><th>Setor</th><th>Usuário atual</th></tr></thead>
+      <tbody>
+        {% for pat in patrimonios %}
+        <tr>
+          <td><a href="{% url 'patrimonio_detalhe' pat.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ pat.etiqueta }}</a></td>
+          <td>{{ pat.hostname|default:"—" }}</td>
+          <td>{{ pat.tipo.nome }}</td>
+          <td>{{ pat.marca }} {{ pat.modelo }}</td>
+          <td><span class="badge-{{ pat.status }}">{{ pat.get_status_display }}</span></td>
+          <td>{{ pat.setor.nome|default:"—" }}</td>
+          <td>{{ pat.usuario_atual.nome_completo|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-gray-400 py-4">Nenhum patrimônio.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

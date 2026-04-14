@@ -1,50 +1,63 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Usuários</title>
-</head>
-<body>
-    <h1>Lista de Usuários</h1>
+{% extends 'base.html' %}
 
-    <p><a href="{% url 'painel' %}">Voltar ao painel</a></p>
-    <p><a href="{% url 'usuario_novo' %}">Novo usuário</a></p>
+{% block title %}Usuários — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Usuários{% endblock %}
 
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Nome completo</th>
-                <th>Usuário</th>
-                <th>E-mail</th>
-                <th>Login de rede</th>
-                <th>Setor</th>
-                <th>Ativo</th>
-                <th>Staff</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for usuario in usuarios %}
-            <tr>
-                <td>{{ usuario.nome_completo }}</td>
-                <td>{{ usuario.username }}</td>
-                <td>{{ usuario.email }}</td>
-                <td>{{ usuario.login_rede }}</td>
-                <td>{{ usuario.setor|default:"-" }}</td>
-                <td>{% if usuario.ativo %}Sim{% else %}Não{% endif %}</td>
-                <td>{% if usuario.is_staff %}Sim{% else %}Não{% endif %}</td>
-                <td>
-                    <a href="{% url 'usuario_editar' usuario.pk %}">Editar</a>
-                    |
-                    <a href="{% url 'usuario_desativar' usuario.pk %}">Desativar</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8">Nenhum usuário encontrado.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% block topbar_actions %}
+  {% if perms.usuarios.add_usuario %}
+  <a href="{% url 'usuario_novo' %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo usuário
+  </a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <table class="table-base">
+    <thead>
+      <tr>
+        <th>Nome completo</th>
+        <th>Usuário</th>
+        <th>Login de rede</th>
+        <th>Setor</th>
+        <th>Ramal</th>
+        <th>Situação</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for usuario in usuarios %}
+      <tr>
+        <td class="font-medium text-gray-900 dark:text-gray-100">{{ usuario.nome_completo }}</td>
+        <td>{{ usuario.username }}</td>
+        <td>{{ usuario.login_rede }}</td>
+        <td>{{ usuario.setor.nome|default:"—" }}</td>
+        <td>{{ usuario.ramal|default:"—" }}</td>
+        <td>
+          {% if usuario.ativo %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">Ativo</span>
+          {% else %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">Inativo</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="flex items-center gap-3">
+            {% if perms.usuarios.change_usuario %}
+            <a href="{% url 'usuario_editar' usuario.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Editar</a>
+            {% if usuario.ativo %}
+            <a href="{% url 'usuario_desativar' usuario.pk %}" class="text-sm text-red-600 dark:text-red-400 hover:underline">Desativar</a>
+            {% endif %}
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum usuário encontrado.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

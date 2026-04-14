@@ -1,65 +1,83 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Patrimonio - Sistema de Gestao de TI</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<h1>Patrimonio</h1>
+{% block title %}Patrimônio — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Patrimônio{% endblock %}
 
-<p>
-    <a href="{% url 'painel' %}">Painel</a>
-    {% if perms.patrimonio.can_manage_patrimonio %}
-    | <a href="{% url 'patrimonio_novo' %}">+ Novo patrimonio</a>
-    {% endif %}
-</p>
+{% block topbar_actions %}
+  {% if perms.patrimonio.can_manage_patrimonio %}
+  <a href="{% url 'patrimonio_novo' %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo patrimônio
+  </a>
+  {% endif %}
+{% endblock %}
 
-<form method="get">
-    Etiqueta: {{ form_filtro.etiqueta }}
-    Tipo: {{ form_filtro.tipo }}
-    Status: {{ form_filtro.status }}
-    <button type="submit">Filtrar</button>
-    <a href="{% url 'patrimonio_lista' %}">Limpar</a>
-</form>
+{% block content %}
+<div class="space-y-4">
 
-<p>Total encontrado: <strong>{{ total }}</strong></p>
+  <div class="card">
+    <form method="get" class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="form-label">Etiqueta</label>
+        {{ form_filtro.etiqueta }}
+      </div>
+      <div>
+        <label class="form-label">Tipo</label>
+        {{ form_filtro.tipo }}
+      </div>
+      <div>
+        <label class="form-label">Status</label>
+        {{ form_filtro.status }}
+      </div>
+      <div class="flex gap-2">
+        <button type="submit" class="btn-primary">Filtrar</button>
+        <a href="{% url 'patrimonio_lista' %}" class="btn-secondary">Limpar</a>
+      </div>
+    </form>
+  </div>
 
-<table border="1" cellpadding="8" cellspacing="0">
-    <thead>
+  <div class="card">
+    <table class="table-base">
+      <thead>
         <tr>
-            <th>Etiqueta</th>
-            <th>Tipo</th>
-            <th>Marca / Modelo</th>
-            <th>Setor</th>
-            <th>Usuario atual</th>
-            <th>Status</th>
-            <th>Acoes</th>
+          <th>Etiqueta</th>
+          <th>Hostname</th>
+          <th>Tipo</th>
+          <th>Marca / Modelo</th>
+          <th>Setor</th>
+          <th>Usuário atual</th>
+          <th>Status</th>
+          <th>Ações</th>
         </tr>
-    </thead>
-    <tbody>
-        {% for p in patrimonios %}
+      </thead>
+      <tbody>
+        {% for pat in patrimonios %}
         <tr>
-            <td><a href="{% url 'patrimonio_detalhe' p.pk %}">{{ p.etiqueta }}</a></td>
-            <td>{{ p.tipo|default:"-" }}</td>
-            <td>{{ p.marca|default:"" }} {{ p.modelo|default:"-" }}</td>
-            <td>{{ p.setor|default:"-" }}</td>
-            <td>{{ p.usuario_atual|default:"-" }}</td>
-            <td>{{ p.get_status_display }}</td>
-            <td>
-                <a href="{% url 'patrimonio_detalhe' p.pk %}">Ver</a>
-                {% if perms.patrimonio.can_manage_patrimonio %}
-                | <a href="{% url 'patrimonio_editar' p.pk %}">Editar</a>
-                {% endif %}
-            </td>
+          <td class="font-medium text-gray-900 dark:text-gray-100">{{ pat.etiqueta }}</td>
+          <td>{{ pat.hostname|default:"—" }}</td>
+          <td>{{ pat.tipo.nome }}</td>
+          <td>{{ pat.marca }} {{ pat.modelo }}</td>
+          <td>{{ pat.setor.nome|default:"—" }}</td>
+          <td>{{ pat.usuario_atual.nome_completo|default:"—" }}</td>
+          <td>
+            <span class="badge-{{ pat.status }}">{{ pat.get_status_display }}</span>
+          </td>
+          <td>
+            <div class="flex items-center gap-3">
+              <a href="{% url 'patrimonio_detalhe' pat.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Ver</a>
+              {% if perms.patrimonio.can_manage_patrimonio %}
+              <a href="{% url 'patrimonio_editar' pat.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Editar</a>
+              {% endif %}
+            </div>
+          </td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="7">Nenhum patrimonio encontrado.</td>
+          <td colspan="8" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum patrimônio encontrado.</td>
         </tr>
         {% endfor %}
-    </tbody>
-</table>
-
-</body>
-</html>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
