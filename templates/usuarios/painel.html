@@ -1,40 +1,82 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>Painel</title></head>
-<body>
-  <h1>Painel do Sistema de Gestão de TI</h1>
-  <p>Usuário logado: {{ request.user.nome_completo }}</p>
-  <p>Login de rede: {{ request.user.login_rede }}</p>
+{% extends 'base.html' %}
 
-  <h2>Módulos</h2>
-  <ul>
-    <li><a href="/admin/">Administrador</a></li>
-    <li><a href="{% url 'usuario_lista' %}">Usuários</a></li>
-    <li><a href="{% url 'patrimonio_lista' %}">Patrimônio</a></li>
-    <li><a href="{% url 'chamado_lista' %}">Chamados</a></li>
-    <li><a href="{% url 'nota_fiscal_lista' %}">Notas Fiscais</a></li>
-    <li><a href="{% url 'software_lista' %}">Softwares e Licenças</a></li>
-    <li><a href="{% url 'relatorio_conformidade' %}">Conformidade de Licenças</a></li>
-  </ul>
+{% block title %}Painel — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Painel{% endblock %}
 
-  <h2>Relatórios</h2>
-  <ul>
-    <li><a href="{% url 'relatorio_chamados' %}">Relatório de Chamados</a></li>
-    <li><a href="{% url 'relatorio_patrimonio' %}">Relatório de Patrimônio</a></li>
-    <li><a href="{% url 'relatorio_usuarios' %}">Relatório de Usuários</a></li>
-    <li><a href="{% url 'relatorio_notas_fiscais' %}">Relatório de Notas Fiscais</a></li>
-  </ul>
+{% block content %}
+<div class="space-y-6">
 
-  {% if perms.auditoria.view_registroauditoria %}
-  <h2>Administração</h2>
-  <ul>
-    <li><a href="{% url 'auditoria_lista' %}">Registros de Auditoria</a></li>
-  </ul>
-  {% endif %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Chamados abertos</p>
+      <p class="text-2xl font-semibold text-white">{{ total_chamados_abertos }}</p>
+      <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ total_chamados_criticos }} críticos</p>
+    </div>
+    <div class="card">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Patrimônios disponíveis</p>
+      <p class="text-2xl font-semibold text-white">{{ total_patrimonio_disponivel }}</p>
+      <p class="text-xs text-green-600 dark:text-green-400 mt-1">Em estoque</p>
+    </div>
+    <div class="card">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Licenças a vencer</p>
+      <p class="text-2xl font-semibold text-white">{{ total_licencas_vencer }}</p>
+      <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">Próximos 30 dias</p>
+    </div>
+    <div class="card">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Usuários ativos</p>
+      <p class="text-2xl font-semibold text-white">{{ total_usuarios_ativos }}</p>
+      <p class="text-xs text-green-600 dark:text-green-400 mt-1">No sistema</p>
+    </div>
+  </div>
 
-  <form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit">Sair</button>
-  </form>
-</body>
-</html>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="section-title mb-0">Feed de auditoria</h2>
+        {% if perms.auditoria.view_registroauditoria %}
+        <a href="{% url 'auditoria_lista' %}" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">Ver tudo</a>
+        {% endif %}
+      </div>
+      <div class="space-y-3">
+        {% for r in ultimos_registros %}
+        <div class="flex items-start gap-3">
+          <span class="mt-1.5 w-2 h-2 rounded-full flex-shrink-0
+            {% if r.acao == 'criacao' %}bg-green-500
+            {% elif r.acao == 'edicao' %}bg-blue-500
+            {% elif r.acao == 'desativacao' %}bg-amber-500
+            {% elif r.acao == 'encerramento' %}bg-green-500
+            {% elif r.acao == 'reabertura' %}bg-red-500
+            {% else %}bg-gray-400{% endif %}"></span>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-snug">{{ r.descricao }}</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ r.criado_em|date:"d/m/Y H:i" }} — {{ r.usuario.nome_completo|default:"Sistema" }}</p>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-sm text-gray-400 dark:text-gray-500">Nenhum registro ainda.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="section-title mb-0">Chamados recentes</h2>
+        <a href="{% url 'chamado_lista' %}" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">Ver todos</a>
+      </div>
+      <div class="space-y-2">
+        {% for c in ultimos_chamados %}
+        <a href="{% url 'chamado_detalhe' c.pk %}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <span class="badge-{{ c.prioridade }}">{{ c.get_prioridade_display }}</span>
+          <span class="text-sm text-gray-700 dark:text-gray-300 flex-1 truncate">{{ c.titulo }}</span>
+          <span class="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">{{ c.get_status_display }}</span>
+        </a>
+        {% empty %}
+        <p class="text-sm text-gray-400 dark:text-gray-500">Nenhum chamado aberto.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

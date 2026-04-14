@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="h-full" id="html-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Sistema de Gestão de TI{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 mb-4">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Sistema de Gestão de TI</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">9º Ofício de Notas</p>
+    </div>
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-8 shadow-sm">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+  <script>
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') document.getElementById('html-root').classList.add('dark');
+  </script>
+</body>
+</html>
