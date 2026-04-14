@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 
 from .forms import UsuarioForm
+from auditoria.utils import registrar_auditoria
+from auditoria.models import RegistroAuditoria
 from .models import Usuario
 
 

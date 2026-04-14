@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8"><title>Auditoria</title></head>
+<body>
+  <h1>Registros de Auditoria</h1>
+  <p><a href="{% url 'painel' %}">Voltar ao painel</a></p>
+
+  <form method="get">
+    <label>Modelo:</label>
+    <input type="text" name="modelo" value="{{ filtro_modelo }}">
+
+    <label>Ação:</label>
+    <select name="acao">
+      <option value="">Todas</option>
+      {% for val, label in acoes %}
+      <option value="{{ val }}" {% if filtro_acao == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Usuário:</label>
+    <select name="usuario">
+      <option value="">Todos</option>
+      {% for u in usuarios %}
+      <option value="{{ u.pk }}" {% if filtro_usuario == u.pk|stringformat:"s" %}selected{% endif %}>{{ u.nome_completo }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit">Filtrar</button>
+    <a href="{% url 'auditoria_lista' %}">Limpar</a>
+  </form>
+
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Data/Hora</th>
+        <th>Usuário</th>
+        <th>Ação</th>
+        <th>Modelo</th>
+        <th>ID</th>
+        <th>Descrição</th>
+        <th>IP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in registros %}
+      <tr>
+        <td>{{ r.criado_em|date:"d/m/Y H:i" }}</td>
+        <td>{{ r.usuario.nome_completo|default:"Sistema" }}</td>
+        <td>{{ r.get_acao_display }}</td>
+        <td>{{ r.modelo_afetado }}</td>
+        <td>{{ r.objeto_id }}</td>
+        <td>{{ r.descricao }}</td>
+        <td>{{ r.ip|default:"-" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7">Nenhum registro encontrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

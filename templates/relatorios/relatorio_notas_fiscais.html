@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8"><title>Relatório de Notas Fiscais</title></head>
+<body>
+  <h1>Relatório de Notas Fiscais</h1>
+  <p><a href="{% url 'painel' %}">Voltar ao painel</a></p>
+  <p><strong>Valor total acumulado: R$ {{ valor_total|floatformat:2 }}</strong></p>
+
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Número NF</th><th>Fornecedor</th><th>Data de emissão</th>
+        <th>Valor Total</th><th>Patrimônios vinculados</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for nf in notas %}
+      <tr>
+        <td>{{ nf.numero }}</td>
+        <td>{{ nf.fornecedor }}</td>
+        <td>{{ nf.data_emissao|date:"d/m/Y" }}</td>
+        <td>R$ {{ nf.valor_total|floatformat:2 }}</td>
+        <td>{{ nf.patrimonios.count }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">Nenhuma nota fiscal encontrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

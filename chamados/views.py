@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm
+from auditoria.utils import registrar_auditoria
+from auditoria.models import RegistroAuditoria
 from .models import Chamado, AnexoChamado
 
 
@@ -42,6 +44,7 @@ def chamado_novo(request):
                 arquivo=request.FILES["anexo"],
                 enviado_por=request.user,
             )
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "Chamado", chamado.pk, f"Chamado {chamado.pk} aberto: {chamado.titulo}")
         return redirect("chamado_detalhe", pk=chamado.pk)
     return render(request, "chamados/chamado_form.html", {"form": form, "titulo": "Novo Chamado"})
 
@@ -54,6 +57,7 @@ def chamado_atender(request, pk):
         chamado.tecnico = request.user
         chamado.status = Chamado.STATUS_EM_ATENDIMENTO
         chamado.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Chamado", chamado.pk, f"Chamado {chamado.pk} assumido por {request.user.nome_completo}.")
         return redirect("chamado_detalhe", pk=chamado.pk)
     return render(request, "chamados/chamado_detalhe.html", {"chamado": chamado})
 
@@ -69,6 +73,7 @@ def chamado_encerrar(request, pk):
         chamado.encerrado_por = request.user
         chamado.encerrado_em = timezone.now()
         chamado.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_ENCERRAMENTO, "Chamado", chamado.pk, f"Chamado {chamado.pk} encerrado por {request.user.nome_completo}.")
         return redirect("chamado_detalhe", pk=chamado.pk)
     return render(request, "chamados/chamado_encerramento.html", {"form": form, "chamado": chamado})
 
@@ -86,5 +91,6 @@ def chamado_reabrir(request, pk):
         chamado.encerrado_em = None
         chamado.solucao_tecnica = None
         chamado.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_REABERTURA, "Chamado", chamado.pk, f"Chamado {chamado.pk} reaberto por {request.user.nome_completo}.")
         return redirect("chamado_detalhe", pk=chamado.pk)
     return render(request, "chamados/chamado_detalhe.html", {"chamado": chamado})

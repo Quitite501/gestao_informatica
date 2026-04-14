@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 
 from .forms import PatrimonioForm, PatrimonioFiltroForm
+from auditoria.utils import registrar_auditoria
+from auditoria.models import RegistroAuditoria
 from .models import Patrimonio, MovimentacaoPatrimonio
 
 
@@ -111,6 +113,8 @@ def patrimonio_novo(request):
                 registrado_por=request.user,
             )
 
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "Patrimonio", patrimonio.pk, f"Patrimônio {patrimonio.etiqueta} cadastrado.")
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Patrimonio", patrimonio.pk, f"Patrimônio {patrimonio.etiqueta} editado.")
         return redirect("patrimonio_detalhe", pk=patrimonio.pk)
 
     return render(request, "patrimonio/patrimonio_form.html", {
