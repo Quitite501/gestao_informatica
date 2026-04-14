@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, redirect, get_object_or_404
+from auditoria.utils import registrar_auditoria
+from auditoria.models import RegistroAuditoria
 from .forms import NotaFiscalForm, NotaFiscalFiltroForm
 from .models import NotaFiscal
 
@@ -45,6 +47,7 @@ def nota_fiscal_nova(request):
         nota = form.save(commit=False)
         nota.criado_por = request.user
         nota.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "NotaFiscal", nota.pk, f"Nota fiscal {nota.numero} cadastrada.")
         return redirect("nota_fiscal_detalhe", pk=nota.pk)
     return render(request, "notas_fiscais/nota_fiscal_form.html", {
         "form": form,
@@ -58,7 +61,8 @@ def nota_fiscal_editar(request, pk):
     nota = get_object_or_404(NotaFiscal, pk=pk)
     form = NotaFiscalForm(request.POST or None, request.FILES or None, instance=nota)
     if form.is_valid():
-        form.save()
+        nota = form.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "NotaFiscal", nota.pk, f"Nota fiscal {nota.numero} editada.")
         return redirect("nota_fiscal_detalhe", pk=nota.pk)
     return render(request, "notas_fiscais/nota_fiscal_form.html", {
         "form": form,

@@ -114,7 +114,6 @@ def patrimonio_novo(request):
             )
 
         registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "Patrimonio", patrimonio.pk, f"Patrimônio {patrimonio.etiqueta} cadastrado.")
-        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Patrimonio", patrimonio.pk, f"Patrimônio {patrimonio.etiqueta} editado.")
         return redirect("patrimonio_detalhe", pk=patrimonio.pk)
 
     return render(request, "patrimonio/patrimonio_form.html", {
@@ -139,6 +138,7 @@ def patrimonio_editar(request, pk):
     if form.is_valid():
         patrimonio_atualizado = form.save()
         _registrar_movimentacao(estado_anterior, patrimonio_atualizado, request.user)
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Patrimonio", patrimonio_atualizado.pk, f"Patrimônio {patrimonio_atualizado.etiqueta} editado.")
         return redirect("patrimonio_detalhe", pk=patrimonio_atualizado.pk)
 
     return render(request, "patrimonio/patrimonio_form.html", {

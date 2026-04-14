@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, redirect, get_object_or_404
+from auditoria.utils import registrar_auditoria
+from auditoria.models import RegistroAuditoria
 from django.utils import timezone
 from .forms import SoftwareForm, SoftwareFiltroForm, LicencaContratoForm, InstalacaoSoftwareForm
 from .models import Software, LicencaContrato, InstalacaoSoftware
@@ -45,7 +47,8 @@ def software_detalhe(request, pk):
 def software_novo(request):
     form = SoftwareForm(request.POST or None)
     if form.is_valid():
-        form.save()
+        software = form.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "Software", software.pk, f"Software {software.nome} cadastrado.")
         return redirect("software_lista")
     return render(request, "licencas/software_form.html", {
         "form": form,
@@ -59,7 +62,8 @@ def software_editar(request, pk):
     software = get_object_or_404(Software, pk=pk)
     form = SoftwareForm(request.POST or None, instance=software)
     if form.is_valid():
-        form.save()
+        software = form.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Software", software.pk, f"Software {software.nome} editado.")
         return redirect("software_detalhe", pk=software.pk)
     return render(request, "licencas/software_form.html", {
         "form": form,
@@ -75,6 +79,7 @@ def licenca_contrato_novo(request):
         contrato = form.save(commit=False)
         contrato.criado_por = request.user
         contrato.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "LicencaContrato", contrato.pk, f"Contrato de licença cadastrado para {contrato.software.nome}.")
         return redirect("software_detalhe", pk=contrato.software.pk)
     return render(request, "licencas/licenca_contrato_form.html", {
         "form": form,
@@ -88,7 +93,8 @@ def licenca_contrato_editar(request, pk):
     contrato = get_object_or_404(LicencaContrato, pk=pk)
     form = LicencaContratoForm(request.POST or None, instance=contrato)
     if form.is_valid():
-        form.save()
+        contrato = form.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "LicencaContrato", contrato.pk, f"Contrato de licença editado para {contrato.software.nome}.")
         return redirect("software_detalhe", pk=contrato.software.pk)
     return render(request, "licencas/licenca_contrato_form.html", {
         "form": form,
@@ -104,6 +110,7 @@ def instalacao_nova(request):
         instalacao = form.save(commit=False)
         instalacao.registrado_por = request.user
         instalacao.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "InstalacaoSoftware", instalacao.pk, f"Instalação de {instalacao.software.nome} registrada.")
         return redirect("software_detalhe", pk=instalacao.software.pk)
     return render(request, "licencas/instalacao_form.html", {
         "form": form,
@@ -117,7 +124,8 @@ def instalacao_editar(request, pk):
     instalacao = get_object_or_404(InstalacaoSoftware, pk=pk)
     form = InstalacaoSoftwareForm(request.POST or None, instance=instalacao)
     if form.is_valid():
-        form.save()
+        instalacao = form.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "InstalacaoSoftware", instalacao.pk, f"Instalação de {instalacao.software.nome} editada.")
         return redirect("software_detalhe", pk=instalacao.software.pk)
     return render(request, "licencas/instalacao_form.html", {
         "form": form,
