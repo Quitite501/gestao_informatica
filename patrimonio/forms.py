@@ -8,6 +8,7 @@ class PatrimonioForm(forms.ModelForm):
         fields = [
             "etiqueta",
             "numero_serie",
+            "hostname",
             "tipo",
             "marca",
             "modelo",

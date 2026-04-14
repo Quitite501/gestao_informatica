@@ -34,6 +34,7 @@ class Patrimonio(models.Model):
     etiqueta = models.CharField(max_length=50, unique=True, verbose_name="Numero da etiqueta")
     numero_serie = models.CharField(max_length=150, blank=True, null=True, verbose_name="Numero de serie")
     tipo = models.ForeignKey(TipoEquipamento, on_delete=models.SET_NULL, null=True, blank=True, related_name="patrimonios", verbose_name="Tipo de equipamento")
+    hostname = models.CharField(max_length=100, blank=True, null=True, verbose_name="Hostname")
     marca = models.CharField(max_length=100, blank=True, null=True)
     modelo = models.CharField(max_length=150, blank=True, null=True)
     descricao = models.TextField(blank=True, null=True, verbose_name="Descricao")
@@ -55,11 +56,16 @@ class Patrimonio(models.Model):
         ]
 
     def __str__(self):
-        if self.modelo:
-            return f"{self.etiqueta} - {self.modelo}"
+        partes = [self.etiqueta]
+        if self.hostname:
+            partes.append(self.hostname)
+        elif self.modelo:
+            partes.append(self.modelo)
         elif self.tipo:
-            return f"{self.etiqueta} - {self.tipo}"
-        return self.etiqueta
+            partes.append(str(self.tipo))
+        if self.usuario_atual:
+            partes.append(f"({self.usuario_atual.nome_completo})")
+        return " - ".join(partes) if len(partes) > 1 else self.etiqueta
 
     def save(self, *args, **kwargs):
         if not self.usuario_atual and self.status == self.STATUS_EM_USO:
