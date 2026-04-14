@@ -7,3 +7,5 @@ db.sqlite3
 /staticfiles/
 .vscode/
 .idea/
+node_modules/
+package-lock.json
