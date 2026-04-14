@@ -1,50 +1,72 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>Relatório de Conformidade</title></head>
-<body>
-  <h1>Relatório de Conformidade de Licenças</h1>
-  <p>Data de referência: {{ hoje|date:"d/m/Y" }}</p>
-  <p><a href="{% url "software_lista" %}">Voltar para softwares</a></p>
+{% extends 'base.html' %}
 
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead><tr>
-      <th>Software</th><th>Fabricante</th>
-      <th>Adquirido</th><th>Instalado</th><th>Saldo</th>
-      <th>Situação</th><th>Vencimento</th>
-    </tr></thead>
+{% block title %}Conformidade de Licenças — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Conformidade de Licenças{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'software_lista' %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <table class="table-base">
+    <thead>
+      <tr>
+        <th>Software</th>
+        <th>Fabricante</th>
+        <th>Adquiridas</th>
+        <th>Instaladas</th>
+        <th>Saldo</th>
+        <th>Situação</th>
+        <th>Vencimento</th>
+      </tr>
+    </thead>
     <tbody>
       {% for item in relatorio %}
       <tr>
-        <td><a href="{% url "software_detalhe" item.software.pk %}">{{ item.software }}</a></td>
-        <td>{{ item.software.fabricante|default:"-" }}</td>
-        <td>{{ item.total_adquirido }}</td>
-        <td>{{ item.total_instalado }}</td>
-        <td>{{ item.saldo }}</td>
+        <td class="font-medium text-gray-900 dark:text-gray-100">
+          <a href="{% url 'software_detalhe' item.software.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">
+            {{ item.software.nome }}
+          </a>
+        </td>
+        <td>{{ item.software.fabricante|default:"—" }}</td>
+        <td>{{ item.software.total_adquirido }}</td>
+        <td>{{ item.software.total_instalado }}</td>
         <td>
-          {% if item.situacao == "faltam" %}
-            <span style="color:red;font-weight:bold;">FALTAM {{ item.saldo|cut:"-" }}</span>
-          {% elif item.situacao == "sobram" %}
-            <span style="color:blue;">SOBRAM {{ item.saldo }}</span>
+          <span class="font-medium {% if item.software.saldo < 0 %}text-red-600 dark:text-red-400{% elif item.software.saldo == 0 %}text-amber-600 dark:text-amber-400{% else %}text-green-600 dark:text-green-400{% endif %}">
+            {{ item.software.saldo }}
+          </span>
+        </td>
+        <td>
+          {% if item.software.situacao == "OK" %}
+          <span class="badge-encerrado">OK</span>
+          {% elif "FALTAM" in item.software.situacao %}
+          <span class="badge-critica">{{ item.software.situacao }}</span>
           {% else %}
-            <span style="color:green;">OK</span>
+          <span class="badge-media">{{ item.software.situacao }}</span>
           {% endif %}
         </td>
         <td>
-          {% if item.vencimento_status == "vencida" %}
-            <span style="color:red;font-weight:bold;">Licença vencida</span>
-          {% elif item.vencimento_status == "vence_em_breve" %}
-            <span style="color:orange;font-weight:bold;">Vence em breve</span>
-          {% elif item.vencimento_status == "sem_vencimento" %}
-            <span>Sem vencimento</span>
+          {% if item.status_vencimento == "vencida" %}
+          <span class="badge-critica">Vencida</span>
+          {% elif item.status_vencimento == "vence_em_breve" %}
+          <span class="badge-alta">Vence em breve</span>
+          {% elif item.status_vencimento == "ok" %}
+          <span class="badge-encerrado">OK</span>
           {% else %}
-            <span style="color:green;">OK</span>
+          <span class="badge-baixa">Sem vencimento</span>
           {% endif %}
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="7">Nenhum software controlado cadastrado.</td></tr>
+      <tr>
+        <td colspan="7" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum software cadastrado.</td>
+      </tr>
       {% endfor %}
     </tbody>
   </table>
-</body>
-</html>
+</div>
+{% endblock %}
