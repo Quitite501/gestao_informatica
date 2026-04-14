@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8"><title>{{ software }}</title></head>
+<body>
+  <h1>{{ software }}</h1>
+  <p><a href="{% url "software_lista" %}">Voltar para a lista</a></p>
+  {% if perms.licencas.change_software %}
+  <p><a href="{% url "software_editar" software.pk %}">Editar</a></p>
+  {% endif %}
+
+  <table border="1" cellpadding="8" cellspacing="0">
+    <tr><th>Nome</th><td>{{ software.nome }}</td></tr>
+    <tr><th>Fabricante</th><td>{{ software.fabricante|default:"-" }}</td></tr>
+    <tr><th>Versão</th><td>{{ software.versao|default:"-" }}</td></tr>
+    <tr><th>Tipo de licença</th><td>{{ software.get_tipo_licenca_display }}</td></tr>
+    <tr><th>Controlado</th><td>{% if software.controlado %}Sim{% else %}Não{% endif %}</td></tr>
+    <tr><th>Total adquirido</th><td>{{ software.total_adquirido }}</td></tr>
+    <tr><th>Total instalado</th><td>{{ software.total_instalado }}</td></tr>
+    <tr><th>Saldo</th><td>{{ software.saldo }}</td></tr>
+  </table>
+
+  <h2>Contratos de Licença</h2>
+  {% if perms.licencas.add_licencacontrato %}
+  <p><a href="{% url "licenca_contrato_novo" %}">Novo Contrato</a></p>
+  {% endif %}
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead><tr>
+      <th>Quantidade</th><th>Aquisição</th><th>Vencimento</th><th>Situação</th><th>Nota Fiscal</th><th>Ações</th>
+    </tr></thead>
+    <tbody>
+      {% for c in contratos %}
+      <tr>
+        <td>{{ c.quantidade_adquirida }}</td>
+        <td>{{ c.data_aquisicao|date:"d/m/Y" }}</td>
+        <td>{{ c.data_vencimento|date:"d/m/Y"|default:"-" }}</td>
+        <td>
+          {% if c.status_vencimento == "vencida" %}
+            <span style="color:red;font-weight:bold;">Vencida</span>
+          {% elif c.status_vencimento == "vence_em_breve" %}
+            <span style="color:orange;font-weight:bold;">Vence em breve</span>
+          {% elif c.status_vencimento == "sem_vencimento" %}
+            <span>Sem vencimento</span>
+          {% else %}
+            <span style="color:green;">OK</span>
+          {% endif %}
+        </td>
+        <td>{% if c.nota_fiscal %}<a href="{% url "nota_fiscal_detalhe" c.nota_fiscal.pk %}">{{ c.nota_fiscal.numero }}</a>{% else %}-{% endif %}</td>
+        <td>
+          {% if perms.licencas.change_licencacontrato %}
+          <a href="{% url "licenca_contrato_editar" c.pk %}">Editar</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6">Nenhum contrato cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Instalações ativas</h2>
+  {% if perms.licencas.add_instalacaosoftware %}
+  <p><a href="{% url "instalacao_nova" %}">Registrar Instalação</a></p>
+  {% endif %}
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead><tr>
+      <th>Etiqueta</th><th>Modelo</th><th>Usuário atual</th><th>Setor</th><th>Data instalação</th><th>Ações</th>
+    </tr></thead>
+    <tbody>
+      {% for i in instalacoes %}
+      <tr>
+        <td>{{ i.patrimonio.etiqueta }}</td>
+        <td>{{ i.patrimonio.modelo|default:"-" }}</td>
+        <td>{{ i.patrimonio.usuario_atual.nome_completo|default:"-" }}</td>
+        <td>{{ i.patrimonio.setor|default:"-" }}</td>
+        <td>{{ i.data_instalacao|date:"d/m/Y"|default:"-" }}</td>
+        <td>
+          {% if perms.licencas.change_instalacaosoftware %}
+          <a href="{% url "instalacao_editar" i.pk %}">Editar</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6">Nenhuma instalação registrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8"><title>Notas Fiscais</title></head>
+<body>
+  <h1>Notas Fiscais</h1>
+  <p><a href="{% url "painel" %}">Voltar ao painel</a></p>
+  {% if perms.notas_fiscais.add_notafiscal %}
+  <p><a href="{% url "nota_fiscal_nova" %}">Nova Nota Fiscal</a></p>
+  {% endif %}
+
+  <form method="get">
+    {{ form_filtro.numero.label_tag }} {{ form_filtro.numero }}
+    {{ form_filtro.fornecedor.label_tag }} {{ form_filtro.fornecedor }}
+    {{ form_filtro.data_de.label_tag }} {{ form_filtro.data_de }}
+    {{ form_filtro.data_ate.label_tag }} {{ form_filtro.data_ate }}
+    <button type="submit">Filtrar</button>
+    <a href="{% url "nota_fiscal_lista" %}">Limpar</a>
+  </form>
+
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead><tr>
+      <th>Número</th><th>Fornecedor</th><th>Data de emissão</th>
+      <th>Valor total</th><th>Ações</th>
+    </tr></thead>
+    <tbody>
+      {% for nota in notas %}
+      <tr>
+        <td>{{ nota.numero }}</td>
+        <td>{{ nota.fornecedor }}</td>
+        <td>{{ nota.data_emissao|date:"d/m/Y" }}</td>
+        <td>R$ {{ nota.valor_total }}</td>
+        <td>
+          <a href="{% url "nota_fiscal_detalhe" nota.pk %}">Ver</a>
+          {% if perms.notas_fiscais.change_notafiscal %}
+          | <a href="{% url "nota_fiscal_editar" nota.pk %}">Editar</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">Nenhuma nota fiscal encontrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

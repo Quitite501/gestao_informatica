@@ -8,6 +8,8 @@ urlpatterns = [
     path("", include("usuarios.urls")),
     path("", include("patrimonio.urls")),
     path("", include("chamados.urls")),
+    path("", include("notas_fiscais.urls")),
+    path("", include("licencas.urls")),
 ]
 
 if settings.DEBUG:

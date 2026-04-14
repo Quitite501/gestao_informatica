@@ -1,0 +1,9 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("notas-fiscais/", views.nota_fiscal_lista, name="nota_fiscal_lista"),
+    path("notas-fiscais/nova/", views.nota_fiscal_nova, name="nota_fiscal_nova"),
+    path("notas-fiscais/<int:pk>/", views.nota_fiscal_detalhe, name="nota_fiscal_detalhe"),
+    path("notas-fiscais/<int:pk>/editar/", views.nota_fiscal_editar, name="nota_fiscal_editar"),
+]

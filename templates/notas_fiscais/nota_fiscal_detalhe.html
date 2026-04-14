@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8"><title>NF {{ nota.numero }}</title></head>
+<body>
+  <h1>Nota Fiscal {{ nota.numero }}</h1>
+  <p><a href="{% url "nota_fiscal_lista" %}">Voltar para a lista</a></p>
+  {% if perms.notas_fiscais.change_notafiscal %}
+  <p><a href="{% url "nota_fiscal_editar" nota.pk %}">Editar</a></p>
+  {% endif %}
+
+  <table border="1" cellpadding="8" cellspacing="0">
+    <tr><th>Número</th><td>{{ nota.numero }}</td></tr>
+    <tr><th>Fornecedor</th><td>{{ nota.fornecedor }}</td></tr>
+    <tr><th>Data de emissão</th><td>{{ nota.data_emissao|date:"d/m/Y" }}</td></tr>
+    <tr><th>Valor total</th><td>R$ {{ nota.valor_total }}</td></tr>
+    <tr><th>Observações</th><td>{{ nota.observacoes|default:"-" }}</td></tr>
+    <tr><th>Arquivo PDF</th><td>{% if nota.arquivo_pdf %}<a href="{{ nota.arquivo_pdf.url }}">Download PDF</a>{% else %}-{% endif %}</td></tr>
+    <tr><th>Arquivo XML</th><td>{% if nota.arquivo_xml %}<a href="{{ nota.arquivo_xml.url }}">Download XML</a>{% else %}-{% endif %}</td></tr>
+    <tr><th>Cadastrado por</th><td>{{ nota.criado_por.nome_completo|default:"-" }}</td></tr>
+    <tr><th>Cadastrado em</th><td>{{ nota.criado_em|date:"d/m/Y H:i" }}</td></tr>
+  </table>
+
+  <h2>Patrimônios vinculados</h2>
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead><tr><th>Etiqueta</th><th>Tipo</th><th>Modelo</th><th>Usuário atual</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for p in patrimonios %}
+      <tr>
+        <td>{{ p.etiqueta }}</td>
+        <td>{{ p.tipo|default:"-" }}</td>
+        <td>{{ p.modelo|default:"-" }}</td>
+        <td>{{ p.usuario_atual.nome_completo|default:"-" }}</td>
+        <td>{{ p.get_status_display }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">Nenhum patrimônio vinculado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Licenças vinculadas</h2>
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead><tr><th>Software</th><th>Quantidade</th><th>Vencimento</th></tr></thead>
+    <tbody>
+      {% for lic in licencas %}
+      <tr>
+        <td><a href="{% url "software_detalhe" lic.software.pk %}">{{ lic.software }}</a></td>
+        <td>{{ lic.quantidade_adquirida }}</td>
+        <td>{{ lic.data_vencimento|date:"d/m/Y"|default:"-" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3">Nenhuma licença vinculada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

@@ -16,6 +16,7 @@ class PatrimonioForm(forms.ModelForm):
             "usuario_atual",
             "status",
             "observacoes",
+            "nota_fiscal",
         ]
         widgets = {
             "descricao": forms.Textarea(attrs={"rows": 3}),

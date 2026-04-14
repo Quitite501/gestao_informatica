@@ -1,0 +1,14 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("softwares/", views.software_lista, name="software_lista"),
+    path("softwares/novo/", views.software_novo, name="software_novo"),
+    path("softwares/<int:pk>/", views.software_detalhe, name="software_detalhe"),
+    path("softwares/<int:pk>/editar/", views.software_editar, name="software_editar"),
+    path("licencas/contrato/novo/", views.licenca_contrato_novo, name="licenca_contrato_novo"),
+    path("licencas/contrato/<int:pk>/editar/", views.licenca_contrato_editar, name="licenca_contrato_editar"),
+    path("instalacoes/nova/", views.instalacao_nova, name="instalacao_nova"),
+    path("instalacoes/<int:pk>/editar/", views.instalacao_editar, name="instalacao_editar"),
+    path("relatorio/conformidade/", views.relatorio_conformidade, name="relatorio_conformidade"),
+]

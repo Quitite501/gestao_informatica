@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8"><title>{{ titulo }}</title></head>
+<body>
+  <h1>{{ titulo }}</h1>
+  <p><a href="{% url "software_lista" %}">Voltar para softwares</a></p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Salvar</button>
+  </form>
+</body>
+</html>

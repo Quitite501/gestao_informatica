@@ -1,3 +1,162 @@
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from .forms import SoftwareForm, SoftwareFiltroForm, LicencaContratoForm, InstalacaoSoftwareForm
+from .models import Software, LicencaContrato, InstalacaoSoftware
 
-# Create your views here.
+
+@login_required
+def software_lista(request):
+    form_filtro = SoftwareFiltroForm(request.GET or None)
+    softwares = Software.objects.all()
+
+    if form_filtro.is_valid():
+        if form_filtro.cleaned_data.get("nome"):
+            softwares = softwares.filter(nome__icontains=form_filtro.cleaned_data["nome"])
+        if form_filtro.cleaned_data.get("fabricante"):
+            softwares = softwares.filter(fabricante__icontains=form_filtro.cleaned_data["fabricante"])
+        if form_filtro.cleaned_data.get("controlado") == "true":
+            softwares = softwares.filter(controlado=True)
+        elif form_filtro.cleaned_data.get("controlado") == "false":
+            softwares = softwares.filter(controlado=False)
+
+    return render(request, "licencas/software_lista.html", {
+        "softwares": softwares,
+        "form_filtro": form_filtro,
+    })
+
+
+@login_required
+def software_detalhe(request, pk):
+    software = get_object_or_404(Software, pk=pk)
+    contratos = software.contratos.select_related("nota_fiscal").all()
+    instalacoes = software.instalacoes.filter(ativo=True).select_related(
+        "patrimonio", "patrimonio__usuario_atual", "patrimonio__setor"
+    )
+    return render(request, "licencas/software_detalhe.html", {
+        "software": software,
+        "contratos": contratos,
+        "instalacoes": instalacoes,
+    })
+
+
+@login_required
+@permission_required("licencas.add_software", raise_exception=True)
+def software_novo(request):
+    form = SoftwareForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect("software_lista")
+    return render(request, "licencas/software_form.html", {
+        "form": form,
+        "titulo": "Novo Software",
+    })
+
+
+@login_required
+@permission_required("licencas.change_software", raise_exception=True)
+def software_editar(request, pk):
+    software = get_object_or_404(Software, pk=pk)
+    form = SoftwareForm(request.POST or None, instance=software)
+    if form.is_valid():
+        form.save()
+        return redirect("software_detalhe", pk=software.pk)
+    return render(request, "licencas/software_form.html", {
+        "form": form,
+        "titulo": f"Editar Software: {software}",
+    })
+
+
+@login_required
+@permission_required("licencas.add_licencacontrato", raise_exception=True)
+def licenca_contrato_novo(request):
+    form = LicencaContratoForm(request.POST or None)
+    if form.is_valid():
+        contrato = form.save(commit=False)
+        contrato.criado_por = request.user
+        contrato.save()
+        return redirect("software_detalhe", pk=contrato.software.pk)
+    return render(request, "licencas/licenca_contrato_form.html", {
+        "form": form,
+        "titulo": "Novo Contrato de Licença",
+    })
+
+
+@login_required
+@permission_required("licencas.change_licencacontrato", raise_exception=True)
+def licenca_contrato_editar(request, pk):
+    contrato = get_object_or_404(LicencaContrato, pk=pk)
+    form = LicencaContratoForm(request.POST or None, instance=contrato)
+    if form.is_valid():
+        form.save()
+        return redirect("software_detalhe", pk=contrato.software.pk)
+    return render(request, "licencas/licenca_contrato_form.html", {
+        "form": form,
+        "titulo": f"Editar Contrato: {contrato}",
+    })
+
+
+@login_required
+@permission_required("licencas.add_instalacaosoftware", raise_exception=True)
+def instalacao_nova(request):
+    form = InstalacaoSoftwareForm(request.POST or None)
+    if form.is_valid():
+        instalacao = form.save(commit=False)
+        instalacao.registrado_por = request.user
+        instalacao.save()
+        return redirect("software_detalhe", pk=instalacao.software.pk)
+    return render(request, "licencas/instalacao_form.html", {
+        "form": form,
+        "titulo": "Registrar Instalação",
+    })
+
+
+@login_required
+@permission_required("licencas.change_instalacaosoftware", raise_exception=True)
+def instalacao_editar(request, pk):
+    instalacao = get_object_or_404(InstalacaoSoftware, pk=pk)
+    form = InstalacaoSoftwareForm(request.POST or None, instance=instalacao)
+    if form.is_valid():
+        form.save()
+        return redirect("software_detalhe", pk=instalacao.software.pk)
+    return render(request, "licencas/instalacao_form.html", {
+        "form": form,
+        "titulo": f"Editar Instalação: {instalacao}",
+    })
+
+
+@login_required
+def relatorio_conformidade(request):
+    hoje = timezone.now().date()
+    softwares = Software.objects.filter(controlado=True, ativo=True)
+
+    relatorio = []
+    for sw in softwares:
+        total_adquirido = sw.total_adquirido
+        total_instalado = sw.total_instalado
+        saldo = sw.saldo
+        situacao = sw.situacao
+
+        contratos = sw.contratos.all()
+        vencimento_status = "ok"
+        for c in contratos:
+            s = c.status_vencimento
+            if s == "vencida":
+                vencimento_status = "vencida"
+                break
+            elif s == "vence_em_breve":
+                vencimento_status = "vence_em_breve"
+
+        relatorio.append({
+            "software": sw,
+            "total_adquirido": total_adquirido,
+            "total_instalado": total_instalado,
+            "saldo": saldo,
+            "situacao": situacao,
+            "vencimento_status": vencimento_status,
+        })
+
+    return render(request, "licencas/relatorio_conformidade.html", {
+        "relatorio": relatorio,
+        "hoje": hoje,
+    })

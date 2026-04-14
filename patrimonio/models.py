@@ -5,6 +5,7 @@ from django.conf import settings
 class TipoEquipamento(models.Model):
     nome = models.CharField(max_length=100, unique=True)
     descricao = models.TextField(blank=True, null=True)
+    aceita_software = models.BooleanField(default=False)
     ativo = models.BooleanField(default=True)
     criado_em = models.DateTimeField(auto_now_add=True)
 
@@ -40,6 +41,7 @@ class Patrimonio(models.Model):
     usuario_atual = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="patrimonios", verbose_name="Usuario atual")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_DISPONIVEL)
     observacoes = models.TextField(blank=True, null=True, verbose_name="Observacoes")
+    nota_fiscal = models.ForeignKey("notas_fiscais.NotaFiscal", on_delete=models.SET_NULL, null=True, blank=True, related_name="patrimonios", verbose_name="Nota fiscal")
     criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="patrimonios_criados", verbose_name="Cadastrado por")
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)

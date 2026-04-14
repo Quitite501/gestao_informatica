@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8"><title>Softwares</title></head>
+<body>
+  <h1>Softwares</h1>
+  <p><a href="{% url "painel" %}">Voltar ao painel</a></p>
+  <p><a href="{% url "relatorio_conformidade" %}">Relatório de Conformidade</a></p>
+  {% if perms.licencas.add_software %}
+  <p><a href="{% url "software_novo" %}">Novo Software</a></p>
+  {% endif %}
+
+  <form method="get">
+    {{ form_filtro.nome.label_tag }} {{ form_filtro.nome }}
+    {{ form_filtro.fabricante.label_tag }} {{ form_filtro.fabricante }}
+    {{ form_filtro.controlado.label_tag }} {{ form_filtro.controlado }}
+    <button type="submit">Filtrar</button>
+    <a href="{% url "software_lista" %}">Limpar</a>
+  </form>
+
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead><tr>
+      <th>Nome</th><th>Fabricante</th><th>Versão</th><th>Tipo</th>
+      <th>Controlado</th><th>Adquirido</th><th>Instalado</th><th>Saldo</th><th>Ações</th>
+    </tr></thead>
+    <tbody>
+      {% for sw in softwares %}
+      <tr>
+        <td><a href="{% url "software_detalhe" sw.pk %}">{{ sw.nome }}</a></td>
+        <td>{{ sw.fabricante|default:"-" }}</td>
+        <td>{{ sw.versao|default:"-" }}</td>
+        <td>{{ sw.get_tipo_licenca_display }}</td>
+        <td>{% if sw.controlado %}Sim{% else %}Não{% endif %}</td>
+        <td>{{ sw.total_adquirido }}</td>
+        <td>{{ sw.total_instalado }}</td>
+        <td>{{ sw.saldo }}</td>
+        <td>
+          <a href="{% url "software_detalhe" sw.pk %}">Ver</a>
+          {% if perms.licencas.change_software %}
+          | <a href="{% url "software_editar" sw.pk %}">Editar</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="9">Nenhum software encontrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
