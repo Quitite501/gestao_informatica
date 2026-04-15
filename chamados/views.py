@@ -3,8 +3,20 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
+from auditoria.models import RegistroAuditoria
 from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm, AcaoChamadoForm
 from .models import Chamado, AnexoChamado, AcaoChamado, AnexoAcao
+
+
+def registrar_auditoria(request, acao, objeto_id, descricao):
+    RegistroAuditoria.objects.create(
+        usuario=request.user,
+        acao=acao,
+        modelo_afetado="Chamado",
+        objeto_id=str(objeto_id),
+        descricao=descricao,
+        ip=request.META.get("REMOTE_ADDR"),
+    )
 
 
 @login_required
@@ -57,6 +69,9 @@ def chamado_novo(request):
                 enviado_por=request.user,
             )
 
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, chamado.pk,
+            f"Chamado #{chamado.pk} criado: {chamado.titulo}")
+
         return redirect("chamado_detalhe", pk=chamado.pk)
 
     return render(request, "chamados/chamado_form.html",
@@ -72,6 +87,10 @@ def chamado_atender(request, pk):
         chamado.tecnico = request.user
         chamado.status = Chamado.STATUS_EM_ATENDIMENTO
         chamado.save()
+
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, chamado.pk,
+            f"Chamado #{chamado.pk} assumido por {request.user.nome_completo}")
+
         return redirect("chamado_detalhe", pk=chamado.pk)
 
     return render(request, "chamados/chamado_detalhe.html", {"chamado": chamado})
@@ -100,6 +119,9 @@ def chamado_registrar_acao(request, pk):
                     nome_original=arquivo.name,
                 )
 
+            registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, chamado.pk,
+                f"Ação registrada no Chamado #{chamado.pk} por {request.user.nome_completo}")
+
             return redirect("chamado_detalhe", pk=chamado.pk)
 
     return redirect("chamado_detalhe", pk=chamado.pk)
@@ -121,6 +143,10 @@ def chamado_encerrar(request, pk):
         chamado.encerrado_por = request.user
         chamado.encerrado_em = timezone.now()
         chamado.save()
+
+        registrar_auditoria(request, RegistroAuditoria.ACAO_ENCERRAMENTO, chamado.pk,
+            f"Chamado #{chamado.pk} encerrado por {request.user.nome_completo}")
+
         return redirect("chamado_detalhe", pk=chamado.pk)
 
     return render(request, "chamados/chamado_encerramento.html",
@@ -143,6 +169,10 @@ def chamado_reabrir(request, pk):
         chamado.encerrado_em = None
         chamado.solucao_tecnica = None
         chamado.save()
+
+        registrar_auditoria(request, RegistroAuditoria.ACAO_REABERTURA, chamado.pk,
+            f"Chamado #{chamado.pk} reaberto por {request.user.nome_completo}")
+
         return redirect("chamado_detalhe", pk=chamado.pk)
 
     return render(request, "chamados/chamado_detalhe.html", {"chamado": chamado})
@@ -157,6 +187,8 @@ def chamado_excluir(request, pk):
     chamado = get_object_or_404(Chamado, pk=pk)
 
     if request.method == "POST":
+        descricao = f"Chamado #{chamado.pk} excluído: '{chamado.titulo}' — solicitante: {chamado.solicitante.nome_completo} — status anterior: {chamado.get_status_display()}"
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EXCLUSAO, chamado.pk, descricao)
         chamado.delete()
         return redirect("chamado_lista")
 
@@ -172,20 +204,10 @@ def chamado_excluir_multiplos(request):
     if request.method == "POST":
         ids = request.POST.getlist("chamados_selecionados")
         if ids:
-            Chamado.objects.filter(pk__in=ids).delete()
+            chamados = Chamado.objects.filter(pk__in=ids)
+            for chamado in chamados:
+                descricao = f"Chamado #{chamado.pk} excluído em lote: '{chamado.titulo}' — solicitante: {chamado.solicitante.nome_completo} — status anterior: {chamado.get_status_display()}"
+                registrar_auditoria(request, RegistroAuditoria.ACAO_EXCLUSAO, chamado.pk, descricao)
+            chamados.delete()
+
     return redirect("chamado_lista")
-
-
-@login_required
-def chamado_excluir(request, pk):
-    eh_admin = request.user.groups.filter(name="Administrador").exists()
-    if not eh_admin:
-        raise PermissionDenied
-
-    chamado = get_object_or_404(Chamado, pk=pk)
-
-    if request.method == "POST":
-        chamado.delete()
-        return redirect("chamado_lista")
-
-    return render(request, "chamados/chamado_confirmar_exclusao.html", {"chamado": chamado})

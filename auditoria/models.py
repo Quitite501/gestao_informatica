@@ -1,9 +1,7 @@
 from django.db import models
 from django.conf import settings
 
-
 class RegistroAuditoria(models.Model):
-
     ACAO_CRIACAO = "criacao"
     ACAO_EDICAO = "edicao"
     ACAO_DESATIVACAO = "desativacao"
@@ -12,6 +10,7 @@ class RegistroAuditoria(models.Model):
     ACAO_MOVIMENTACAO = "movimentacao"
     ACAO_LOGIN = "login"
     ACAO_LOGOUT = "logout"
+    ACAO_EXCLUSAO = "exclusao"
 
     ACAO_CHOICES = [
         (ACAO_CRIACAO, "Criação"),
@@ -22,6 +21,7 @@ class RegistroAuditoria(models.Model):
         (ACAO_MOVIMENTACAO, "Movimentação"),
         (ACAO_LOGIN, "Login"),
         (ACAO_LOGOUT, "Logout"),
+        (ACAO_EXCLUSAO, "Exclusão"),
     ]
 
     usuario = models.ForeignKey(
