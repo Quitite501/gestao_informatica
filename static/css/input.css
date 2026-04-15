@@ -55,3 +55,7 @@
 
   .badge-em_atendimento { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300; }
   .quill-content { overflow-wrap: anywhere; word-break: break-word; }
+
+@layer utilities {
+  .break-anywhere { overflow-wrap: anywhere; word-break: break-word; }
+}
