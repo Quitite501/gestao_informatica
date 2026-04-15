@@ -5,6 +5,7 @@ urlpatterns = [
     path("chamados/", views.chamado_lista, name="chamado_lista"),
     path("chamados/novo/", views.chamado_novo, name="chamado_novo"),
     path("chamados/excluir/", views.chamado_excluir_multiplos, name="chamado_excluir_multiplos"),
+    path("chamados/novos/", views.chamado_check_novos, name="chamado_check_novos"),
     path("chamados/<int:pk>/", views.chamado_detalhe, name="chamado_detalhe"),
     path("chamados/<int:pk>/atender/", views.chamado_atender, name="chamado_atender"),
     path("chamados/<int:pk>/acao/", views.chamado_registrar_acao, name="chamado_registrar_acao"),

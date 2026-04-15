@@ -16,7 +16,7 @@
 
   <!-- Filtros -->
   <div class="card">
-    <form method="get" class="flex flex-wrap items-end gap-4">
+    <form method="get" id="form-filtro" class="flex flex-wrap items-end gap-4">
       <div>
         <label class="form-label">Status</label>
         {{ form_filtro.status }}
@@ -28,6 +28,14 @@
       <div>
         <label class="form-label">Prioridade</label>
         {{ form_filtro.prioridade }}
+      </div>
+      <div>
+        <label class="form-label">De</label>
+        {{ form_filtro.data_inicio }}
+      </div>
+      <div>
+        <label class="form-label">Até</label>
+        {{ form_filtro.data_fim }}
       </div>
       <div class="flex gap-2">
         <button type="submit" class="btn-primary">Filtrar</button>
@@ -41,7 +49,7 @@
     <form method="post" action="{% url 'chamado_excluir_multiplos' %}" id="form-exclusao">
       {% csrf_token %}
 
-      {% if request.user.groups.filter.name == "Administrador" or perms.usuarios.change_usuario %}
+      {% if perms.usuarios.change_usuario %}
       <div id="barra-exclusao" class="hidden items-center justify-between px-4 py-2 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
         <span id="contador-selecionados" class="text-sm text-red-700 dark:text-red-300 font-medium"></span>
         <button type="submit" class="btn-danger text-xs py-1.5"
@@ -71,7 +79,7 @@
             <th>Ação</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="tabela-chamados">
           {% for chamado in chamados %}
           <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
             {% if perms.usuarios.change_usuario %}
@@ -109,11 +117,52 @@
         </tbody>
       </table>
     </form>
-  </div>
 
+    <!-- Paginação -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        — {{ page_obj.paginator.count }} chamado{{ page_obj.paginator.count|pluralize }}
+      </p>
+      <div class="flex items-center gap-1">
+        {% if page_obj.has_previous %}
+        <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}"
+          class="btn-secondary py-1.5 px-3 text-xs">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <span class="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg">{{ num }}</span>
+          {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+          <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}"
+            class="btn-secondary py-1.5 px-3 text-xs">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}"
+          class="btn-secondary py-1.5 px-3 text-xs">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-800">
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        {{ page_obj.paginator.count }} chamado{{ page_obj.paginator.count|pluralize }}
+      </p>
+    </div>
+    {% endif %}
+
+  </div>
 </div>
 
 <script>
+  // Checkboxes de exclusão
   const checkboxes = document.querySelectorAll('.checkbox-chamado');
   const selecionarTodos = document.getElementById('selecionar-todos');
   const barraExclusao = document.getElementById('barra-exclusao');
@@ -139,5 +188,43 @@
       atualizarBarra();
     });
   }
+
+  // Paginação preserva filtros — remove page do GET antes de reenviar
+  const formFiltro = document.getElementById('form-filtro');
+  if (formFiltro) {
+    formFiltro.addEventListener('submit', function () {
+      const pageInput = this.querySelector('[name="page"]');
+      if (pageInput) pageInput.remove();
+    });
+  }
+
+  // Atualização automática — verifica novos chamados a cada 30 segundos
+  let ultimoPk = {{ chamados.object_list.0.pk|default:0 }};
+
+  function verificarNovoChamado() {
+    fetch("{% url "chamado_check_novos" %}?ultimo_pk=" + ultimoPk)
+      .then(r => r.json())
+      .then(data => {
+        if (data.novo_chamado) {
+          mostrarNotificacao(data.total_novos);
+          ultimoPk = data.novo_pk;
+        }
+      })
+      .catch(() => {});
+  }
+
+  function mostrarNotificacao(total) {
+    const notif = document.createElement('div');
+    notif.className = 'fixed top-4 right-4 z-50 flex items-center gap-3 bg-blue-600 text-white px-4 py-3 rounded-xl shadow-lg text-sm font-medium cursor-pointer';
+    notif.innerHTML = `
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+      <span>${total === 1 ? 'Novo chamado aberto' : total + ' novos chamados'}. Clique para atualizar.</span>
+    `;
+    notif.addEventListener('click', () => window.location.reload());
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 15000);
+  }
+
+  setInterval(verificarNovoChamado, 30000);
 </script>
 {% endblock %}

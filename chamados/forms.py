@@ -28,6 +28,16 @@ class ChamadoFiltroForm(forms.Form):
         choices=[("", "Todas")] + Chamado.PRIORIDADE_CHOICES,
         required=False,
     )
+    data_inicio = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="De",
+    )
+    data_fim = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="Até",
+    )
 
 
 class ChamadoEncerramentoForm(forms.ModelForm):

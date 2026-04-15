@@ -3,7 +3,6 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.http import JsonResponse
 
 from auditoria.models import RegistroAuditoria
 from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm, AcaoChamadoForm
@@ -34,6 +33,10 @@ def chamado_lista(request):
             chamados = chamados.filter(categoria=form_filtro.cleaned_data["categoria"])
         if form_filtro.cleaned_data.get("prioridade"):
             chamados = chamados.filter(prioridade=form_filtro.cleaned_data["prioridade"])
+        if form_filtro.cleaned_data.get("data_inicio"):
+            chamados = chamados.filter(criado_em__date__gte=form_filtro.cleaned_data["data_inicio"])
+        if form_filtro.cleaned_data.get("data_fim"):
+            chamados = chamados.filter(criado_em__date__lte=form_filtro.cleaned_data["data_fim"])
 
     paginator = Paginator(chamados, 15)
     page_number = request.GET.get("page")
@@ -61,29 +64,6 @@ def chamado_detalhe(request, pk):
 
 
 @login_required
-def chamado_acoes_json(request, pk):
-    chamado = get_object_or_404(Chamado, pk=pk)
-    acoes = chamado.acoes.select_related("autor").prefetch_related("anexos").all()
-    data = {
-        "total_acoes": acoes.count(),
-        "acoes": [
-            {
-                "pk": a.pk,
-                "autor": a.autor.nome_completo,
-                "criado_em": a.criado_em.strftime("%d/%m/%Y %H:%M"),
-                "descricao": a.descricao,
-                "anexos": [
-                    {"nome": ax.nome_original or ax.arquivo.name, "url": ax.arquivo.url}
-                    for ax in a.anexos.all()
-                ],
-            }
-            for a in acoes
-        ],
-    }
-    return JsonResponse(data)
-
-
-@login_required
 @permission_required("chamados.can_manage_chamados", raise_exception=True)
 def chamado_novo(request):
     form = ChamadoForm(request.POST or None)
@@ -104,7 +84,7 @@ def chamado_novo(request):
         registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, chamado.pk,
             f"Chamado #{chamado.pk} criado: {chamado.titulo}")
 
-        return redirect("chamado_detalhe", pk=chamado.pk)
+        return redirect("chamado_lista")
 
     return render(request, "chamados/chamado_form.html",
         {"form": form, "titulo": "Novo Chamado"})
@@ -243,3 +223,18 @@ def chamado_excluir_multiplos(request):
             chamados.delete()
 
     return redirect("chamado_lista")
+
+
+from django.http import JsonResponse
+
+@login_required
+def chamado_check_novos(request):
+    ultimo_pk = int(request.GET.get("ultimo_pk", 0))
+    novos = Chamado.objects.filter(pk__gt=ultimo_pk).order_by("-pk")
+    total = novos.count()
+    novo_pk = novos.first().pk if novos.exists() else ultimo_pk
+    return JsonResponse({
+        "novo_chamado": total > 0,
+        "total_novos": total,
+        "novo_pk": novo_pk,
+    })
