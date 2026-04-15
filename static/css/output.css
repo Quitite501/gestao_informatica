@@ -2031,6 +2031,34 @@ input[type="text"]:is(.dark *)::placeholder,
   transition-duration: 150ms;
 }
 
+.badge-em_atendimento {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 243 199 / var(--tw-bg-opacity, 1));
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  --tw-text-opacity: 1;
+  color: rgb(180 83 9 / var(--tw-text-opacity, 1));
+}
+
+.badge-em_atendimento:is(.dark *) {
+  background-color: rgb(120 53 15 / 0.4);
+  --tw-text-opacity: 1;
+  color: rgb(252 211 77 / var(--tw-text-opacity, 1));
+}
+
+.quill-content {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .last\:border-0:last-child {
   border-width: 0px;
 }
