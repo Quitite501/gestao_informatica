@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.http import JsonResponse
 
 from auditoria.models import RegistroAuditoria
 from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm, AcaoChamadoForm
@@ -33,8 +35,15 @@ def chamado_lista(request):
         if form_filtro.cleaned_data.get("prioridade"):
             chamados = chamados.filter(prioridade=form_filtro.cleaned_data["prioridade"])
 
-    return render(request, "chamados/chamado_lista.html",
-        {"chamados": chamados, "form_filtro": form_filtro})
+    paginator = Paginator(chamados, 15)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "chamados/chamado_lista.html", {
+        "chamados": page_obj,
+        "page_obj": page_obj,
+        "form_filtro": form_filtro,
+    })
 
 
 @login_required
@@ -49,6 +58,29 @@ def chamado_detalhe(request, pk):
         "acoes": acoes,
         "form_acao": form_acao,
     })
+
+
+@login_required
+def chamado_acoes_json(request, pk):
+    chamado = get_object_or_404(Chamado, pk=pk)
+    acoes = chamado.acoes.select_related("autor").prefetch_related("anexos").all()
+    data = {
+        "total_acoes": acoes.count(),
+        "acoes": [
+            {
+                "pk": a.pk,
+                "autor": a.autor.nome_completo,
+                "criado_em": a.criado_em.strftime("%d/%m/%Y %H:%M"),
+                "descricao": a.descricao,
+                "anexos": [
+                    {"nome": ax.nome_original or ax.arquivo.name, "url": ax.arquivo.url}
+                    for ax in a.anexos.all()
+                ],
+            }
+            for a in acoes
+        ],
+    }
+    return JsonResponse(data)
 
 
 @login_required
