@@ -1,0 +1,7 @@
+[2026-04-15 13:14:49 +0000] [60085] [INFO] Starting gunicorn 25.3.0
+[2026-04-15 13:14:49 +0000] [60085] [INFO] Listening at: http://127.0.0.1:8001 (60085)
+[2026-04-15 13:14:49 +0000] [60085] [INFO] Using worker: sync
+[2026-04-15 13:14:49 +0000] [60108] [INFO] Booting worker with pid: 60108
+[2026-04-15 13:14:49 +0000] [60109] [INFO] Booting worker with pid: 60109
+[2026-04-15 13:14:49 +0000] [60110] [INFO] Booting worker with pid: 60110
+[2026-04-15 13:14:49 +0000] [60085] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
