@@ -25,7 +25,7 @@ class Chamado(models.Model):
 
     STATUS_CHOICES = [
         (STATUS_ABERTO, "Aberto"),
-        (STATUS_EM_ATENDIMENTO, "Em atendimento"),
+        (STATUS_EM_ATENDIMENTO, "Em Atendimento"),
         (STATUS_AGUARDANDO, "Aguardando usuário"),
         (STATUS_ENCERRADO, "Encerrado"),
     ]
