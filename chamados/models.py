@@ -26,15 +26,15 @@ class Chamado(models.Model):
     STATUS_CHOICES = [
         (STATUS_ABERTO, "Aberto"),
         (STATUS_EM_ATENDIMENTO, "Em atendimento"),
-        (STATUS_AGUARDANDO, "Aguardando usuario"),
+        (STATUS_AGUARDANDO, "Aguardando usuário"),
         (STATUS_ENCERRADO, "Encerrado"),
     ]
 
     PRIORIDADE_CHOICES = [
         ("baixa", "Baixa"),
-        ("media", "Media"),
+        ("media", "Média"),
         ("alta", "Alta"),
-        ("critica", "Critica"),
+        ("critica", "Crítica"),
     ]
 
     solicitante = models.ForeignKey(
@@ -81,6 +81,9 @@ class Chamado(models.Model):
     def __str__(self):
         return "Chamado " + str(self.pk) + " - " + self.titulo
 
+    def tem_acoes(self):
+        return self.acoes.exists()
+
 
 class AnexoChamado(models.Model):
     chamado = models.ForeignKey(
@@ -88,7 +91,8 @@ class AnexoChamado(models.Model):
         on_delete=models.CASCADE,
         related_name="anexos",
     )
-    arquivo = models.FileField(upload_to="chamados/")
+    arquivo = models.FileField(upload_to="chamados/anexos/")
+    nome_original = models.CharField(max_length=255, blank=True)
     enviado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -104,3 +108,45 @@ class AnexoChamado(models.Model):
 
     def __str__(self):
         return "Anexo " + str(self.pk) + " do Chamado " + str(self.chamado_id)
+
+
+class AcaoChamado(models.Model):
+    chamado = models.ForeignKey(
+        Chamado,
+        on_delete=models.CASCADE,
+        related_name="acoes",
+    )
+    autor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="acoes_chamado",
+    )
+    descricao = models.TextField()
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Ação de Atendimento"
+        verbose_name_plural = "Ações de Atendimento"
+        ordering = ["criado_em"]
+
+    def __str__(self):
+        return "Ação " + str(self.pk) + " do Chamado " + str(self.chamado_id)
+
+
+class AnexoAcao(models.Model):
+    acao = models.ForeignKey(
+        AcaoChamado,
+        on_delete=models.CASCADE,
+        related_name="anexos",
+    )
+    arquivo = models.FileField(upload_to="chamados/acoes/")
+    nome_original = models.CharField(max_length=255, blank=True)
+    enviado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Anexo de Ação"
+        verbose_name_plural = "Anexos de Ação"
+        ordering = ["enviado_em"]
+
+    def __str__(self):
+        return "Anexo da Ação " + str(self.acao_id)
