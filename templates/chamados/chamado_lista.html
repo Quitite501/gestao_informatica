@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block title %}Chamados — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}Chamados{% endblock %}
 
@@ -15,6 +14,7 @@
 {% block content %}
 <div class="space-y-4">
 
+  <!-- Filtros -->
   <div class="card">
     <form method="get" class="flex flex-wrap items-end gap-4">
       <div>
@@ -36,43 +36,108 @@
     </form>
   </div>
 
-  <div class="card">
-    <table class="table-base">
-      <thead>
-        <tr>
-          <th>Nº</th>
-          <th>Título</th>
-          <th>Solicitante</th>
-          <th>Categoria</th>
-          <th>Prioridade</th>
-          <th>Status</th>
-          <th>Técnico</th>
-          <th>Aberto em</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for chamado in chamados %}
-        <tr>
-          <td class="text-gray-500 dark:text-gray-400">#{{ chamado.pk }}</td>
-          <td class="font-medium text-gray-900 dark:text-gray-100">{{ chamado.titulo }}</td>
-          <td>{{ chamado.solicitante.nome_completo }}</td>
-          <td>{{ chamado.categoria.nome }}</td>
-          <td><span class="badge-{{ chamado.prioridade }}">{{ chamado.get_prioridade_display }}</span></td>
-          <td><span class="badge-{{ chamado.status }}">{{ chamado.get_status_display }}</span></td>
-          <td>{{ chamado.tecnico.nome_completo|default:"—" }}</td>
-          <td class="text-gray-500 dark:text-gray-400">{{ chamado.criado_em|date:"d/m/Y H:i" }}</td>
-          <td>
-            <a href="{% url 'chamado_detalhe' chamado.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Ver</a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="9" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum chamado encontrado.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <!-- Tabela -->
+  <div class="card p-0 overflow-hidden">
+    <form method="post" action="{% url 'chamado_excluir_multiplos' %}" id="form-exclusao">
+      {% csrf_token %}
+
+      {% if request.user.groups.filter.name == "Administrador" or perms.usuarios.change_usuario %}
+      <div id="barra-exclusao" class="hidden items-center justify-between px-4 py-2 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
+        <span id="contador-selecionados" class="text-sm text-red-700 dark:text-red-300 font-medium"></span>
+        <button type="submit" class="btn-danger text-xs py-1.5"
+          onclick="return confirm('Confirma a exclusão dos chamados selecionados? Esta ação é irreversível.')">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+          Excluir selecionados
+        </button>
+      </div>
+      {% endif %}
+
+      <table class="table-base">
+        <thead>
+          <tr>
+            {% if perms.usuarios.change_usuario %}
+            <th class="w-10">
+              <input type="checkbox" id="selecionar-todos" class="rounded border-gray-300 dark:border-gray-600 text-blue-600">
+            </th>
+            {% endif %}
+            <th>Nº</th>
+            <th>Título</th>
+            <th>Solicitante</th>
+            <th>Categoria</th>
+            <th>Prioridade</th>
+            <th>Status</th>
+            <th>Técnico</th>
+            <th>Aberto em</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for chamado in chamados %}
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+            {% if perms.usuarios.change_usuario %}
+            <td>
+              <input type="checkbox" name="chamados_selecionados" value="{{ chamado.pk }}"
+                class="checkbox-chamado rounded border-gray-300 dark:border-gray-600 text-blue-600">
+            </td>
+            {% endif %}
+            <td class="text-gray-500 dark:text-gray-400 text-xs">#{{ chamado.pk }}</td>
+            <td class="font-medium text-gray-900 dark:text-gray-100">
+              <a href="{% url 'chamado_detalhe' chamado.pk %}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                {{ chamado.titulo }}
+              </a>
+            </td>
+            <td>{{ chamado.solicitante.nome_completo }}</td>
+            <td>{{ chamado.categoria.nome }}</td>
+            <td><span class="badge-{{ chamado.prioridade }}">{{ chamado.get_prioridade_display }}</span></td>
+            <td><span class="badge-{{ chamado.status }}">{{ chamado.get_status_display }}</span></td>
+            <td>{{ chamado.tecnico.nome_completo|default:"—" }}</td>
+            <td class="text-xs text-gray-500 dark:text-gray-400">{{ chamado.criado_em|date:"d/m/Y H:i" }}</td>
+            <td>
+              <div class="flex items-center gap-2">
+                <a href="{% url 'chamado_detalhe' chamado.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline text-xs">Ver</a>
+                {% if perms.usuarios.change_usuario %}
+                <a href="{% url 'chamado_excluir' chamado.pk %}" class="text-red-500 dark:text-red-400 hover:underline text-xs">Excluir</a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="10" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum chamado encontrado.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </form>
   </div>
+
 </div>
+
+<script>
+  const checkboxes = document.querySelectorAll('.checkbox-chamado');
+  const selecionarTodos = document.getElementById('selecionar-todos');
+  const barraExclusao = document.getElementById('barra-exclusao');
+  const contador = document.getElementById('contador-selecionados');
+
+  function atualizarBarra() {
+    const marcados = document.querySelectorAll('.checkbox-chamado:checked').length;
+    if (marcados > 0) {
+      barraExclusao.classList.remove('hidden');
+      barraExclusao.classList.add('flex');
+      contador.textContent = marcados === 1 ? '1 chamado selecionado' : marcados + ' chamados selecionados';
+    } else {
+      barraExclusao.classList.add('hidden');
+      barraExclusao.classList.remove('flex');
+    }
+  }
+
+  checkboxes.forEach(cb => cb.addEventListener('change', atualizarBarra));
+
+  if (selecionarTodos) {
+    selecionarTodos.addEventListener('change', function () {
+      checkboxes.forEach(cb => cb.checked = this.checked);
+      atualizarBarra();
+    });
+  }
+</script>
 {% endblock %}

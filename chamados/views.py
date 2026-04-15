@@ -146,3 +146,46 @@ def chamado_reabrir(request, pk):
         return redirect("chamado_detalhe", pk=chamado.pk)
 
     return render(request, "chamados/chamado_detalhe.html", {"chamado": chamado})
+
+
+@login_required
+def chamado_excluir(request, pk):
+    eh_admin = request.user.groups.filter(name="Administrador").exists()
+    if not eh_admin:
+        raise PermissionDenied
+
+    chamado = get_object_or_404(Chamado, pk=pk)
+
+    if request.method == "POST":
+        chamado.delete()
+        return redirect("chamado_lista")
+
+    return render(request, "chamados/chamado_confirmar_exclusao.html", {"chamado": chamado})
+
+
+@login_required
+def chamado_excluir_multiplos(request):
+    eh_admin = request.user.groups.filter(name="Administrador").exists()
+    if not eh_admin:
+        raise PermissionDenied
+
+    if request.method == "POST":
+        ids = request.POST.getlist("chamados_selecionados")
+        if ids:
+            Chamado.objects.filter(pk__in=ids).delete()
+    return redirect("chamado_lista")
+
+
+@login_required
+def chamado_excluir(request, pk):
+    eh_admin = request.user.groups.filter(name="Administrador").exists()
+    if not eh_admin:
+        raise PermissionDenied
+
+    chamado = get_object_or_404(Chamado, pk=pk)
+
+    if request.method == "POST":
+        chamado.delete()
+        return redirect("chamado_lista")
+
+    return render(request, "chamados/chamado_confirmar_exclusao.html", {"chamado": chamado})
