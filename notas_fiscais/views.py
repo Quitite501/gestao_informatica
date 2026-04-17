@@ -8,7 +8,30 @@ from .models import NotaFiscal
 
 @login_required
 def nota_fiscal_lista(request):
-    form_filtro = NotaFiscalFiltroForm(request.GET or None)
+    # ── Limpar filtros ────────────────────────────────────────────────
+    if "limpar" in request.GET:
+        request.session.pop("nota_fiscal_filtros", None)
+        return redirect("nota_fiscal_lista")
+
+    # ── Salvar filtros na sessão e redirecionar para URL limpa ────────
+    if request.GET:
+        request.session["nota_fiscal_filtros"] = {
+            k: request.GET.getlist(k) for k in request.GET.keys()
+        }
+        return redirect("nota_fiscal_lista")
+
+    # ── Reconstruir filtros da sessão ─────────────────────────────────
+    from django.http import QueryDict
+    filtros_salvos = request.session.get("nota_fiscal_filtros", {})
+    qd = QueryDict(mutable=True).copy()
+    for k, v in filtros_salvos.items():
+        if isinstance(v, list):
+            for item in v:
+                qd.appendlist(k, item)
+        else:
+            qd[k] = v
+
+    form_filtro = NotaFiscalFiltroForm(qd or None)
     notas = NotaFiscal.objects.all()
 
     if form_filtro.is_valid():
@@ -20,6 +43,8 @@ def nota_fiscal_lista(request):
             notas = notas.filter(data_emissao__gte=form_filtro.cleaned_data["data_de"])
         if form_filtro.cleaned_data.get("data_ate"):
             notas = notas.filter(data_emissao__lte=form_filtro.cleaned_data["data_ate"])
+
+    notas = notas.order_by("-data_emissao")
 
     return render(request, "notas_fiscais/nota_fiscal_lista.html", {
         "notas": notas,

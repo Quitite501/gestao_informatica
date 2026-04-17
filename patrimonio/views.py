@@ -49,7 +49,30 @@ def _registrar_movimentacao(patrimonio_antes, patrimonio_depois, usuario_logado)
 
 @login_required
 def patrimonio_lista(request):
-    form_filtro = PatrimonioFiltroForm(request.GET or None)
+    # ── Limpar filtros ────────────────────────────────────────────────
+    if "limpar" in request.GET:
+        request.session.pop("patrimonio_filtros", None)
+        return redirect("patrimonio_lista")
+
+    # ── Salvar filtros na sessão e redirecionar para URL limpa ────────
+    if request.GET:
+        request.session["patrimonio_filtros"] = {
+            k: request.GET.getlist(k) for k in request.GET.keys()
+        }
+        return redirect("patrimonio_lista")
+
+    # ── Reconstruir filtros da sessão ─────────────────────────────────
+    from django.http import QueryDict
+    filtros_salvos = request.session.get("patrimonio_filtros", {})
+    qd = QueryDict(mutable=True).copy()
+    for k, v in filtros_salvos.items():
+        if isinstance(v, list):
+            for item in v:
+                qd.appendlist(k, item)
+        else:
+            qd[k] = v
+
+    form_filtro = PatrimonioFiltroForm(qd or None)
     patrimonios = Patrimonio.objects.select_related("tipo", "setor", "usuario_atual").all()
 
     if form_filtro.is_valid():
@@ -65,6 +88,8 @@ def patrimonio_lista(request):
             patrimonios = patrimonios.filter(tipo=tipo)
         if status:
             patrimonios = patrimonios.filter(status=status)
+
+    patrimonios = patrimonios.order_by("etiqueta")
 
     return render(request, "patrimonio/patrimonio_lista.html", {
         "patrimonios": patrimonios,

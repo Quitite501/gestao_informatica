@@ -6,7 +6,7 @@ from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm
-from .models import Chamado, AnexoChamado
+from .models import Chamado, AnexoChamado, AcaoChamado, AnexoAcao
 from auditoria.utils import registrar_auditoria
 from auditoria.models import RegistroAuditoria
 
@@ -15,37 +15,65 @@ from auditoria.models import RegistroAuditoria
 def chamado_lista(request):
     """
     Listagem de chamados com filtros múltiplos.
-    Aplica filtros padrão na primeira carga da página.
+    Filtros são armazenados na sessão — URL permanece limpa.
     """
-    # Se não há parâmetros GET, redireciona com filtros padrão
-    if not request.GET:
-        return redirect(
-            f"{request.path}?status={Chamado.STATUS_ABERTO}"
-            f"&status={Chamado.STATUS_EM_ATENDIMENTO}"
-            f"&status={Chamado.STATUS_AGUARDANDO}"
-        )
-    
-    form_filtro = ChamadoFiltroForm(request.GET)
+    from django.http import QueryDict
+
+    # ── Limpar filtros ────────────────────────────────────────────────
+    if "limpar" in request.GET:
+        request.session.pop("chamado_filtros", None)
+        return redirect("chamado_lista")
+
+    # ── Receber filtros via GET e salvar na sessão ────────────────────
+    if request.GET:
+        # Serializa QueryDict (listas) como dicionário de listas
+        request.session["chamado_filtros"] = {
+            k: request.GET.getlist(k) for k in request.GET.keys()
+        }
+        return redirect("chamado_lista")
+
+    # ── Primeira carga sem sessão: aplica filtros padrão ─────────────
+    if "chamado_filtros" not in request.session:
+        request.session["chamado_filtros"] = {
+            "status": [
+                Chamado.STATUS_ABERTO,
+                Chamado.STATUS_EM_ATENDIMENTO,
+                Chamado.STATUS_AGUARDANDO,
+            ]
+        }
+
+    # ── Reconstruir QueryDict a partir da sessão ─────────────────────
+    filtros_salvos = request.session.get("chamado_filtros", {})
+    qd = QueryDict(mutable=True)
+    qd_copy = qd.copy()
+    for k, v in filtros_salvos.items():
+        if isinstance(v, list):
+            for item in v:
+                qd_copy.appendlist(k, item)
+        else:
+            qd_copy[k] = v
+
+    form_filtro = ChamadoFiltroForm(qd_copy)
     chamados = Chamado.objects.select_related(
         "solicitante", "tecnico", "categoria"
     ).all()
-    
+
     if form_filtro.is_valid():
         # Filtro múltiplo de status
         status_selecionados = form_filtro.cleaned_data.get("status")
         if status_selecionados:
             chamados = chamados.filter(status__in=status_selecionados)
-        
+
         # Filtro múltiplo de categoria
         categorias_selecionadas = form_filtro.cleaned_data.get("categoria")
         if categorias_selecionadas:
             chamados = chamados.filter(categoria__in=categorias_selecionadas)
-        
+
         # Filtro múltiplo de prioridade
         prioridades_selecionadas = form_filtro.cleaned_data.get("prioridade")
         if prioridades_selecionadas:
             chamados = chamados.filter(prioridade__in=prioridades_selecionadas)
-        
+
         # Filtro por período
         if form_filtro.cleaned_data.get("data_inicio"):
             chamados = chamados.filter(
@@ -55,18 +83,26 @@ def chamado_lista(request):
             chamados = chamados.filter(
                 criado_em__date__lte=form_filtro.cleaned_data["data_fim"]
             )
-        
+
         # Filtro por nome do solicitante
         solicitante_nome = form_filtro.cleaned_data.get("solicitante_nome", "").strip()
         if solicitante_nome:
             chamados = chamados.filter(
                 solicitante__nome_completo__icontains=solicitante_nome
             )
-    
+
+    chamados = chamados.order_by("-criado_em")
+
+    # ── Paginação ────────────────────────────────────────────────────
+    from django.core.paginator import Paginator
+    paginator   = Paginator(chamados, 15)
+    page_number = request.GET.get("page")
+    page_obj    = paginator.get_page(page_number)
+
     return render(
         request,
         "chamados/chamado_lista.html",
-        {"chamados": chamados, "form_filtro": form_filtro}
+        {"chamados": page_obj, "form_filtro": form_filtro, "page_obj": page_obj}
     )
 
 
@@ -74,10 +110,13 @@ def chamado_lista(request):
 def chamado_detalhe(request, pk):
     chamado = get_object_or_404(Chamado, pk=pk)
     anexos = chamado.anexos.all()
+    acoes = AcaoChamado.objects.filter(chamado=chamado).order_by("criado_em")
+    for acao in acoes:
+        acao.anexos_lista = AnexoAcao.objects.filter(acao=acao)
     return render(
         request,
         "chamados/chamado_detalhe.html",
-        {"chamado": chamado, "anexos": anexos}
+        {"chamado": chamado, "anexos": anexos, "acoes": acoes}
     )
 
 
@@ -255,8 +294,19 @@ def chamado_check_novos(request):
 
 @login_required
 def chamado_pdf_lista(request):
-    """Gera PDF com a listagem de chamados aplicando os filtros ativos."""
-    form_filtro = ChamadoFiltroForm(request.GET or None)
+    """Gera PDF paisagem com filtros ativos lidos da sessão."""
+    from django.http import QueryDict
+
+    filtros_salvos = request.session.get("chamado_filtros", {})
+    qd = QueryDict(mutable=True).copy()
+    for k, v in filtros_salvos.items():
+        if isinstance(v, list):
+            for item in v:
+                qd.appendlist(k, item)
+        else:
+            qd[k] = v
+
+    form_filtro = ChamadoFiltroForm(qd or None)
     chamados = Chamado.objects.select_related(
         'solicitante', 'tecnico', 'categoria'
     ).order_by('-criado_em')
@@ -298,11 +348,14 @@ def chamado_pdf_lista(request):
 
 @login_required
 def chamado_pdf_detalhe(request, pk):
-    """Gera PDF com os dados completos de um chamado especifico."""
+    """Gera PDF retrato com dados completos e histórico do chamado."""
     chamado = get_object_or_404(Chamado, pk=pk)
+    anexos  = chamado.anexos.all()
+    acoes   = AcaoChamado.objects.filter(chamado=chamado).order_by("criado_em")
     html_string = render_to_string(
         'chamados/chamado_pdf_detalhe.html',
-        {'chamado': chamado, 'usuario': request.user},
+        {'chamado': chamado, 'anexos': anexos,
+         'acoes': acoes, 'usuario': request.user},
         request=request,
     )
     pdf = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()

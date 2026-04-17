@@ -9,7 +9,30 @@ from .models import Software, LicencaContrato, InstalacaoSoftware
 
 @login_required
 def software_lista(request):
-    form_filtro = SoftwareFiltroForm(request.GET or None)
+    # ── Limpar filtros ────────────────────────────────────────────────
+    if "limpar" in request.GET:
+        request.session.pop("software_filtros", None)
+        return redirect("software_lista")
+
+    # ── Salvar filtros na sessão e redirecionar para URL limpa ────────
+    if request.GET:
+        request.session["software_filtros"] = {
+            k: request.GET.getlist(k) for k in request.GET.keys()
+        }
+        return redirect("software_lista")
+
+    # ── Reconstruir filtros da sessão ─────────────────────────────────
+    from django.http import QueryDict
+    filtros_salvos = request.session.get("software_filtros", {})
+    qd = QueryDict(mutable=True).copy()
+    for k, v in filtros_salvos.items():
+        if isinstance(v, list):
+            for item in v:
+                qd.appendlist(k, item)
+        else:
+            qd[k] = v
+
+    form_filtro = SoftwareFiltroForm(qd or None)
     softwares = Software.objects.all()
 
     if form_filtro.is_valid():
@@ -21,6 +44,8 @@ def software_lista(request):
             softwares = softwares.filter(controlado=True)
         elif form_filtro.cleaned_data.get("controlado") == "false":
             softwares = softwares.filter(controlado=False)
+
+    softwares = softwares.order_by("nome")
 
     return render(request, "licencas/software_lista.html", {
         "softwares": softwares,
