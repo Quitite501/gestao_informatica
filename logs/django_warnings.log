@@ -1,0 +1,2 @@
+WARNING 2026-04-15 15:54:32,331 test_logging 4059 137862350766208 Teste de log WARNING - Atenção necessária
+ERROR 2026-04-15 15:54:32,332 test_logging 4059 137862350766208 Teste de log ERROR - Erro detectado no teste

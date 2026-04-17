@@ -1,0 +1,3 @@
+INFO 2026-04-15 15:54:32,331 Teste de log INFO - Sistema de logs ativo
+WARNING 2026-04-15 15:54:32,331 Teste de log WARNING - Atenção necessária
+ERROR 2026-04-15 15:54:32,332 Teste de log ERROR - Erro detectado no teste

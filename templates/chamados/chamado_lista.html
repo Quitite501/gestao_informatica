@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Chamados — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}Chamados{% endblock %}
 
@@ -9,42 +10,56 @@
     Novo chamado
   </a>
   {% endif %}
+  <a href="{% url 'chamado_pdf_lista' %}?{{ request.GET.urlencode }}" class="btn-secondary" target="_blank">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0-3-3m3 3 3-3m2 8H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/></svg>
+    Gerar PDF
+  </a>
 {% endblock %}
 
 {% block content %}
 <div class="space-y-4">
 
-  <!-- Filtros -->
   <div class="card">
-    <form method="get" id="form-filtro" class="flex flex-wrap items-end gap-4">
-      <div>
-        <label class="form-label">Status</label>
-        {{ form_filtro.status }}
-      </div>
-      <div>
-        <label class="form-label">Categoria</label>
-        {{ form_filtro.categoria }}
-      </div>
-      <div>
-        <label class="form-label">Prioridade</label>
-        {{ form_filtro.prioridade }}
-      </div>
-      <div>
-        <label class="form-label">De</label>
-        {{ form_filtro.data_inicio }}
-      </div>
-      <div>
-        <label class="form-label">Até</label>
-        {{ form_filtro.data_fim }}
-      </div>
-      <div class="flex gap-2">
-        <button type="submit" class="btn-primary">Filtrar</button>
-        <a href="{% url 'chamado_lista' %}" class="btn-secondary">Limpar</a>
+    <form method="get" id="form-filtro">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+        <div class="lg:col-span-1">
+          <label class="form-label">Status</label>
+          {{ form_filtro.status }}
+        </div>
+        <div class="lg:col-span-1">
+          <label class="form-label">Categoria</label>
+          {{ form_filtro.categoria }}
+        </div>
+        <div class="lg:col-span-1">
+          <label class="form-label">Prioridade</label>
+          {{ form_filtro.prioridade }}
+        </div>
+        <div class="lg:col-span-1">
+          <label class="form-label">Solicitante</label>
+          {{ form_filtro.solicitante_nome }}
+        </div>
+        <div class="lg:col-span-1">
+          <label class="form-label">De</label>
+          {{ form_filtro.data_inicio }}
+        </div>
+        <div class="lg:col-span-1">
+          <label class="form-label">Até</label>
+          {{ form_filtro.data_fim }}
+        </div>
+        <div class="lg:col-span-1 flex gap-2">
+          <button type="submit" class="btn-primary flex-1 justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"/></svg>
+            Filtrar
+          </button>
+          <a href="{% url 'chamado_lista' %}" class="btn-secondary justify-center" title="Limpar filtros">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            Limpar
+          </a>
+        </div>
       </div>
     </form>
   </div>
 
-  <!-- Tabela -->
   <div class="card p-0 overflow-hidden">
     <form method="post" action="{% url 'chamado_excluir_multiplos' %}" id="form-exclusao">
       {% csrf_token %}
@@ -76,6 +91,7 @@
             <th>Status</th>
             <th>Técnico</th>
             <th>Aberto em</th>
+            <th>Encerrado em</th>
             <th>Ação</th>
           </tr>
         </thead>
@@ -100,6 +116,13 @@
             <td><span class="badge-{{ chamado.status }}">{{ chamado.get_status_display }}</span></td>
             <td>{{ chamado.tecnico.nome_completo|default:"—" }}</td>
             <td class="text-xs text-gray-500 dark:text-gray-400">{{ chamado.criado_em|date:"d/m/Y H:i" }}</td>
+            <td class="text-xs text-gray-500 dark:text-gray-400">
+              {% if chamado.encerrado_em %}
+                {{ chamado.encerrado_em|date:"d/m/Y H:i" }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
             <td>
               <div class="flex items-center gap-2">
                 <a href="{% url 'chamado_detalhe' chamado.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline text-xs">Ver</a>
@@ -118,7 +141,6 @@
       </table>
     </form>
 
-    <!-- Paginação -->
     {% if page_obj.has_other_pages %}
     <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
       <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -189,7 +211,7 @@
     });
   }
 
-  // Paginação preserva filtros — remove page do GET antes de reenviar
+  // Paginação preserva filtros
   const formFiltro = document.getElementById('form-filtro');
   if (formFiltro) {
     formFiltro.addEventListener('submit', function () {
@@ -202,7 +224,7 @@
   let ultimoPk = {{ chamados.object_list.0.pk|default:0 }};
 
   function verificarNovoChamado() {
-    fetch("{% url "chamado_check_novos" %}?ultimo_pk=" + ultimoPk)
+    fetch("{% url 'chamado_check_novos' %}?ultimo_pk=" + ultimoPk)
       .then(r => r.json())
       .then(data => {
         if (data.novo_chamado) {
@@ -227,4 +249,6 @@
 
   setInterval(verificarNovoChamado, 30000);
 </script>
+
+<script src="{% static 'js/multi-select-dropdown.js' %}"></script>
 {% endblock %}

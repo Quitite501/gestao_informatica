@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Chamado {{ chamado.pk }}</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 10px; margin: 20px; }
+  h1 { color: #1F4E79; font-size: 13px; }
+  h2 { color: #2E75B6; font-size: 11px; margin-top: 16px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  th { background: #1F4E79; color: #fff; padding: 5px; text-align: left; width: 30%; }
+  td { padding: 5px; border-bottom: 1px solid #ddd; }
+  .desc { background: #f9f9f9; padding: 8px; font-size: 9px; }
+  .rodape { font-size: 8px; color: #aaa; margin-top: 20px; }
+</style>
+</head>
+<body>
+<h1>Chamado #{{ chamado.pk }} — {{ chamado.titulo }}</h1>
+<table>
+  <tr><th>Solicitante</th><td>{{ chamado.solicitante.nome_completo }}</td></tr>
+  <tr><th>Categoria</th><td>{{ chamado.categoria.nome }}</td></tr>
+  <tr><th>Prioridade</th><td>{{ chamado.get_prioridade_display }}</td></tr>
+  <tr><th>Status</th><td>{{ chamado.get_status_display }}</td></tr>
+  <tr><th>Técnico</th><td>{{ chamado.tecnico.nome_completo|default:"Não atribuído" }}</td></tr>
+  <tr><th>Aberto em</th><td>{{ chamado.criado_em|date:"d/m/Y H:i" }}</td></tr>
+  <tr>
+    <th>Encerrado em</th>
+    <td>{% if chamado.encerrado_em %}{{ chamado.encerrado_em|date:"d/m/Y H:i" }}{% else %}—{% endif %}</td>
+  </tr>
+  {% if chamado.encerrado_por %}
+  <tr><th>Encerrado por</th><td>{{ chamado.encerrado_por.nome_completo }}</td></tr>
+  {% endif %}
+</table>
+<h2>Descrição</h2>
+<div class="desc">{{ chamado.descricao|safe }}</div>
+{% if chamado.solucao_tecnica %}
+<h2>Solução Técnica</h2>
+<div class="desc">{{ chamado.solucao_tecnica|safe }}</div>
+{% endif %}
+<p class="rodape">Gerado em: {% now "d/m/Y H:i" %} por {{ usuario.nome_completo }}</p>
+</body>
+</html>

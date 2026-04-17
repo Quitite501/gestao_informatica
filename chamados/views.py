@@ -1,110 +1,122 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-
+from django.http import JsonResponse, HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm
+from .models import Chamado, AnexoChamado
+from auditoria.utils import registrar_auditoria
 from auditoria.models import RegistroAuditoria
-from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm, AcaoChamadoForm
-from .models import Chamado, AnexoChamado, AcaoChamado, AnexoAcao
-
-
-def registrar_auditoria(request, acao, objeto_id, descricao):
-    RegistroAuditoria.objects.create(
-        usuario=request.user,
-        acao=acao,
-        modelo_afetado="Chamado",
-        objeto_id=str(objeto_id),
-        descricao=descricao,
-        ip=request.META.get("REMOTE_ADDR"),
-    )
 
 
 @login_required
 def chamado_lista(request):
-    form_filtro = ChamadoFiltroForm(request.GET or None)
+    """
+    Listagem de chamados com filtros múltiplos.
+    Aplica filtros padrão na primeira carga da página.
+    """
+    # Se não há parâmetros GET, redireciona com filtros padrão
+    if not request.GET:
+        return redirect(
+            f"{request.path}?status={Chamado.STATUS_ABERTO}"
+            f"&status={Chamado.STATUS_EM_ATENDIMENTO}"
+            f"&status={Chamado.STATUS_AGUARDANDO}"
+        )
+    
+    form_filtro = ChamadoFiltroForm(request.GET)
     chamados = Chamado.objects.select_related(
-        "solicitante", "tecnico", "categoria").all()
-
+        "solicitante", "tecnico", "categoria"
+    ).all()
+    
     if form_filtro.is_valid():
-        if form_filtro.cleaned_data.get("status"):
-            chamados = chamados.filter(status=form_filtro.cleaned_data["status"])
-        if form_filtro.cleaned_data.get("categoria"):
-            chamados = chamados.filter(categoria=form_filtro.cleaned_data["categoria"])
-        if form_filtro.cleaned_data.get("prioridade"):
-            chamados = chamados.filter(prioridade=form_filtro.cleaned_data["prioridade"])
+        # Filtro múltiplo de status
+        status_selecionados = form_filtro.cleaned_data.get("status")
+        if status_selecionados:
+            chamados = chamados.filter(status__in=status_selecionados)
+        
+        # Filtro múltiplo de categoria
+        categorias_selecionadas = form_filtro.cleaned_data.get("categoria")
+        if categorias_selecionadas:
+            chamados = chamados.filter(categoria__in=categorias_selecionadas)
+        
+        # Filtro múltiplo de prioridade
+        prioridades_selecionadas = form_filtro.cleaned_data.get("prioridade")
+        if prioridades_selecionadas:
+            chamados = chamados.filter(prioridade__in=prioridades_selecionadas)
+        
+        # Filtro por período
         if form_filtro.cleaned_data.get("data_inicio"):
-            chamados = chamados.filter(criado_em__date__gte=form_filtro.cleaned_data["data_inicio"])
+            chamados = chamados.filter(
+                criado_em__date__gte=form_filtro.cleaned_data["data_inicio"]
+            )
         if form_filtro.cleaned_data.get("data_fim"):
-            chamados = chamados.filter(criado_em__date__lte=form_filtro.cleaned_data["data_fim"])
-
-    paginator = Paginator(chamados, 15)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    return render(request, "chamados/chamado_lista.html", {
-        "chamados": page_obj,
-        "page_obj": page_obj,
-        "form_filtro": form_filtro,
-    })
+            chamados = chamados.filter(
+                criado_em__date__lte=form_filtro.cleaned_data["data_fim"]
+            )
+        
+        # Filtro por nome do solicitante
+        solicitante_nome = form_filtro.cleaned_data.get("solicitante_nome", "").strip()
+        if solicitante_nome:
+            chamados = chamados.filter(
+                solicitante__nome_completo__icontains=solicitante_nome
+            )
+    
+    return render(
+        request,
+        "chamados/chamado_lista.html",
+        {"chamados": chamados, "form_filtro": form_filtro}
+    )
 
 
 @login_required
 def chamado_detalhe(request, pk):
     chamado = get_object_or_404(Chamado, pk=pk)
     anexos = chamado.anexos.all()
-    acoes = chamado.acoes.select_related("autor").prefetch_related("anexos").all()
-    form_acao = AcaoChamadoForm()
-    return render(request, "chamados/chamado_detalhe.html", {
-        "chamado": chamado,
-        "anexos": anexos,
-        "acoes": acoes,
-        "form_acao": form_acao,
-    })
+    return render(
+        request,
+        "chamados/chamado_detalhe.html",
+        {"chamado": chamado, "anexos": anexos}
+    )
 
 
 @login_required
 @permission_required("chamados.can_manage_chamados", raise_exception=True)
 def chamado_novo(request):
     form = ChamadoForm(request.POST or None)
-
     if form.is_valid():
         chamado = form.save(commit=False)
         chamado.status = Chamado.STATUS_ABERTO
         chamado.save()
-
+        
         for arquivo in request.FILES.getlist("anexos"):
             AnexoChamado.objects.create(
                 chamado=chamado,
                 arquivo=arquivo,
                 nome_original=arquivo.name,
-                enviado_por=request.user,
             )
-
-        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, chamado.pk,
-            f"Chamado #{chamado.pk} criado: {chamado.titulo}")
-
-        return redirect("chamado_lista")
-
-    return render(request, "chamados/chamado_form.html",
-        {"form": form, "titulo": "Novo Chamado"})
+        
+        return redirect("chamado_detalhe", pk=chamado.pk)
+    
+    return render(
+        request,
+        "chamados/chamado_form.html",
+        {"form": form, "titulo": "Novo Chamado"}
+    )
 
 
 @login_required
 @permission_required("chamados.can_manage_chamados", raise_exception=True)
 def chamado_atender(request, pk):
     chamado = get_object_or_404(Chamado, pk=pk)
-
+    
     if request.method == "POST":
         chamado.tecnico = request.user
         chamado.status = Chamado.STATUS_EM_ATENDIMENTO
         chamado.save()
-
-        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, chamado.pk,
-            f"Chamado #{chamado.pk} assumido por {request.user.nome_completo}")
-
         return redirect("chamado_detalhe", pk=chamado.pk)
-
+    
     return render(request, "chamados/chamado_detalhe.html", {"chamado": chamado})
 
 
@@ -112,81 +124,83 @@ def chamado_atender(request, pk):
 @permission_required("chamados.can_manage_chamados", raise_exception=True)
 def chamado_registrar_acao(request, pk):
     chamado = get_object_or_404(Chamado, pk=pk)
-
-    if chamado.status not in [Chamado.STATUS_EM_ATENDIMENTO, Chamado.STATUS_AGUARDANDO]:
-        raise PermissionDenied
-
     if request.method == "POST":
-        form = AcaoChamadoForm(request.POST)
+        from .forms import AcaoChamadoForm
+        form = AcaoChamadoForm(request.POST, request.FILES)
         if form.is_valid():
             acao = form.save(commit=False)
             acao.chamado = chamado
             acao.autor = request.user
             acao.save()
-
-            for arquivo in request.FILES.getlist("anexos_acao"):
+            
+            # Processar múltiplos anexos
+            for arquivo in request.FILES.getlist('anexos'):
+                from .models import AnexoAcao
                 AnexoAcao.objects.create(
                     acao=acao,
                     arquivo=arquivo,
-                    nome_original=arquivo.name,
+                    nome_original=arquivo.name
                 )
-
-            registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, chamado.pk,
-                f"Ação registrada no Chamado #{chamado.pk} por {request.user.nome_completo}")
-
+            
             return redirect("chamado_detalhe", pk=chamado.pk)
-
+    
     return redirect("chamado_detalhe", pk=chamado.pk)
 
 
 @login_required
 @permission_required("chamados.can_manage_chamados", raise_exception=True)
 def chamado_encerrar(request, pk):
+    """
+    Encerra o chamado e redireciona para a lista de chamados.
+    """
     chamado = get_object_or_404(Chamado, pk=pk)
-
     if not chamado.tem_acoes():
         return redirect("chamado_detalhe", pk=chamado.pk)
-
+    
     form = ChamadoEncerramentoForm(request.POST or None, instance=chamado)
-
+    
     if form.is_valid():
         chamado = form.save(commit=False)
         chamado.status = Chamado.STATUS_ENCERRADO
         chamado.encerrado_por = request.user
         chamado.encerrado_em = timezone.now()
         chamado.save()
-
-        registrar_auditoria(request, RegistroAuditoria.ACAO_ENCERRAMENTO, chamado.pk,
+        
+        registrar_auditoria(request, RegistroAuditoria.ACAO_ENCERRAMENTO, "Chamado", str(chamado.pk),
             f"Chamado #{chamado.pk} encerrado por {request.user.nome_completo}")
-
-        return redirect("chamado_detalhe", pk=chamado.pk)
-
-    return render(request, "chamados/chamado_encerramento.html",
-        {"form": form, "chamado": chamado})
+        
+        # MUDANÇA: redireciona para a lista ao invés do detalhe
+        return redirect("chamado_lista")
+    
+    return render(
+        request,
+        "chamados/chamado_encerramento.html",
+        {"form": form, "chamado": chamado}
+    )
 
 
 @login_required
 def chamado_reabrir(request, pk):
     chamado = get_object_or_404(Chamado, pk=pk)
-
+    
     eh_solicitante = chamado.solicitante == request.user
     eh_admin = request.user.groups.filter(name="Administrador").exists()
-
+    
     if not (eh_solicitante or eh_admin):
         raise PermissionDenied
-
+    
     if request.method == "POST":
         chamado.status = Chamado.STATUS_ABERTO
         chamado.encerrado_por = None
         chamado.encerrado_em = None
         chamado.solucao_tecnica = None
         chamado.save()
-
-        registrar_auditoria(request, RegistroAuditoria.ACAO_REABERTURA, chamado.pk,
+        
+        registrar_auditoria(request, RegistroAuditoria.ACAO_REABERTURA, "Chamado", str(chamado.pk),
             f"Chamado #{chamado.pk} reaberto por {request.user.nome_completo}")
-
+        
         return redirect("chamado_detalhe", pk=chamado.pk)
-
+    
     return render(request, "chamados/chamado_detalhe.html", {"chamado": chamado})
 
 
@@ -195,15 +209,15 @@ def chamado_excluir(request, pk):
     eh_admin = request.user.groups.filter(name="Administrador").exists()
     if not eh_admin:
         raise PermissionDenied
-
+    
     chamado = get_object_or_404(Chamado, pk=pk)
-
+    
     if request.method == "POST":
         descricao = f"Chamado #{chamado.pk} excluído: '{chamado.titulo}' — solicitante: {chamado.solicitante.nome_completo} — status anterior: {chamado.get_status_display()}"
-        registrar_auditoria(request, RegistroAuditoria.ACAO_EXCLUSAO, chamado.pk, descricao)
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EXCLUSAO, "Chamado", str(chamado.pk), descricao)
         chamado.delete()
         return redirect("chamado_lista")
-
+    
     return render(request, "chamados/chamado_confirmar_exclusao.html", {"chamado": chamado})
 
 
@@ -212,20 +226,18 @@ def chamado_excluir_multiplos(request):
     eh_admin = request.user.groups.filter(name="Administrador").exists()
     if not eh_admin:
         raise PermissionDenied
-
+    
     if request.method == "POST":
         ids = request.POST.getlist("chamados_selecionados")
         if ids:
             chamados = Chamado.objects.filter(pk__in=ids)
             for chamado in chamados:
                 descricao = f"Chamado #{chamado.pk} excluído em lote: '{chamado.titulo}' — solicitante: {chamado.solicitante.nome_completo} — status anterior: {chamado.get_status_display()}"
-                registrar_auditoria(request, RegistroAuditoria.ACAO_EXCLUSAO, chamado.pk, descricao)
+                registrar_auditoria(request, RegistroAuditoria.ACAO_EXCLUSAO, "Chamado", str(chamado.pk), descricao)
             chamados.delete()
-
+    
     return redirect("chamado_lista")
 
-
-from django.http import JsonResponse
 
 @login_required
 def chamado_check_novos(request):
@@ -233,8 +245,68 @@ def chamado_check_novos(request):
     novos = Chamado.objects.filter(pk__gt=ultimo_pk).order_by("-pk")
     total = novos.count()
     novo_pk = novos.first().pk if novos.exists() else ultimo_pk
+    
     return JsonResponse({
         "novo_chamado": total > 0,
         "total_novos": total,
         "novo_pk": novo_pk,
     })
+
+
+@login_required
+def chamado_pdf_lista(request):
+    """Gera PDF com a listagem de chamados aplicando os filtros ativos."""
+    form_filtro = ChamadoFiltroForm(request.GET or None)
+    chamados = Chamado.objects.select_related(
+        'solicitante', 'tecnico', 'categoria'
+    ).order_by('-criado_em')
+
+    if form_filtro.is_valid():
+        status_selecionados = form_filtro.cleaned_data.get('status')
+        if status_selecionados:
+            chamados = chamados.filter(status__in=status_selecionados)
+        categorias_selecionadas = form_filtro.cleaned_data.get('categoria')
+        if categorias_selecionadas:
+            chamados = chamados.filter(categoria__in=categorias_selecionadas)
+        prioridades_selecionadas = form_filtro.cleaned_data.get('prioridade')
+        if prioridades_selecionadas:
+            chamados = chamados.filter(prioridade__in=prioridades_selecionadas)
+        if form_filtro.cleaned_data.get('data_inicio'):
+            chamados = chamados.filter(
+                criado_em__date__gte=form_filtro.cleaned_data['data_inicio']
+            )
+        if form_filtro.cleaned_data.get('data_fim'):
+            chamados = chamados.filter(
+                criado_em__date__lte=form_filtro.cleaned_data['data_fim']
+            )
+        solicitante_nome = form_filtro.cleaned_data.get('solicitante_nome', '').strip()
+        if solicitante_nome:
+            chamados = chamados.filter(
+                solicitante__nome_completo__icontains=solicitante_nome
+            )
+
+    html_string = render_to_string(
+        'chamados/chamado_pdf_lista.html',
+        {'chamados': chamados, 'usuario': request.user},
+        request=request,
+    )
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="chamados.pdf"'
+    return response
+
+
+@login_required
+def chamado_pdf_detalhe(request, pk):
+    """Gera PDF com os dados completos de um chamado especifico."""
+    chamado = get_object_or_404(Chamado, pk=pk)
+    html_string = render_to_string(
+        'chamados/chamado_pdf_detalhe.html',
+        {'chamado': chamado, 'usuario': request.user},
+        request=request,
+    )
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+    response = HttpResponse(pdf, content_type='application/pdf')
+    nome = f'chamado_{chamado.pk}.pdf'
+    response['Content-Disposition'] = f'inline; filename="{nome}"'
+    return response

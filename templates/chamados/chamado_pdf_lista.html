@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Relatório de Chamados</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 10px; margin: 20px; }
+  h1 { color: #1F4E79; font-size: 14px; margin-bottom: 4px; }
+  .info { font-size: 9px; color: #666; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #1F4E79; color: #fff; padding: 5px 4px; text-align: left; }
+  td { padding: 4px; border-bottom: 1px solid #ddd; }
+  tr:nth-child(even) { background: #f5f5f5; }
+</style>
+</head>
+<body>
+<h1>Relatório de Chamados</h1>
+<p class="info">Gerado em: {% now "d/m/Y H:i" %} por {{ usuario.nome_completo }}</p>
+<table>
+  <thead><tr>
+    <th>#</th><th>Título</th><th>Solicitante</th>
+    <th>Categoria</th><th>Prioridade</th><th>Status</th>
+    <th>Aberto em</th><th>Encerrado em</th>
+  </tr></thead>
+  <tbody>
+  {% for c in chamados %}
+  <tr>
+    <td>{{ c.pk }}</td>
+    <td>{{ c.titulo }}</td>
+    <td>{{ c.solicitante.nome_completo }}</td>
+    <td>{{ c.categoria.nome }}</td>
+    <td>{{ c.get_prioridade_display }}</td>
+    <td>{{ c.get_status_display }}</td>
+    <td>{{ c.criado_em|date:"d/m/Y H:i" }}</td>
+    <td>{% if c.encerrado_em %}{{ c.encerrado_em|date:"d/m/Y H:i" }}{% else %}—{% endif %}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="8">Nenhum chamado encontrado.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</body>
+</html>

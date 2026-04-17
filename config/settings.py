@@ -100,3 +100,119 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
     SESSION_COOKIE_SECURE = False  # True apenas com HTTPS
     CSRF_COOKIE_SECURE = False     # True apenas com HTTPS
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_HTTPONLY = True
+
+
+# ==============================================================================
+# CONFIGURAÇÃO DE LOGGING
+# ==============================================================================
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
+    
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    
+    'handlers': {
+        # Handler para erros críticos (ERROR e CRITICAL)
+        'file_errors': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'django_errors.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        
+        # Handler para avisos (WARNING)
+        'file_warnings': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'django_warnings.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 3,
+            'formatter': 'verbose',
+        },
+        
+        # Handler para informações gerais (INFO)
+        'file_info': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'django_info.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 3,
+            'formatter': 'simple',
+        },
+        
+        # Console (apenas em desenvolvimento)
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    
+    'loggers': {
+        # Logger principal do Django
+        'django': {
+            'handlers': ['file_errors', 'file_warnings', 'file_info', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        
+        # Logger para requisições HTTP
+        'django.request': {
+            'handlers': ['file_errors', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        
+        # Logger para queries do banco de dados (ativar apenas em debug)
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': False,
+        },
+        
+        # Logger para segurança
+        'django.security': {
+            'handlers': ['file_errors', 'file_warnings'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        
+        # Logger customizado para as apps do projeto
+        'sistema_ti': {
+            'handlers': ['file_errors', 'file_warnings', 'file_info', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+    
+    # Logger raiz (captura tudo que não foi especificado)
+    'root': {
+        'handlers': ['file_errors', 'console'],
+        'level': 'WARNING',
+    },
+}

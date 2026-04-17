@@ -6,56 +6,83 @@ class ChamadoForm(forms.ModelForm):
     class Meta:
         model = Chamado
         fields = ["solicitante", "titulo", "descricao", "categoria", "prioridade"]
-        widgets = {
-            "descricao": forms.Textarea(attrs={
-                "class": "quill-editor",
-                "id": "id_descricao",
-            }),
-        }
 
 
 class ChamadoFiltroForm(forms.Form):
-    status = forms.ChoiceField(
-        choices=[("", "Todos")] + Chamado.STATUS_CHOICES,
+    """
+    Formulário de filtro com suporte a múltipla seleção.
+    Define valores padrão: Aberto, Em atendimento, Aguardando usuário.
+    """
+    
+    status = forms.MultipleChoiceField(
+        choices=Chamado.STATUS_CHOICES,
         required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'multi-select-dropdown'}),
+        label="Status",
     )
-    categoria = forms.ModelChoiceField(
+    
+    categoria = forms.ModelMultipleChoiceField(
         queryset=CategoriaChamado.objects.filter(ativo=True),
         required=False,
-        empty_label="Todas",
+        widget=forms.SelectMultiple(attrs={'class': 'multi-select-dropdown'}),
+        label="Categoria",
     )
-    prioridade = forms.ChoiceField(
-        choices=[("", "Todas")] + Chamado.PRIORIDADE_CHOICES,
+    
+    prioridade = forms.MultipleChoiceField(
+        choices=Chamado.PRIORIDADE_CHOICES,
         required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'multi-select-dropdown'}),
+        label="Prioridade",
     )
+    
     data_inicio = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={"type": "date"}),
-        label="De",
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label="Data início",
     )
+    
     data_fim = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={"type": "date"}),
-        label="Até",
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label="Data fim",
     )
+
+    solicitante_nome = forms.CharField(
+        required=False,
+        label="Solicitante",
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Nome do solicitante...',
+            'class': 'form-input',
+        }),
+    )
+    
+    def __init__(self, *args, **kwargs):
+        """
+        Define valores padrão apenas quando o formulário é carregado
+        sem parâmetros GET (primeira vez que a tela é aberta).
+        """
+        super().__init__(*args, **kwargs)
+        
+        # Se não há dados GET, aplica filtros padrão
+        if not self.data:
+            self.initial['status'] = [
+                Chamado.STATUS_ABERTO,
+                Chamado.STATUS_EM_ATENDIMENTO,
+                Chamado.STATUS_AGUARDANDO,
+            ]
 
 
 class ChamadoEncerramentoForm(forms.ModelForm):
     class Meta:
         model = Chamado
         fields = ["solucao_tecnica"]
-        widgets = {
-            "solucao_tecnica": forms.Textarea(attrs={
-                "class": "quill-editor",
-                "id": "id_solucao_tecnica",
-            }),
-        }
-
+    
     def clean_solucao_tecnica(self):
         solucao = self.cleaned_data.get("solucao_tecnica")
-        if not solucao or not solucao.strip() or solucao.strip() in ("<p><br></p>", "<p></p>"):
+        if not solucao or not solucao.strip():
             raise forms.ValidationError(
-                "A solução técnica é obrigatória para encerrar o chamado.")
+                "A solução técnica é obrigatória para encerrar o chamado."
+            )
         return solucao
 
 
@@ -65,13 +92,8 @@ class AcaoChamadoForm(forms.ModelForm):
         fields = ["descricao"]
         widgets = {
             "descricao": forms.Textarea(attrs={
-                "class": "quill-editor",
-                "id": "id_descricao_acao",
+                "rows": 3,
+                "placeholder": "Descreva a acao realizada...",
+                "class": "form-input",
             }),
         }
-
-    def clean_descricao(self):
-        descricao = self.cleaned_data.get("descricao")
-        if not descricao or not descricao.strip() or descricao.strip() in ("<p><br></p>", "<p></p>"):
-            raise forms.ValidationError("A descrição da ação não pode estar vazia.")
-        return descricao
