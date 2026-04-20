@@ -236,6 +236,7 @@
   });
 
   document.getElementById('form-acao').addEventListener('submit', function () {
+    sincronizarInputAcao();
     document.getElementById('hidden-descricao-acao').value = quillAcao.root.innerHTML;
   });
 
