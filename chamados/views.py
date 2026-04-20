@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
 from datetime import timedelta
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
@@ -122,15 +122,9 @@ def chamado_lista(request):
             return redirect("chamado_lista")
         # Se só veio ?page=N, deixa prosseguir normalmente
 
-    # ── Primeira carga sem sessão: aplica filtros padrão ─────────────
+    # ── Primeira carga sem sessão: aplica filtros padrão (ISO 20000) ──
     if "chamado_filtros" not in request.session:
-        request.session["chamado_filtros"] = {
-            "status": [
-                Chamado.STATUS_ABERTO,
-                Chamado.STATUS_EM_ATENDIMENTO,
-                Chamado.STATUS_AGUARDANDO,
-            ]
-        }
+        request.session["chamado_filtros"] = {"_filtro_padrao": True}
 
     # ── Reconstruir QueryDict a partir da sessão ─────────────────────
     filtros_salvos = request.session.get("chamado_filtros", {})
@@ -181,6 +175,20 @@ def chamado_lista(request):
                 solicitante__nome_completo__icontains=solicitante_nome
             )
 
+    # ── Filtro padrão ISO 20000: ativos sempre + encerrados 30 dias ──
+    filtro_padrao_ativo = filtros_salvos.get("_filtro_padrao", False)
+    if filtro_padrao_ativo:
+        from datetime import date, timedelta
+        data_corte = date.today() - timedelta(days=30)
+        chamados = chamados.filter(
+            Q(status__in=[
+                Chamado.STATUS_ABERTO,
+                Chamado.STATUS_EM_ATENDIMENTO,
+                Chamado.STATUS_AGUARDANDO,
+            ]) |
+            Q(status=Chamado.STATUS_ENCERRADO,
+              criado_em__date__gte=data_corte)
+        )
     chamados = chamados.order_by("-criado_em")
 
     # ── Paginação ────────────────────────────────────────────────────
@@ -192,7 +200,7 @@ def chamado_lista(request):
     return render(
         request,
         "chamados/chamado_lista.html",
-        {"chamados": page_obj, "form_filtro": form_filtro, "page_obj": page_obj}
+        {"chamados": page_obj, "form_filtro": form_filtro, "page_obj": page_obj, "filtro_padrao_ativo": filtro_padrao_ativo}
     )
 
 
