@@ -181,6 +181,42 @@
         <p class="text-gray-900 dark:text-gray-100">{{ chamado.encerrado_por.nome_completo|default:"—" }}</p>
       </div>
       {% endif %}
+      {% with status=chamado.status_sla pct=chamado.percentual_sla prazo=chamado.prazo_sla %}
+      {% if status != "encerrado" %}
+      <div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">SLA</p>
+        {% if status == "vencido" %}
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300">
+            &#9679; Vencido
+          </span>
+        {% elif status == "em_risco" %}
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
+            &#9679; Em risco
+          </span>
+        {% else %}
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+            &#9679; No prazo
+          </span>
+        {% endif %}
+        <div class="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          {% if status == "vencido" %}
+            <div class="h-2 rounded-full bg-red-500" style="width: 100%"></div>
+          {% elif status == "em_risco" %}
+            <div class="h-2 rounded-full bg-yellow-500" style="width: {{ pct }}%"></div>
+          {% else %}
+            <div class="h-2 rounded-full bg-green-500" style="width: {{ pct }}%"></div>
+          {% endif %}
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          {% if status == "vencido" %}
+            Prazo vencido em {{ prazo|date:"d/m/Y H:i" }}
+          {% else %}
+            Vence em {{ prazo|date:"d/m/Y H:i" }} &mdash; {{ pct }}% consumido
+          {% endif %}
+        </p>
+      </div>
+      {% endif %}
+      {% endwith %}
     </div>
 
     {% if chamado.solucao_tecnica %}
