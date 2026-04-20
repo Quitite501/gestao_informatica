@@ -115,11 +115,12 @@ def chamado_lista(request):
 
     # ── Receber filtros via GET e salvar na sessão ────────────────────
     if request.GET:
-        # Serializa QueryDict (listas) como dicionário de listas
-        request.session["chamado_filtros"] = {
-            k: request.GET.getlist(k) for k in request.GET.keys()
-        }
-        return redirect("chamado_lista")
+        # 'page' não é filtro — nunca salvar na sessão nem causar redirect
+        filtros_novos = {k: request.GET.getlist(k) for k in request.GET.keys() if k != "page"}
+        if filtros_novos:
+            request.session["chamado_filtros"] = filtros_novos
+            return redirect("chamado_lista")
+        # Se só veio ?page=N, deixa prosseguir normalmente
 
     # ── Primeira carga sem sessão: aplica filtros padrão ─────────────
     if "chamado_filtros" not in request.session:

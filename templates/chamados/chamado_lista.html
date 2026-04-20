@@ -179,7 +179,7 @@
           {% if page_obj.number == num %}
           <span class="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg">{{ num }}</span>
           {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
-          <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}"
+          <a href="?page={{ num }}"
             class="btn-secondary py-1.5 px-3 text-xs">{{ num }}</a>
           {% endif %}
         {% endfor %}
