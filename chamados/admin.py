@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CategoriaChamado, Chamado, AnexoChamado, AcaoChamado, AnexoAcao
+from .models import ConfiguracaoSLA,  CategoriaChamado, Chamado, AnexoChamado, AcaoChamado, AnexoAcao
 
 
 @admin.register(CategoriaChamado)
@@ -33,3 +33,10 @@ class AcaoChamadoAdmin(admin.ModelAdmin):
 @admin.register(AnexoAcao)
 class AnexoAcaoAdmin(admin.ModelAdmin):
     list_display = ("pk", "acao", "nome_original", "enviado_em")
+
+
+@admin.register(ConfiguracaoSLA)
+class ConfiguracaoSLAAdmin(admin.ModelAdmin):
+    list_display  = ("prioridade", "categoria", "prazo_horas")
+    list_filter   = ("prioridade",)
+    ordering      = ("prioridade", "categoria__nome")

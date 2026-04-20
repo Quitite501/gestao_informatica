@@ -92,6 +92,7 @@
             <th>Técnico</th>
             <th>Aberto em</th>
             <th>Encerrado em</th>
+            <th>SLA</th>
             <th>Ação</th>
           </tr>
         </thead>
@@ -122,6 +123,25 @@
               {% else %}
                 —
               {% endif %}
+            </td>
+            <td>
+              {% with status=chamado.status_sla pct=chamado.percentual_sla %}
+                {% if status == "vencido" %}
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300">
+                    &#9679; Vencido
+                  </span>
+                {% elif status == "em_risco" %}
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
+                    &#9679; Em risco ({{ pct }}%)
+                  </span>
+                {% elif status == "no_prazo" %}
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                    &#9679; No prazo ({{ pct }}%)
+                  </span>
+                {% else %}
+                  <span class="text-xs text-gray-400 dark:text-gray-500">—</span>
+                {% endif %}
+              {% endwith %}
             </td>
             <td>
               <div class="flex items-center gap-2">
