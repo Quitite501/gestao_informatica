@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
+from datetime import timedelta
+from django.db.models import Count
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
@@ -10,6 +12,93 @@ from .models import Chamado, AnexoChamado, AcaoChamado, AnexoAcao
 from auditoria.utils import registrar_auditoria
 from auditoria.models import RegistroAuditoria
 
+
+
+@login_required
+def chamado_dashboard(request):
+    from django.db.models import Count
+    from datetime import timedelta
+    hoje = timezone.now().date()
+    inicio_semana = hoje - timedelta(days=hoje.weekday())
+
+    # KPI cards
+    total_abertos    = Chamado.objects.exclude(status=Chamado.STATUS_ENCERRADO).count()
+    total_criticos   = Chamado.objects.filter(
+        status__in=[Chamado.STATUS_ABERTO, Chamado.STATUS_EM_ATENDIMENTO],
+        prioridade='critica'
+    ).count()
+    abertos_hoje     = Chamado.objects.filter(criado_em__date=hoje).count()
+    abertos_semana   = Chamado.objects.filter(criado_em__date__gte=inicio_semana).count()
+
+    # Por status (somente ativos)
+    por_status = {
+        'aberto':            Chamado.objects.filter(status=Chamado.STATUS_ABERTO).count(),
+        'em_atendimento':    Chamado.objects.filter(status=Chamado.STATUS_EM_ATENDIMENTO).count(),
+        'aguardando_usuario': Chamado.objects.filter(status=Chamado.STATUS_AGUARDANDO).count(),
+        'encerrado_mes':     Chamado.objects.filter(
+            status=Chamado.STATUS_ENCERRADO,
+            encerrado_em__date__gte=hoje.replace(day=1)
+        ).count(),
+    }
+
+    # Por prioridade (somente ativos)
+    por_prioridade = {
+        'critica': Chamado.objects.filter(prioridade='critica').exclude(status=Chamado.STATUS_ENCERRADO).count(),
+        'alta':    Chamado.objects.filter(prioridade='alta').exclude(status=Chamado.STATUS_ENCERRADO).count(),
+        'media':   Chamado.objects.filter(prioridade='media').exclude(status=Chamado.STATUS_ENCERRADO).count(),
+        'baixa':   Chamado.objects.filter(prioridade='baixa').exclude(status=Chamado.STATUS_ENCERRADO).count(),
+    }
+
+    # SLA — calcular para cada chamado ativo
+    chamados_ativos = Chamado.objects.exclude(status=Chamado.STATUS_ENCERRADO)
+    sla_no_prazo = sla_em_risco = sla_vencido = 0
+    for c in chamados_ativos:
+        s = c.status_sla()
+        if s == 'no_prazo':
+            sla_no_prazo += 1
+        elif s == 'em_risco':
+            sla_em_risco += 1
+        elif s == 'vencido':
+            sla_vencido += 1
+
+    # Por técnico (chamados ativos)
+    from django.conf import settings
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    por_tecnico = (
+        Chamado.objects
+        .exclude(status=Chamado.STATUS_ENCERRADO)
+        .values('tecnico__pk', 'tecnico__nome_completo')
+        .annotate(total=Count('pk'))
+        .order_by('-total')[:6]
+    )
+
+    # Últimos 7 dias — chamados abertos por dia
+    ultimos_7 = []
+    for i in range(6, -1, -1):
+        dia = hoje - timedelta(days=i)
+        ultimos_7.append({
+            'dia': dia.strftime('%a'),
+            'data': dia.strftime('%d/%m'),
+            'total': Chamado.objects.filter(criado_em__date=dia).count(),
+        })
+    max_dia = max((d['total'] for d in ultimos_7), default=1) or 1
+
+    context = {
+        'total_abertos':    total_abertos,
+        'total_criticos':   total_criticos,
+        'sla_vencido':      sla_vencido,
+        'sla_em_risco':     sla_em_risco,
+        'abertos_hoje':     abertos_hoje,
+        'abertos_semana':   abertos_semana,
+        'por_status':       por_status,
+        'por_prioridade':   por_prioridade,
+        'sla_no_prazo':     sla_no_prazo,
+        'por_tecnico':      por_tecnico,
+        'ultimos_7':        ultimos_7,
+        'max_dia':          max_dia,
+    }
+    return render(request, 'chamados/chamado_dashboard.html', context)
 
 @login_required
 def chamado_lista(request):

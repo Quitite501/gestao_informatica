@@ -450,3 +450,29 @@
 [2026-04-20 16:11:45 -0300] [31371] [INFO] Worker exiting (pid: 31371)
 [2026-04-20 16:11:45 -0300] [31370] [INFO] Worker exiting (pid: 31370)
 [2026-04-20 16:11:45 -0300] [31372] [INFO] Worker exiting (pid: 31372)
+[2026-04-20 19:37:34 +0000] [31363] [INFO] Handling signal: term
+[2026-04-20 16:37:34 -0300] [31704] [INFO] Worker exiting (pid: 31704)
+[2026-04-20 16:37:34 -0300] [31708] [INFO] Worker exiting (pid: 31708)
+[2026-04-20 16:37:34 -0300] [31706] [INFO] Worker exiting (pid: 31706)
+[2026-04-20 19:37:34 +0000] [31363] [INFO] Worker (pid:31704) was sent SIGTERM!
+[2026-04-20 19:37:34 +0000] [31363] [INFO] Worker (pid:31706) was sent SIGTERM!
+[2026-04-20 19:37:34 +0000] [31363] [INFO] Worker (pid:31708) was sent SIGTERM!
+[2026-04-20 19:37:34 +0000] [31363] [INFO] Shutting down: Master
+[2026-04-20 19:37:34 +0000] [32477] [INFO] Starting gunicorn 25.3.0
+[2026-04-20 19:37:34 +0000] [32477] [INFO] Listening at: http://127.0.0.1:8001 (32477)
+[2026-04-20 19:37:34 +0000] [32477] [INFO] Using worker: sync
+[2026-04-20 19:37:34 +0000] [32483] [INFO] Booting worker with pid: 32483
+[2026-04-20 19:37:34 +0000] [32484] [INFO] Booting worker with pid: 32484
+[2026-04-20 19:37:34 +0000] [32485] [INFO] Booting worker with pid: 32485
+[2026-04-20 19:37:34 +0000] [32477] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-20 19:39:29 +0000] [32477] [INFO] Handling signal: hup
+[2026-04-20 19:39:29 +0000] [32477] [INFO] Hang up: Master
+[2026-04-20 19:39:29 +0000] [32745] [INFO] Booting worker with pid: 32745
+[2026-04-20 19:39:29 +0000] [32477] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-20 19:39:31 +0000] [32747] [INFO] Booting worker with pid: 32747
+[2026-04-20 19:39:31 +0000] [32477] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-20 19:39:33 +0000] [32749] [INFO] Booting worker with pid: 32749
+[2026-04-20 16:39:33 -0300] [32483] [INFO] Worker exiting (pid: 32483)
+[2026-04-20 16:39:33 -0300] [32485] [INFO] Worker exiting (pid: 32485)
+[2026-04-20 16:39:33 -0300] [32484] [INFO] Worker exiting (pid: 32484)
+[2026-04-20 19:39:33 +0000] [32477] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
