@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -136,6 +137,7 @@ def usuario_editar(request, pk):
     form = UsuarioForm(request.POST or None, request.FILES or None, instance=usuario)
     if form.is_valid():
         usuario = form.save()
+        update_session_auth_hash(request, usuario)
         registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Usuario",
             usuario.pk, f"Usuário {usuario.nome_completo} editado.")
         return redirect("usuario_lista")
