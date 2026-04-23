@@ -172,7 +172,7 @@ def usuario_recuperar_senha(request):
         nova_senha = request.POST.get('nova_senha', '').strip()
         confirmar_senha = request.POST.get('confirmar_senha', '').strip()
         try:
-            usuario = Usuario.objects.get(login_rede=login_rede, email=email, ativo=True)
+            usuario = Usuario.objects.get(login_rede__iexact=login_rede, email__iexact=email, ativo=True)
             if not nova_senha:
                 erro = 'A nova senha não pode ser vazia.'
             elif len(nova_senha) < 6:
