@@ -51,3 +51,13 @@ def relatorio_notas_fiscais(request):
         "notas": notas,
         "valor_total": valor_total,
     })
+
+
+# ── Handler de erro 403 ──────────────────────────────────────────────────────
+def pagina_403(request, exception=None):
+    """
+    View customizada para o erro 403 (Acesso Negado).
+    Exibe informações do módulo acessado para facilitar a identificação
+    pelo administrador do sistema.
+    """
+    return render(request, '403.html', status=403)

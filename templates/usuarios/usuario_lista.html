@@ -46,7 +46,7 @@
             {% if perms.usuarios.change_usuario %}
             <a href="{% url 'usuario_editar' usuario.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Editar</a>
             {% if usuario.ativo %}
-            <a href="{% url 'usuario_desativar' usuario.pk %}" class="text-sm text-red-600 dark:text-red-400 hover:underline">Desativar</a>
+            <a href="#" data-confirm-url="{% url 'usuario_desativar' usuario.pk %}" data-confirm-titulo="Desativar usuário" data-confirm-mensagem="Tem certeza que deseja desativar este usuário? Esta ação pode ser revertida pelo administrador." class="text-sm text-red-600 dark:text-red-400 hover:underline">Desativar</a>
             {% endif %}
             {% endif %}
           </div>

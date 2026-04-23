@@ -1,4 +1,5 @@
 from django.contrib import admin
+from core.views import pagina_403
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -13,6 +14,8 @@ urlpatterns = [
     path("", include("notas_fiscais.urls")),
     path("", include("licencas.urls")),
 ]
+
+handler403 = pagina_403
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
