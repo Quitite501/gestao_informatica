@@ -57,6 +57,7 @@
           <div class="flex items-center gap-3">
             {% if perms.usuarios.change_usuario %}
             <a href="{% url 'usuario_editar' usuario.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Editar</a>
+            <a href="{% url 'usuario_redefinir_senha' usuario.pk %}" class="text-sm text-amber-600 dark:text-amber-400 hover:underline">Redefinir senha</a>
             {% if usuario.ativo %}
             <a href="#" data-confirm-url="{% url 'usuario_desativar' usuario.pk %}" data-confirm-titulo="Desativar usuário" data-confirm-mensagem="Tem certeza que deseja desativar este usuário? Esta ação pode ser revertida pelo administrador." class="text-sm text-red-600 dark:text-red-400 hover:underline">Desativar</a>
             {% endif %}

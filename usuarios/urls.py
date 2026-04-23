@@ -7,11 +7,15 @@ from .views import (
     usuario_novo,
     usuario_editar,
     usuario_desativar,
+    usuario_recuperar_senha,
+    usuario_redefinir_senha,
 )
 
 urlpatterns = [
     path('login/', UsuarioLoginView.as_view(), name='login'),
     path('logout/', UsuarioLogoutView.as_view(), name='logout'),
+    path('recuperar-senha/', usuario_recuperar_senha, name='usuario_recuperar_senha'),
+    path('usuarios/<int:pk>/redefinir-senha/', usuario_redefinir_senha, name='usuario_redefinir_senha'),
     path('', painel, name='painel'),
     path('usuarios/', usuario_lista, name='usuario_lista'),
     path('usuarios/novo/', usuario_novo, name='usuario_novo'),
