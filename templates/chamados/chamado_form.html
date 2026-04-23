@@ -94,6 +94,20 @@
   {% if form.descricao.value %}
   quillDescricao.root.innerHTML = `{{ form.descricao.value|escapejs }}`;
   {% endif %}
+  // Foco automático no Quill ao pressionar Tab no campo Título
+  const campoTitulo = document.querySelector('input[name="titulo"]');
+  if (campoTitulo) {
+    campoTitulo.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab' && !e.shiftKey) {
+        e.preventDefault();
+        quillDescricao.focus();
+      }
+    });
+  }
+  // Foco automático ao clicar na área do editor (fora do ql-editor)
+  document.getElementById('editor-descricao').addEventListener('click', function () {
+    quillDescricao.focus();
+  });
 
   // Preenche o hidden input antes de enviar
   document.getElementById('form-chamado').addEventListener('submit', function () {
