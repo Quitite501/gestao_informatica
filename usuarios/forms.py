@@ -24,6 +24,7 @@ class UsuarioForm(forms.ModelForm):
             'is_staff',
             'groups',
             'password',
+            'foto',
         ]
 
     def save(self, commit=True):

@@ -117,7 +117,7 @@ def usuario_lista(request):
 @login_required
 @permission_required("usuarios.add_usuario", raise_exception=True)
 def usuario_novo(request):
-    form = UsuarioForm(request.POST or None)
+    form = UsuarioForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         usuario = form.save()
         registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "Usuario",
@@ -133,7 +133,7 @@ def usuario_novo(request):
 @permission_required("usuarios.change_usuario", raise_exception=True)
 def usuario_editar(request, pk):
     usuario = get_object_or_404(Usuario, pk=pk)
-    form = UsuarioForm(request.POST or None, instance=usuario)
+    form = UsuarioForm(request.POST or None, request.FILES or None, instance=usuario)
     if form.is_valid():
         usuario = form.save()
         registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Usuario",

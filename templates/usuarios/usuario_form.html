@@ -13,8 +13,18 @@
 {% block content %}
 <div class="max-w-2xl">
   <div class="card">
-    <form method="post" class="space-y-5">
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
       {% csrf_token %}
+      {% if form.instance.pk and form.instance.foto %}
+      <div>
+        <label class="form-label">Foto atual</label>
+        <div class="flex items-center gap-4 mt-1">
+          <img src="{{ form.instance.foto.url }}" alt="Foto de {{ form.instance.nome_completo }}"
+               class="w-16 h-16 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700">
+          <span class="text-xs text-gray-500 dark:text-gray-400">Envie uma nova foto para substituir</span>
+        </div>
+      </div>
+      {% endif %}
       {% for field in form %}
       <div>
         <label class="form-label">{{ field.label }}</label>
