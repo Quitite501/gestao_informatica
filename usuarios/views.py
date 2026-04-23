@@ -216,3 +216,23 @@ def usuario_redefinir_senha(request, pk):
         'usuario': usuario,
         'erro': erro,
     })
+
+
+# ─── Meu perfil (edição pelo próprio usuário) ─────────────────────────────────
+@login_required
+def usuario_meu_perfil(request):
+    erro = None
+    sucesso = False
+    if request.method == 'POST':
+        ramal = request.POST.get('ramal', '').strip()
+        foto = request.FILES.get('foto')
+        request.user.ramal = ramal
+        if foto:
+            request.user.foto = foto
+        request.user.save()
+        update_session_auth_hash(request, request.user)
+        sucesso = True
+    return render(request, 'usuarios/meu_perfil.html', {
+        'erro': erro,
+        'sucesso': sucesso,
+    })

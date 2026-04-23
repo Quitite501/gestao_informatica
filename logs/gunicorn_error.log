@@ -598,3 +598,15 @@
 [2026-04-23 19:34:42 +0000] [64727] [INFO] Worker (pid:64733) was sent SIGTERM!
 [2026-04-23 19:34:42 +0000] [64727] [INFO] Worker (pid:64735) was sent SIGTERM!
 [2026-04-23 19:34:43 +0000] [64727] [INFO] Shutting down: Master
+[2026-04-23 19:34:43 +0000] [65141] [INFO] Starting gunicorn 25.3.0
+[2026-04-23 19:34:43 +0000] [65141] [INFO] Listening at: http://127.0.0.1:8001 (65141)
+[2026-04-23 19:34:43 +0000] [65141] [INFO] Using worker: sync
+[2026-04-23 19:34:43 +0000] [65147] [INFO] Booting worker with pid: 65147
+[2026-04-23 19:34:43 +0000] [65148] [INFO] Booting worker with pid: 65148
+[2026-04-23 19:34:43 +0000] [65149] [INFO] Booting worker with pid: 65149
+[2026-04-23 19:34:43 +0000] [65141] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-23 19:44:40 +0000] [65141] [INFO] Handling signal: term
+[2026-04-23 16:44:40 -0300] [65147] [INFO] Worker exiting (pid: 65147)
+[2026-04-23 16:44:40 -0300] [65148] [INFO] Worker exiting (pid: 65148)
+[2026-04-23 16:44:40 -0300] [65149] [INFO] Worker exiting (pid: 65149)
+[2026-04-23 19:44:40 +0000] [65141] [INFO] Shutting down: Master

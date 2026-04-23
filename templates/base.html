@@ -78,7 +78,7 @@
         </div>
         {% endif %}
         <div class="flex-1 min-w-0">
-          <div class="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">{{ request.user.nome_completo }}</div>
+          <a href="{% url 'usuario_meu_perfil' %}" class="text-xs font-medium text-gray-900 dark:text-gray-100 truncate hover:text-blue-600 dark:hover:text-blue-400 block">{{ request.user.nome_completo }}</a>
           <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ request.user.login_rede }}</div>
         </div>
         <form method="post" action="{% url 'logout' %}">
