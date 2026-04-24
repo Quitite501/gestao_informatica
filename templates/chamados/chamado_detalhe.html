@@ -12,7 +12,13 @@
     {% endif %}
     {% if chamado.status == "em_atendimento" or chamado.status == "aguardando_usuario" %}
       {% if chamado.tem_acoes %}
-        <a href="#" data-confirm-url="{% url 'chamado_encerrar' chamado.pk %}" data-confirm-titulo="Encerrar chamado" data-confirm-mensagem="Tem certeza que deseja encerrar este chamado? Você será direcionado para informar a solução técnica." class="btn-secondary">Encerrar chamado</a>
+        <form method="post" action="{% url 'chamado_encerrar' chamado.pk %}" class="inline" id="form-encerrar">
+          {% csrf_token %}
+        </form>
+        <button type="button" class="btn-secondary"
+          data-confirm-form="form-encerrar"
+          data-confirm-titulo="Encerrar chamado"
+          data-confirm-mensagem="Tem certeza que deseja encerrar este chamado?">Encerrar chamado</button>
       {% else %}
         <span class="text-xs text-amber-600 dark:text-amber-400 italic self-center">Registre ao menos uma ação para encerrar</span>
       {% endif %}

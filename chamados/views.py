@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from datetime import timedelta
 from django.db.models import Count, Q
@@ -288,32 +289,26 @@ def chamado_registrar_acao(request, pk):
 @permission_required("chamados.can_manage_chamados", raise_exception=True)
 def chamado_encerrar(request, pk):
     """
-    Encerra o chamado e redireciona para a lista de chamados.
+    Encerra o chamado via POST e redireciona para a lista de chamados.
     """
     chamado = get_object_or_404(Chamado, pk=pk)
     if not chamado.tem_acoes():
+        messages.warning(request, "Registre ao menos uma ação antes de encerrar o chamado.")
         return redirect("chamado_detalhe", pk=chamado.pk)
     
-    form = ChamadoEncerramentoForm(request.POST or None, instance=chamado)
+    if request.method != "POST":
+        return redirect("chamado_detalhe", pk=chamado.pk)
     
-    if form.is_valid():
-        chamado = form.save(commit=False)
-        chamado.status = Chamado.STATUS_ENCERRADO
-        chamado.encerrado_por = request.user
-        chamado.encerrado_em = timezone.now()
-        chamado.save()
-        
-        registrar_auditoria(request, RegistroAuditoria.ACAO_ENCERRAMENTO, "Chamado", str(chamado.pk),
-            f"Chamado #{chamado.pk} encerrado por {request.user.nome_completo}")
-        
-        # MUDANÇA: redireciona para a lista ao invés do detalhe
-        return redirect("chamado_lista")
+    chamado.status = Chamado.STATUS_ENCERRADO
+    chamado.encerrado_por = request.user
+    chamado.encerrado_em = timezone.now()
+    chamado.save()
     
-    return render(
-        request,
-        "chamados/chamado_encerramento.html",
-        {"form": form, "chamado": chamado}
-    )
+    registrar_auditoria(request, RegistroAuditoria.ACAO_ENCERRAMENTO, "Chamado", str(chamado.pk),
+        f"Chamado #{chamado.pk} encerrado por {request.user.nome_completo}")
+    
+    messages.success(request, f"Chamado #{chamado.pk} encerrado com sucesso.")
+    return redirect("chamado_lista")
 
 
 @login_required

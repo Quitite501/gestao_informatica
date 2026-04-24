@@ -8,6 +8,100 @@
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
 <body class="h-full bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+<!-- Modal de confirmação reutilizável -->
+<div id="modal-confirmacao" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;align-items:center;justify-content:center;">
+  <div id="modal-overlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);"></div>
+  <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6" style="z-index:10;width:100%;max-width:28rem;margin:auto;">
+    <div class="flex items-start gap-4">
+      <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
+        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 id="modal-titulo" class="text-base font-semibold text-gray-900 dark:text-white mb-1">Confirmar ação</h3>
+        <p id="modal-mensagem" class="text-sm text-gray-500 dark:text-gray-400">Tem certeza que deseja continuar?</p>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 mt-6">
+      <button id="modal-cancelar" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+        Cancelar
+      </button>
+      <a id="modal-confirmar-link" href="#" class="hidden px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
+        Confirmar
+      </a>
+      <button id="modal-confirmar-form" type="button" class="hidden px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const modal     = document.getElementById('modal-confirmacao');
+  const overlay   = document.getElementById('modal-overlay');
+  const titulo    = document.getElementById('modal-titulo');
+  const mensagem  = document.getElementById('modal-mensagem');
+  const btnLink   = document.getElementById('modal-confirmar-link');
+  const btnForm   = document.getElementById('modal-confirmar-form');
+  const btnCancel = document.getElementById('modal-cancelar');
+  let formAlvo = null;
+
+  function abrirModal(t, m) {
+    titulo.textContent  = t;
+    mensagem.textContent = m;
+    modal.style.display = 'flex';
+  }
+
+  function fecharModal() {
+    modal.style.display = 'none';
+    btnLink.classList.add('hidden');
+    btnForm.classList.add('hidden');
+    formAlvo = null;
+  }
+
+  // Gatilho para <a> ou <button> com data-confirm-url
+  document.addEventListener('click', function (e) {
+    const el = e.target.closest('[data-confirm-url]');
+    if (!el) return;
+    e.preventDefault();
+    const url = el.dataset.confirmUrl;
+    const t   = el.dataset.confirmTitulo   || 'Confirmar ação';
+    const m   = el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?';
+    btnLink.href = url;
+    btnLink.classList.remove('hidden');
+    btnForm.classList.add('hidden');
+    abrirModal(t, m);
+  });
+
+  // Gatilho para botão submit com data-confirm-form
+  document.addEventListener('click', function (e) {
+    const el = e.target.closest('[data-confirm-form]');
+    if (!el) return;
+    e.preventDefault();
+    const formId = el.dataset.confirmForm;
+    formAlvo = document.getElementById(formId);
+    const t  = el.dataset.confirmTitulo   || 'Confirmar ação';
+    const m  = el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?';
+    btnForm.classList.remove('hidden');
+    btnLink.classList.add('hidden');
+    abrirModal(t, m);
+  });
+
+  btnForm.addEventListener('click', function () {
+    if (formAlvo) formAlvo.submit();
+    fecharModal();
+  });
+
+  btnCancel.addEventListener('click', fecharModal);
+  overlay.addEventListener('click', fecharModal);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') fecharModal();
+  });
+})();
+</script>
+
 <div class="flex h-screen overflow-hidden">
 
   <aside class="w-56 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col">
@@ -101,6 +195,20 @@
       </button>
     </header>
     <main class="flex-1 overflow-y-auto p-6">
+      {% if messages %}
+      <div class="mb-4 space-y-2">
+        {% for message in messages %}
+        <div class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium
+          {% if message.tags == 'success' %}bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300
+          {% elif message.tags == 'error' %}bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300
+          {% elif message.tags == 'warning' %}bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300
+          {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300{% endif %}">
+          <span>{{ message }}</span>
+          <button onclick="this.parentElement.remove()" class="ml-auto text-current opacity-50 hover:opacity-100">&times;</button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
       {% block content %}{% endblock %}
     </main>
   </div>
@@ -124,193 +232,8 @@
     iconMoon.classList.toggle('hidden', isDark);
   });
 </script>
+
+
+
 </body>
 </html>
-
-<!-- Modal de confirmação reutilizável -->
-<div id="modal-confirmacao" class="hidden fixed inset-0 z-50 flex items-center justify-center">
-  <div class="absolute inset-0 bg-black/50" id="modal-overlay"></div>
-  <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
-    <div class="flex items-start gap-4">
-      <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
-        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <h3 id="modal-titulo" class="text-base font-semibold text-gray-900 dark:text-white mb-1">Confirmar ação</h3>
-        <p id="modal-mensagem" class="text-sm text-gray-500 dark:text-gray-400">Tem certeza que deseja continuar?</p>
-      </div>
-    </div>
-    <div class="flex justify-end gap-3 mt-6">
-      <button id="modal-cancelar" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
-        Cancelar
-      </button>
-      <a id="modal-confirmar-link" href="#" class="hidden px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
-        Confirmar
-      </a>
-      <button id="modal-confirmar-form" type="button" class="hidden px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
-        Confirmar
-      </button>
-    </div>
-  </div>
-</div>
-
-<script>
-(function () {
-  const modal     = document.getElementById('modal-confirmacao');
-  const overlay   = document.getElementById('modal-overlay');
-  const titulo    = document.getElementById('modal-titulo');
-  const mensagem  = document.getElementById('modal-mensagem');
-  const btnLink   = document.getElementById('modal-confirmar-link');
-  const btnForm   = document.getElementById('modal-confirmar-form');
-  const btnCancel = document.getElementById('modal-cancelar');
-  let formAlvo = null;
-
-  function abrirModal(t, m) {
-    titulo.textContent  = t;
-    mensagem.textContent = m;
-    modal.classList.remove('hidden');
-  }
-
-  function fecharModal() {
-    modal.classList.add('hidden');
-    btnLink.classList.add('hidden');
-    btnForm.classList.add('hidden');
-    formAlvo = null;
-  }
-
-  // Gatilho para <a> ou <button> com data-confirm-url
-  document.addEventListener('click', function (e) {
-    const el = e.target.closest('[data-confirm-url]');
-    if (!el) return;
-    e.preventDefault();
-    const url = el.dataset.confirmUrl;
-    const t   = el.dataset.confirmTitulo   || 'Confirmar ação';
-    const m   = el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?';
-    btnLink.href = url;
-    btnLink.classList.remove('hidden');
-    btnForm.classList.add('hidden');
-    abrirModal(t, m);
-  });
-
-  // Gatilho para botão submit com data-confirm-form
-  document.addEventListener('click', function (e) {
-    const el = e.target.closest('[data-confirm-form]');
-    if (!el) return;
-    e.preventDefault();
-    const formId = el.dataset.confirmForm;
-    formAlvo = document.getElementById(formId);
-    const t  = el.dataset.confirmTitulo   || 'Confirmar ação';
-    const m  = el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?';
-    btnForm.classList.remove('hidden');
-    btnLink.classList.add('hidden');
-    abrirModal(t, m);
-  });
-
-  btnForm.addEventListener('click', function () {
-    if (formAlvo) formAlvo.submit();
-    fecharModal();
-  });
-
-  btnCancel.addEventListener('click', fecharModal);
-  overlay.addEventListener('click', fecharModal);
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') fecharModal();
-  });
-})();
-</script>
-
-<!-- Modal de confirmação reutilizável -->
-<div id="modal-confirmacao" class="hidden fixed inset-0 z-50 flex items-center justify-center">
-  <div class="absolute inset-0 bg-black/50" id="modal-overlay"></div>
-  <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
-    <div class="flex items-start gap-4">
-      <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
-        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <h3 id="modal-titulo" class="text-base font-semibold text-gray-900 dark:text-white mb-1">Confirmar ação</h3>
-        <p id="modal-mensagem" class="text-sm text-gray-500 dark:text-gray-400">Tem certeza que deseja continuar?</p>
-      </div>
-    </div>
-    <div class="flex justify-end gap-3 mt-6">
-      <button id="modal-cancelar" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
-        Cancelar
-      </button>
-      <a id="modal-confirmar-link" href="#" class="hidden px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
-        Confirmar
-      </a>
-      <button id="modal-confirmar-form" type="button" class="hidden px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
-        Confirmar
-      </button>
-    </div>
-  </div>
-</div>
-
-<script>
-(function () {
-  const modal     = document.getElementById('modal-confirmacao');
-  const overlay   = document.getElementById('modal-overlay');
-  const titulo    = document.getElementById('modal-titulo');
-  const mensagem  = document.getElementById('modal-mensagem');
-  const btnLink   = document.getElementById('modal-confirmar-link');
-  const btnForm   = document.getElementById('modal-confirmar-form');
-  const btnCancel = document.getElementById('modal-cancelar');
-  let formAlvo = null;
-
-  function abrirModal(t, m) {
-    titulo.textContent  = t;
-    mensagem.textContent = m;
-    modal.classList.remove('hidden');
-  }
-
-  function fecharModal() {
-    modal.classList.add('hidden');
-    btnLink.classList.add('hidden');
-    btnForm.classList.add('hidden');
-    formAlvo = null;
-  }
-
-  // Gatilho para <a> ou <button> com data-confirm-url
-  document.addEventListener('click', function (e) {
-    const el = e.target.closest('[data-confirm-url]');
-    if (!el) return;
-    e.preventDefault();
-    const url = el.dataset.confirmUrl;
-    const t   = el.dataset.confirmTitulo   || 'Confirmar ação';
-    const m   = el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?';
-    btnLink.href = url;
-    btnLink.classList.remove('hidden');
-    btnForm.classList.add('hidden');
-    abrirModal(t, m);
-  });
-
-  // Gatilho para botão submit com data-confirm-form
-  document.addEventListener('click', function (e) {
-    const el = e.target.closest('[data-confirm-form]');
-    if (!el) return;
-    e.preventDefault();
-    const formId = el.dataset.confirmForm;
-    formAlvo = document.getElementById(formId);
-    const t  = el.dataset.confirmTitulo   || 'Confirmar ação';
-    const m  = el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?';
-    btnForm.classList.remove('hidden');
-    btnLink.classList.add('hidden');
-    abrirModal(t, m);
-  });
-
-  btnForm.addEventListener('click', function () {
-    if (formAlvo) formAlvo.submit();
-    fecharModal();
-  });
-
-  btnCancel.addEventListener('click', fecharModal);
-  overlay.addEventListener('click', fecharModal);
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') fecharModal();
-  });
-})();
-</script>
