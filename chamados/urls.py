@@ -14,5 +14,7 @@ urlpatterns = [
     path("chamados/<int:pk>/encerrar/", views.chamado_encerrar, name="chamado_encerrar"),
     path("chamados/<int:pk>/reabrir/", views.chamado_reabrir, name="chamado_reabrir"),
     path("chamados/<int:pk>/excluir/", views.chamado_excluir, name="chamado_excluir"),
+    path("chamados/<int:pk>/editar-titulo/", views.chamado_editar_titulo, name="chamado_editar_titulo"),
+    path("chamados/<int:pk>/transferir/", views.chamado_transferir, name="chamado_transferir"),
     path("chamados/<int:pk>/pdf/", views.chamado_pdf_detalhe, name="chamado_pdf_detalhe"),
 ]

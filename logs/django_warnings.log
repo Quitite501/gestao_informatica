@@ -1,2 +1,16 @@
 WARNING 2026-04-15 15:54:32,331 test_logging 4059 137862350766208 Teste de log WARNING - Atenção necessária
 ERROR 2026-04-15 15:54:32,332 test_logging 4059 137862350766208 Teste de log ERROR - Erro detectado no teste
+ERROR 2026-04-24 16:48:44,483 log 76661 138638037106816 Invalid HTTP_HOST header: '127.0.0.1:8001'. You may need to add '127.0.0.1' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/utils/deprecation.py", line 308, in __call__
+    response = self.process_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/request.py", line 206, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '127.0.0.1:8001'. You may need to add '127.0.0.1' to ALLOWED_HOSTS.

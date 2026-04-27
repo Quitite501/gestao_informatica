@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from .models import Chamado, CategoriaChamado, AcaoChamado
 
 
@@ -97,3 +98,49 @@ class AcaoChamadoForm(forms.ModelForm):
                 "class": "form-input",
             }),
         }
+
+class ChamadoEditarTituloForm(forms.ModelForm):
+    class Meta:
+        model = Chamado
+        fields = ["titulo"]
+        widgets = {
+            "titulo": forms.TextInput(attrs={
+                "class": "form-input w-full",
+                "placeholder": "Novo título do chamado...",
+                "maxlength": "255",
+            }),
+        }
+        labels = {
+            "titulo": "Título do chamado",
+        }
+
+
+class ChamadoTransferirForm(forms.Form):
+    novo_tecnico = forms.ModelChoiceField(
+        queryset=None,
+        label="Transferir para",
+        widget=forms.Select(attrs={"class": "form-input w-full"}),
+        empty_label="Selecione o técnico...",
+    )
+    motivo = forms.CharField(
+        required=False,
+        label="Motivo da transferência",
+        widget=forms.Textarea(attrs={
+            "rows": 3,
+            "class": "form-input w-full",
+            "placeholder": "Informe o motivo da transferência (opcional)...",
+        }),
+    )
+
+    def __init__(self, *args, tecnico_atual=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        from django.contrib.auth import get_user_model
+        from django.contrib.auth.models import Permission
+        Usuario = get_user_model()
+        perm = Permission.objects.get(codename="can_manage_chamados")
+        tecnicos = Usuario.objects.filter(
+            Q(groups__permissions=perm) | Q(user_permissions=perm)
+        ).distinct().order_by("nome_completo")
+        if tecnico_atual:
+            tecnicos = tecnicos.exclude(pk=tecnico_atual.pk)
+        self.fields["novo_tecnico"].queryset = tecnicos

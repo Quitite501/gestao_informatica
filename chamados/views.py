@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
-from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm
+from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm, ChamadoEditarTituloForm, ChamadoTransferirForm
 from .models import Chamado, AnexoChamado, AcaoChamado, AnexoAcao
 from auditoria.utils import registrar_auditoria
 from auditoria.models import RegistroAuditoria
@@ -456,3 +456,76 @@ def chamado_pdf_detalhe(request, pk):
     nome = f'chamado_{chamado.pk}.pdf'
     response['Content-Disposition'] = f'inline; filename="{nome}"'
     return response
+
+
+@login_required
+@permission_required("chamados.can_manage_chamados", raise_exception=True)
+def chamado_editar_titulo(request, pk):
+    """Permite alterar o título de um chamado não encerrado."""
+    chamado = get_object_or_404(Chamado, pk=pk)
+    if chamado.status == Chamado.STATUS_ENCERRADO:
+        messages.error(request, "Não é possível alterar o título de um chamado encerrado.")
+        return redirect("chamado_detalhe", pk=chamado.pk)
+    titulo_anterior = chamado.titulo
+    form = ChamadoEditarTituloForm(request.POST or None, instance=chamado)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        registrar_auditoria(
+            request,
+            RegistroAuditoria.ACAO_EDICAO,
+            "Chamado",
+            str(chamado.pk),
+            f"Título alterado de '{titulo_anterior}' para '{chamado.titulo}'",
+        )
+        messages.success(request, "Título do chamado atualizado com sucesso.")
+        return redirect("chamado_detalhe", pk=chamado.pk)
+    return render(request, "chamados/chamado_editar_titulo.html", {
+        "chamado": chamado,
+        "form": form,
+    })
+
+
+@login_required
+@permission_required("chamados.can_manage_chamados", raise_exception=True)
+def chamado_transferir(request, pk):
+    """Transfere o chamado para outro técnico."""
+    chamado = get_object_or_404(Chamado, pk=pk)
+    if chamado.status not in [Chamado.STATUS_EM_ATENDIMENTO, Chamado.STATUS_AGUARDANDO, Chamado.STATUS_ABERTO]:
+        messages.error(request, "Não é possível transferir um chamado encerrado.")
+        return redirect("chamado_detalhe", pk=chamado.pk)
+    tecnico_anterior = chamado.tecnico
+    form = ChamadoTransferirForm(
+        request.POST or None,
+        tecnico_atual=chamado.tecnico,
+    )
+    if request.method == "POST" and form.is_valid():
+        novo_tecnico = form.cleaned_data["novo_tecnico"]
+        motivo = form.cleaned_data.get("motivo", "").strip()
+        chamado.tecnico = novo_tecnico
+        if chamado.status == Chamado.STATUS_ABERTO:
+            chamado.status = Chamado.STATUS_EM_ATENDIMENTO
+        chamado.save()
+        desc = (
+            f"Chamado transferido de "
+            f"'{tecnico_anterior.nome_completo if tecnico_anterior else 'Nenhum'}' "
+            f"para '{novo_tecnico.nome_completo}'"
+        )
+        if motivo:
+            desc += f" — Motivo: {motivo}"
+        registrar_auditoria(
+            request,
+            RegistroAuditoria.ACAO_EDICAO,
+            "Chamado",
+            str(chamado.pk),
+            desc,
+        )
+        messages.success(
+            request,
+            f"Chamado transferido para {novo_tecnico.nome_completo} com sucesso.",
+        )
+        return redirect("chamado_detalhe", pk=chamado.pk)
+    return render(request, "chamados/chamado_transferir.html", {
+        "chamado": chamado,
+        "form": form,
+        "tecnico_anterior": tecnico_anterior,
+    })
