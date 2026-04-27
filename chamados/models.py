@@ -88,10 +88,8 @@ class Chamado(models.Model):
         "critica":  4,
     }
 
-    def prazo_sla(self):
-        """Retorna o datetime de vencimento do SLA ou None se encerrado."""
-        if self.status == self.STATUS_ENCERRADO:
-            return None
+    def _obter_horas_sla(self):
+        """Retorna o prazo em horas do SLA com base na configuracao."""
         try:
             config = ConfiguracaoSLA.objects.filter(
                 prioridade=self.prioridade,
@@ -100,26 +98,34 @@ class Chamado(models.Model):
                 prioridade=self.prioridade,
                 categoria__isnull=True,
             ).first()
-            horas = config.prazo_horas if config else self.PRAZO_PADRAO_HORAS.get(self.prioridade, 48)
+            return config.prazo_horas if config else self.PRAZO_PADRAO_HORAS.get(self.prioridade, 48)
         except Exception:
-            horas = self.PRAZO_PADRAO_HORAS.get(self.prioridade, 48)
-        return self.criado_em + timedelta(hours=horas)
+            return self.PRAZO_PADRAO_HORAS.get(self.prioridade, 48)
+
+    def prazo_sla(self):
+        """Retorna o datetime de vencimento do SLA ou None se encerrado."""
+        if self.status == self.STATUS_ENCERRADO:
+            return None
+        from chamados.sla_utils import calcular_vencimento_sla
+        horas = self._obter_horas_sla()
+        return calcular_vencimento_sla(self.criado_em, horas * 60)
 
     def percentual_sla(self):
-        """Retorna o percentual do prazo já consumido (0-100). Retorna None se encerrado."""
+        """Retorna o percentual do prazo ja consumido (0-100). Retorna None se encerrado."""
         from django.utils import timezone as tz
-        prazo = self.prazo_sla()
-        if prazo is None:
+        from chamados.sla_utils import calcular_tempo_util
+        if self.status == self.STATUS_ENCERRADO:
             return None
-        total = (prazo - self.criado_em).total_seconds()
-        consumido = (tz.now() - self.criado_em).total_seconds()
-        if total <= 0:
+        horas = self._obter_horas_sla()
+        total_minutos_sla = horas * 60
+        minutos_consumidos = calcular_tempo_util(self.criado_em, tz.now())
+        if total_minutos_sla <= 0:
             return 100
-        return min(int((consumido / total) * 100), 100)
+        return min(int((minutos_consumidos / total_minutos_sla) * 100), 100)
 
     def status_sla(self):
         """
-        Retorna a situação atual do SLA:
+        Retorna a situacao atual do SLA:
         encerrado | no_prazo | em_risco | vencido
         """
         if self.status == self.STATUS_ENCERRADO:
