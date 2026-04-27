@@ -552,11 +552,18 @@ def calendario_feriado_novo(request):
     if request.method == "POST":
         form = FeriadoDiaAtipicoForm(request.POST)
         if form.is_valid():
+            from chamados.sla_utils import capturar_vencimentos_atuais
+            vencimentos_antes = capturar_vencimentos_atuais()
             feriado = form.save(commit=False)
             feriado.criado_por = request.user
             feriado.save()
             registrar_auditoria(request, "Cadastro", str(feriado.pk),
                                 f"Feriado cadastrado: {feriado.descricao} em {feriado.data:%d/%m/%Y}")
+            # Recalcular SLAs impactados
+            from chamados.sla_utils import recalcular_slas_impactados
+            total = recalcular_slas_impactados(feriado.data, "Cadastro de feriado: " + feriado.descricao, request.user, vencimentos_antes)
+            if total > 0:
+                messages.info(request, f"{total} chamado(s) tiveram o SLA recalculado.")
             messages.success(request, f"Feriado \"{feriado.descricao}\" cadastrado com sucesso.")
             return redirect("calendario_operacional")
     else:
@@ -573,9 +580,16 @@ def calendario_feriado_editar(request, pk):
     if request.method == "POST":
         form = FeriadoDiaAtipicoForm(request.POST, instance=feriado)
         if form.is_valid():
+            from chamados.sla_utils import capturar_vencimentos_atuais
+            vencimentos_antes = capturar_vencimentos_atuais()
             form.save()
             registrar_auditoria(request, "Alteracao", str(feriado.pk),
                                 f"Feriado alterado: {feriado.descricao} em {feriado.data:%d/%m/%Y}")
+            # Recalcular SLAs impactados
+            from chamados.sla_utils import recalcular_slas_impactados
+            total = recalcular_slas_impactados(feriado.data, "Alteracao de feriado: " + feriado.descricao, request.user, vencimentos_antes)
+            if total > 0:
+                messages.info(request, f"{total} chamado(s) tiveram o SLA recalculado.")
             messages.success(request, f"Feriado \"{feriado.descricao}\" atualizado com sucesso.")
             return redirect("calendario_operacional")
     else:
@@ -591,8 +605,16 @@ def calendario_feriado_excluir(request, pk):
         feriado = get_object_or_404(FeriadoDiaAtipico, pk=pk)
         descricao = feriado.descricao
         data_str = f"{feriado.data:%d/%m/%Y}"
+        from chamados.sla_utils import capturar_vencimentos_atuais
+        vencimentos_antes = capturar_vencimentos_atuais()
+        data_feriado = feriado.data
         feriado.delete()
         registrar_auditoria(request, "Exclusao", str(pk),
                             f"Feriado excluido: {descricao} em {data_str}")
+        # Recalcular SLAs impactados
+        from chamados.sla_utils import recalcular_slas_impactados
+        total = recalcular_slas_impactados(data_feriado, "Exclusao de feriado: " + descricao, request.user, vencimentos_antes)
+        if total > 0:
+            messages.info(request, f"{total} chamado(s) tiveram o SLA recalculado.")
         messages.success(request, f"Feriado \"{descricao}\" excluido com sucesso.")
     return redirect("calendario_operacional")

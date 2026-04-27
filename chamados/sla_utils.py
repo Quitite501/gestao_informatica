@@ -173,3 +173,67 @@ def calcular_tempo_util(data_hora_inicio: datetime,
         dia_atual += timedelta(days=1)
 
     return total_minutos
+
+
+
+def capturar_vencimentos_atuais():
+    """
+    Captura os vencimentos atuais de todos os chamados nao encerrados.
+    Deve ser chamada ANTES de alterar o calendario.
+
+    Returns:
+        dict {chamado_id: datetime_vencimento}
+    """
+    from chamados.models import Chamado
+    vencimentos = {}
+    for chamado in Chamado.objects.exclude(status=Chamado.STATUS_ENCERRADO):
+        prazo = chamado.prazo_sla()
+        if prazo:
+            vencimentos[chamado.pk] = prazo
+    return vencimentos
+
+
+def recalcular_slas_impactados(data_impactada, motivo, usuario=None, vencimentos_anteriores=None):
+    """
+    Recalcula o vencimento de SLA de todos os chamados nao encerrados
+    comparando com os vencimentos capturados antes da alteracao.
+
+    Args:
+        data_impactada: date do feriado/dia atipico alterado.
+        motivo: str descrevendo a alteracao.
+        usuario: User que realizou a alteracao.
+        vencimentos_anteriores: dict retornado por capturar_vencimentos_atuais().
+            Se None, nao consegue detectar mudancas (registra apenas se houver diferenca no recalculo).
+
+    Returns:
+        int com o numero de chamados recalculados.
+    """
+    from chamados.models import Chamado, HistoricoRecalculoSLA
+
+    if vencimentos_anteriores is None:
+        vencimentos_anteriores = {}
+
+    chamados = Chamado.objects.exclude(status=Chamado.STATUS_ENCERRADO)
+    total_recalculados = 0
+
+    for chamado in chamados:
+        vencimento_novo = chamado.prazo_sla()
+        if vencimento_novo is None:
+            continue
+
+        vencimento_anterior = vencimentos_anteriores.get(chamado.pk)
+        if vencimento_anterior is None:
+            continue
+
+        if vencimento_anterior != vencimento_novo:
+            HistoricoRecalculoSLA.objects.create(
+                chamado=chamado,
+                vencimento_anterior=vencimento_anterior,
+                vencimento_novo=vencimento_novo,
+                data_impactada=data_impactada,
+                motivo=motivo,
+                usuario=usuario,
+            )
+            total_recalculados += 1
+
+    return total_recalculados

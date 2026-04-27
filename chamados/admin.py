@@ -42,7 +42,7 @@ class ConfiguracaoSLAAdmin(admin.ModelAdmin):
     ordering      = ("prioridade", "categoria__nome")
 
 
-from .models import ConfiguracaoExpediente, FeriadoDiaAtipico
+from .models import ConfiguracaoExpediente, FeriadoDiaAtipico, HistoricoRecalculoSLA
 
 
 @admin.register(ConfiguracaoExpediente)
@@ -58,3 +58,11 @@ class FeriadoDiaAtipicoAdmin(admin.ModelAdmin):
     list_filter = ("tipo", "contabiliza_sla")
     search_fields = ("descricao",)
     ordering = ("-data",)
+
+
+@admin.register(HistoricoRecalculoSLA)
+class HistoricoRecalculoSLAAdmin(admin.ModelAdmin):
+    list_display = ("chamado", "vencimento_anterior", "vencimento_novo", "data_impactada", "motivo", "recalculado_em")
+    list_filter = ("motivo",)
+    search_fields = ("chamado__titulo",)
+    ordering = ("-recalculado_em",)

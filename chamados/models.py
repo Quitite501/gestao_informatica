@@ -349,3 +349,32 @@ class FeriadoDiaAtipico(models.Model):
 
     def __str__(self):
         return f"{self.data:%d/%m/%Y} — {self.descricao} ({self.get_tipo_display()})"
+
+
+class HistoricoRecalculoSLA(models.Model):
+    chamado = models.ForeignKey(
+        "Chamado",
+        on_delete=models.CASCADE,
+        related_name="historicos_recalculo_sla",
+    )
+    vencimento_anterior = models.DateTimeField()
+    vencimento_novo = models.DateTimeField()
+    data_impactada = models.DateField(
+        help_text="Data do feriado/dia atipico que causou o recalculo.",
+    )
+    motivo = models.CharField(max_length=255)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    recalculado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Historico de Recalculo de SLA"
+        verbose_name_plural = "Historicos de Recalculo de SLA"
+        ordering = ["-recalculado_em"]
+
+    def __str__(self):
+        return f"Recalculo Chamado #{self.chamado_id} em {self.recalculado_em:%d/%m/%Y %H:%M}"
