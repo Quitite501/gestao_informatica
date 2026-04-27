@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}Editar Feriado{% else %}Novo Feriado{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+      {% if form.instance.pk %}Editar Feriado / Dia Atípico{% else %}Novo Feriado / Dia Atípico{% endif %}
+    </h1>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="space-y-5">
+
+        <!-- Data -->
+        <div>
+          <label for="id_data" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data</label>
+          <input type="date" name="data" id="id_data"
+                 value="{{ form.data.value|date:'Y-m-d' }}"
+                 class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700
+                        text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500
+                        focus:border-blue-500" required>
+          {% if form.data.errors %}<p class="text-red-500 text-xs mt-1">{{ form.data.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- Descrição -->
+        <div>
+          <label for="id_descricao" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descrição</label>
+          <input type="text" name="descricao" id="id_descricao"
+                 value="{{ form.descricao.value|default_if_none:'' }}"
+                 maxlength="255" placeholder="Ex: Tiradentes, Recesso de fim de ano..."
+                 class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700
+                        text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500
+                        focus:border-blue-500" required>
+          {% if form.descricao.errors %}<p class="text-red-500 text-xs mt-1">{{ form.descricao.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- Tipo -->
+        <div>
+          <label for="id_tipo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo</label>
+          <select name="tipo" id="id_tipo"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700
+                         text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500
+                         focus:border-blue-500">
+            {% for value, label in form.fields.tipo.choices %}
+            <option value="{{ value }}" {% if form.tipo.value == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          {% if form.tipo.errors %}<p class="text-red-500 text-xs mt-1">{{ form.tipo.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- Contabiliza SLA -->
+        <div class="flex items-center gap-3">
+          <input type="checkbox" name="contabiliza_sla" id="id_contabiliza_sla"
+                 {% if form.contabiliza_sla.value %}checked{% endif %}
+                 class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+          <label for="id_contabiliza_sla" class="text-sm text-gray-700 dark:text-gray-300">
+            Contabilizar SLA neste dia
+          </label>
+        </div>
+
+        <!-- Horário especial -->
+        <div id="bloco_horario_especial" class="grid grid-cols-2 gap-4 p-4 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/30">
+          <p class="col-span-2 text-xs text-gray-500 dark:text-gray-400">
+            Preencha apenas se for um dia atípico com expediente em horário especial.
+          </p>
+          <div>
+            <label for="id_hora_inicio_especial" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Início</label>
+            <input type="time" name="hora_inicio_especial" id="id_hora_inicio_especial"
+                   value="{{ form.hora_inicio_especial.value|default_if_none:'' }}"
+                   class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700
+                          text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500
+                          focus:border-blue-500">
+          </div>
+          <div>
+            <label for="id_hora_fim_especial" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fim</label>
+            <input type="time" name="hora_fim_especial" id="id_hora_fim_especial"
+                   value="{{ form.hora_fim_especial.value|default_if_none:'' }}"
+                   class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700
+                          text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500
+                          focus:border-blue-500">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Botões -->
+      <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <a href="{% url 'calendario_operacional' %}"
+           class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700
+                  hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition">
+          Cancelar
+        </a>
+        <button type="submit"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+          {% if form.instance.pk %}Salvar alterações{% else %}Cadastrar{% endif %}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

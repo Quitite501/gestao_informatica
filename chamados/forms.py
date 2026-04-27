@@ -1,6 +1,6 @@
 from django import forms
 from django.db.models import Q
-from .models import Chamado, CategoriaChamado, AcaoChamado
+from .models import Chamado, FeriadoDiaAtipico, CategoriaChamado, AcaoChamado
 
 
 class ChamadoForm(forms.ModelForm):
@@ -144,3 +144,32 @@ class ChamadoTransferirForm(forms.Form):
         if tecnico_atual:
             tecnicos = tecnicos.exclude(pk=tecnico_atual.pk)
         self.fields["novo_tecnico"].queryset = tecnicos
+
+
+class FeriadoDiaAtipicoForm(forms.ModelForm):
+    class Meta:
+        model = FeriadoDiaAtipico
+        fields = ["data", "descricao", "tipo", "contabiliza_sla",
+                  "hora_inicio_especial", "hora_fim_especial"]
+        widgets = {
+            "data": forms.DateInput(attrs={"type": "date"}),
+            "hora_inicio_especial": forms.TimeInput(attrs={"type": "time"}),
+            "hora_fim_especial": forms.TimeInput(attrs={"type": "time"}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        tipo = cleaned.get("tipo")
+        contabiliza = cleaned.get("contabiliza_sla")
+        h_ini = cleaned.get("hora_inicio_especial")
+        h_fim = cleaned.get("hora_fim_especial")
+        if tipo == "dia_atipico_com_expediente" and contabiliza:
+            if not h_ini or not h_fim:
+                raise forms.ValidationError(
+                    "Dias atipicos com expediente especial exigem horario de inicio e fim."
+                )
+            if h_ini >= h_fim:
+                raise forms.ValidationError(
+                    "O horario de inicio deve ser anterior ao horario de fim."
+                )
+        return cleaned

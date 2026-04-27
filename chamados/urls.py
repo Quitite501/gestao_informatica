@@ -2,6 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("chamados/calendario/", views.calendario_operacional, name="calendario_operacional"),
+    path("chamados/calendario/feriado/novo/", views.calendario_feriado_novo, name="calendario_feriado_novo"),
+    path("chamados/calendario/feriado/<int:pk>/editar/", views.calendario_feriado_editar, name="calendario_feriado_editar"),
+    path("chamados/calendario/feriado/<int:pk>/excluir/", views.calendario_feriado_excluir, name="calendario_feriado_excluir"),
     path("chamados/", views.chamado_lista, name="chamado_lista"),
     path("chamados/dashboard/", views.chamado_dashboard, name="chamado_dashboard"),
     path("chamados/novo/", views.chamado_novo, name="chamado_novo"),

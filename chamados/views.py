@@ -529,3 +529,70 @@ def chamado_transferir(request, pk):
         "form": form,
         "tecnico_anterior": tecnico_anterior,
     })
+
+
+# ------------------------------------------------------------------ Calendario Operacional
+
+@login_required
+@permission_required("chamados.can_manage_chamados", raise_exception=True)
+def calendario_operacional(request):
+    from .models import ConfiguracaoExpediente, FeriadoDiaAtipico
+    expedientes = ConfiguracaoExpediente.objects.all()
+    feriados = FeriadoDiaAtipico.objects.all()
+    return render(request, "chamados/calendario_operacional.html", {
+        "expedientes": expedientes,
+        "feriados": feriados,
+    })
+
+
+@login_required
+@permission_required("chamados.can_manage_chamados", raise_exception=True)
+def calendario_feriado_novo(request):
+    from .forms import FeriadoDiaAtipicoForm
+    if request.method == "POST":
+        form = FeriadoDiaAtipicoForm(request.POST)
+        if form.is_valid():
+            feriado = form.save(commit=False)
+            feriado.criado_por = request.user
+            feriado.save()
+            registrar_auditoria(request, "Cadastro", str(feriado.pk),
+                                f"Feriado cadastrado: {feriado.descricao} em {feriado.data:%d/%m/%Y}")
+            messages.success(request, f"Feriado \"{feriado.descricao}\" cadastrado com sucesso.")
+            return redirect("calendario_operacional")
+    else:
+        form = FeriadoDiaAtipicoForm()
+    return render(request, "chamados/calendario_feriado_form.html", {"form": form})
+
+
+@login_required
+@permission_required("chamados.can_manage_chamados", raise_exception=True)
+def calendario_feriado_editar(request, pk):
+    from .models import FeriadoDiaAtipico
+    from .forms import FeriadoDiaAtipicoForm
+    feriado = get_object_or_404(FeriadoDiaAtipico, pk=pk)
+    if request.method == "POST":
+        form = FeriadoDiaAtipicoForm(request.POST, instance=feriado)
+        if form.is_valid():
+            form.save()
+            registrar_auditoria(request, "Alteracao", str(feriado.pk),
+                                f"Feriado alterado: {feriado.descricao} em {feriado.data:%d/%m/%Y}")
+            messages.success(request, f"Feriado \"{feriado.descricao}\" atualizado com sucesso.")
+            return redirect("calendario_operacional")
+    else:
+        form = FeriadoDiaAtipicoForm(instance=feriado)
+    return render(request, "chamados/calendario_feriado_form.html", {"form": form})
+
+
+@login_required
+@permission_required("chamados.can_manage_chamados", raise_exception=True)
+def calendario_feriado_excluir(request, pk):
+    from .models import FeriadoDiaAtipico
+    if request.method == "POST":
+        feriado = get_object_or_404(FeriadoDiaAtipico, pk=pk)
+        descricao = feriado.descricao
+        data_str = f"{feriado.data:%d/%m/%Y}"
+        feriado.delete()
+        registrar_auditoria(request, "Exclusao", str(pk),
+                            f"Feriado excluido: {descricao} em {data_str}")
+        messages.success(request, f"Feriado \"{descricao}\" excluido com sucesso.")
+    return redirect("calendario_operacional")
