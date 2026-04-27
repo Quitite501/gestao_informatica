@@ -40,3 +40,21 @@ class ConfiguracaoSLAAdmin(admin.ModelAdmin):
     list_display  = ("prioridade", "categoria", "prazo_horas")
     list_filter   = ("prioridade",)
     ordering      = ("prioridade", "categoria__nome")
+
+
+from .models import ConfiguracaoExpediente, FeriadoDiaAtipico
+
+
+@admin.register(ConfiguracaoExpediente)
+class ConfiguracaoExpedienteAdmin(admin.ModelAdmin):
+    list_display = ("dia_semana", "hora_inicio", "hora_fim", "ativo")
+    list_filter = ("ativo",)
+    ordering = ("dia_semana",)
+
+
+@admin.register(FeriadoDiaAtipico)
+class FeriadoDiaAtipicoAdmin(admin.ModelAdmin):
+    list_display = ("data", "descricao", "tipo", "contabiliza_sla", "criado_por")
+    list_filter = ("tipo", "contabiliza_sla")
+    search_fields = ("descricao",)
+    ordering = ("-data",)

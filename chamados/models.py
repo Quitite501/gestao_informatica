@@ -245,3 +245,101 @@ class ConfiguracaoSLA(models.Model):
     def __str__(self):
         cat = self.categoria.nome if self.categoria else "Todas as categorias"
         return f"SLA {self.get_prioridade_display()} / {cat} — {self.prazo_horas}h"
+
+
+class ConfiguracaoExpediente(models.Model):
+    """Horário padrão de expediente da serventia."""
+    DIA_SEMANA_CHOICES = [
+        (0, "Segunda-feira"),
+        (1, "Terça-feira"),
+        (2, "Quarta-feira"),
+        (3, "Quinta-feira"),
+        (4, "Sexta-feira"),
+        (5, "Sábado"),
+        (6, "Domingo"),
+    ]
+
+    dia_semana = models.IntegerField(
+        choices=DIA_SEMANA_CHOICES,
+        unique=True,
+        help_text="Dia da semana (0=Segunda … 6=Domingo).",
+    )
+    hora_inicio = models.TimeField(
+        help_text="Horário de início do expediente.",
+    )
+    hora_fim = models.TimeField(
+        help_text="Horário de fim do expediente.",
+    )
+    ativo = models.BooleanField(
+        default=True,
+        help_text="Desmarque para indicar que não há expediente neste dia.",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Configuração de Expediente"
+        verbose_name_plural = "Configurações de Expediente"
+        ordering = ["dia_semana"]
+
+    def __str__(self):
+        status = "Ativo" if self.ativo else "Inativo"
+        return f"{self.get_dia_semana_display()} — {self.hora_inicio:%H:%M} às {self.hora_fim:%H:%M} ({status})"
+
+
+class FeriadoDiaAtipico(models.Model):
+    TIPO_CHOICES = [
+        ("feriado_nacional", "Feriado nacional"),
+        ("feriado_estadual", "Feriado estadual"),
+        ("feriado_municipal", "Feriado municipal"),
+        ("recesso", "Recesso"),
+        ("ponto_facultativo", "Ponto facultativo"),
+        ("manutencao", "Manutenção interna"),
+        ("dia_atipico_sem_expediente", "Dia atípico sem expediente"),
+        ("dia_atipico_com_expediente", "Dia atípico com expediente especial"),
+    ]
+
+    data = models.DateField(
+        unique=True,
+        help_text="Data do feriado ou dia atípico.",
+    )
+    descricao = models.CharField(
+        max_length=255,
+        help_text="Descrição do feriado ou evento.",
+    )
+    tipo = models.CharField(
+        max_length=40,
+        choices=TIPO_CHOICES,
+    )
+    contabiliza_sla = models.BooleanField(
+        default=False,
+        help_text="Marque se o SLA deve ser contabilizado neste dia.",
+    )
+    hora_inicio_especial = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Horário de início do expediente especial (apenas para dias atípicos com expediente).",
+    )
+    hora_fim_especial = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Horário de fim do expediente especial (apenas para dias atípicos com expediente).",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+    criado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="feriados_cadastrados",
+        help_text="Usuário que cadastrou este registro.",
+    )
+
+    class Meta:
+        verbose_name = "Feriado / Dia Atípico"
+        verbose_name_plural = "Feriados / Dias Atípicos"
+        ordering = ["-data"]
+
+    def __str__(self):
+        return f"{self.data:%d/%m/%Y} — {self.descricao} ({self.get_tipo_display()})"
