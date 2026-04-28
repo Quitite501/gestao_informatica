@@ -200,6 +200,22 @@
 
 @layer base {
   html { @apply antialiased; }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="search"],
+  select,
+  textarea {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--input-text);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--input-placeholder);
+  }
 }
 
 @layer components {

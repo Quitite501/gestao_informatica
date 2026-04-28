@@ -920,3 +920,267 @@
 [2026-04-28 00:32:57 +0000] [35682] [INFO] Booting worker with pid: 35682
 [2026-04-28 00:32:57 +0000] [35683] [INFO] Booting worker with pid: 35683
 [2026-04-28 00:32:57 +0000] [35672] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-28 17:14:35 +0000] [55107] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:14:35 +0000] [55107] [INFO] Listening at: http://0.0.0.0:8000 (55107)
+[2026-04-28 17:14:35 +0000] [55107] [INFO] Using worker: sync
+[2026-04-28 17:14:35 +0000] [55109] [INFO] Booting worker with pid: 55109
+[2026-04-28 17:14:35 +0000] [55109] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/arbiter.py", line 713, in spawn_worker
+    worker.init_process()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 136, in init_process
+    self.load_wsgi()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 148, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/base.py", line 66, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/util.py", line 377, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1324, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'core.wsgi'
+[2026-04-28 17:14:35 +0000] [55109] [INFO] Worker exiting (pid: 55109)
+[2026-04-28 17:14:35 +0000] [55110] [INFO] Booting worker with pid: 55110
+[2026-04-28 17:14:35 +0000] [55110] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/arbiter.py", line 713, in spawn_worker
+    worker.init_process()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 136, in init_process
+    self.load_wsgi()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 148, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/base.py", line 66, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/util.py", line 377, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1324, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'core.wsgi'
+[2026-04-28 17:14:35 +0000] [55110] [INFO] Worker exiting (pid: 55110)
+[2026-04-28 17:14:35 +0000] [55111] [INFO] Booting worker with pid: 55111
+[2026-04-28 17:14:35 +0000] [55111] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/arbiter.py", line 713, in spawn_worker
+    worker.init_process()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 136, in init_process
+    self.load_wsgi()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 148, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/base.py", line 66, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/util.py", line 377, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1324, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'core.wsgi'
+[2026-04-28 17:14:35 +0000] [55111] [INFO] Worker exiting (pid: 55111)
+[2026-04-28 17:14:35 +0000] [55107] [ERROR] Worker (pid:55109) exited with code 3.
+[2026-04-28 17:14:35 +0000] [55107] [INFO] Control socket listening at /run/user/1000/gunicorn.ctl
+[2026-04-28 17:14:37 +0000] [55107] [ERROR] Worker (pid:55110) exited with code 3.
+[2026-04-28 17:14:45 +0000] [35672] [INFO] Handling signal: term
+[2026-04-28 14:14:45 -0300] [35683] [INFO] Worker exiting (pid: 35683)
+[2026-04-28 14:14:45 -0300] [35681] [INFO] Worker exiting (pid: 35681)
+[2026-04-28 14:14:45 -0300] [35682] [INFO] Worker exiting (pid: 35682)
+[2026-04-28 17:14:45 +0000] [35672] [INFO] Worker (pid:35681) was sent SIGTERM!
+[2026-04-28 17:14:45 +0000] [35672] [INFO] Worker (pid:35682) was sent SIGTERM!
+[2026-04-28 17:14:45 +0000] [35672] [INFO] Worker (pid:35683) was sent SIGTERM!
+[2026-04-28 17:14:45 +0000] [55117] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:14:45 +0000] [55117] [INFO] Listening at: http://0.0.0.0:8000 (55117)
+[2026-04-28 17:14:45 +0000] [55117] [INFO] Using worker: sync
+[2026-04-28 17:14:45 +0000] [55118] [INFO] Booting worker with pid: 55118
+[2026-04-28 17:14:45 +0000] [55118] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/arbiter.py", line 713, in spawn_worker
+    worker.init_process()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 136, in init_process
+    self.load_wsgi()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 148, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/base.py", line 66, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/util.py", line 377, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1324, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'core.wsgi'
+[2026-04-28 17:14:45 +0000] [55118] [INFO] Worker exiting (pid: 55118)
+[2026-04-28 17:14:45 +0000] [35672] [INFO] Shutting down: Master
+[2026-04-28 17:14:45 +0000] [55119] [INFO] Booting worker with pid: 55119
+[2026-04-28 17:14:45 +0000] [55119] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/arbiter.py", line 713, in spawn_worker
+    worker.init_process()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 136, in init_process
+    self.load_wsgi()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 148, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/base.py", line 66, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/util.py", line 377, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1324, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'core.wsgi'
+[2026-04-28 17:14:45 +0000] [55119] [INFO] Worker exiting (pid: 55119)
+[2026-04-28 17:14:46 +0000] [55122] [INFO] Booting worker with pid: 55122
+[2026-04-28 17:14:46 +0000] [55122] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/arbiter.py", line 713, in spawn_worker
+    worker.init_process()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 136, in init_process
+    self.load_wsgi()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/workers/base.py", line 148, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/base.py", line 66, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/gunicorn/util.py", line 377, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1324, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'core.wsgi'
+[2026-04-28 17:14:46 +0000] [55122] [INFO] Worker exiting (pid: 55122)
+[2026-04-28 17:14:46 +0000] [55117] [ERROR] Worker (pid:55118) exited with code 3.
+[2026-04-28 17:14:46 +0000] [55117] [INFO] Control socket listening at /run/user/1000/gunicorn.ctl
+[2026-04-28 17:14:48 +0000] [55117] [ERROR] Worker (pid:55119) exited with code 3.
+[2026-04-28 17:15:39 +0000] [55140] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:15:39 +0000] [55140] [INFO] Listening at: http://0.0.0.0:8000 (55140)
+[2026-04-28 17:15:39 +0000] [55140] [INFO] Using worker: sync
+[2026-04-28 17:15:39 +0000] [55141] [INFO] Booting worker with pid: 55141
+[2026-04-28 17:15:39 +0000] [55142] [INFO] Booting worker with pid: 55142
+[2026-04-28 17:15:39 +0000] [55143] [INFO] Booting worker with pid: 55143
+[2026-04-28 17:15:39 +0000] [55140] [INFO] Control socket listening at /run/user/1000/gunicorn.ctl
+[2026-04-28 17:17:55 +0000] [55140] [INFO] Handling signal: term
+[2026-04-28 14:17:55 -0300] [55141] [INFO] Worker exiting (pid: 55141)
+[2026-04-28 14:17:55 -0300] [55142] [INFO] Worker exiting (pid: 55142)
+[2026-04-28 14:17:55 -0300] [55143] [INFO] Worker exiting (pid: 55143)
+[2026-04-28 17:17:55 +0000] [55140] [INFO] Worker (pid:55141) was sent SIGTERM!
+[2026-04-28 17:17:55 +0000] [55140] [INFO] Worker (pid:55142) was sent SIGTERM!
+[2026-04-28 17:17:55 +0000] [55321] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:17:55 +0000] [55321] [INFO] Listening at: http://127.0.0.1:8001 (55321)
+[2026-04-28 17:17:55 +0000] [55321] [INFO] Using worker: sync
+[2026-04-28 17:17:55 +0000] [55326] [INFO] Booting worker with pid: 55326
+[2026-04-28 17:17:56 +0000] [55327] [INFO] Booting worker with pid: 55327
+[2026-04-28 17:17:56 +0000] [55328] [INFO] Booting worker with pid: 55328
+[2026-04-28 17:17:56 +0000] [55140] [INFO] Shutting down: Master
+[2026-04-28 17:17:56 +0000] [55321] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-28 17:18:12 +0000] [55321] [INFO] Handling signal: term
+[2026-04-28 14:18:12 -0300] [55327] [INFO] Worker exiting (pid: 55327)
+[2026-04-28 14:18:12 -0300] [55326] [INFO] Worker exiting (pid: 55326)
+[2026-04-28 14:18:12 -0300] [55328] [INFO] Worker exiting (pid: 55328)
+[2026-04-28 17:18:12 +0000] [55321] [INFO] Worker (pid:55326) was sent SIGTERM!
+[2026-04-28 17:18:12 +0000] [55321] [INFO] Worker (pid:55327) was sent SIGTERM!
+[2026-04-28 17:18:13 +0000] [55321] [INFO] Shutting down: Master
+[2026-04-28 17:18:13 +0000] [55336] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:18:13 +0000] [55336] [INFO] Listening at: http://127.0.0.1:8001 (55336)
+[2026-04-28 17:18:13 +0000] [55336] [INFO] Using worker: sync
+[2026-04-28 17:18:13 +0000] [55339] [INFO] Booting worker with pid: 55339
+[2026-04-28 17:18:13 +0000] [55340] [INFO] Booting worker with pid: 55340
+[2026-04-28 17:18:13 +0000] [55341] [INFO] Booting worker with pid: 55341
+[2026-04-28 17:18:13 +0000] [55336] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-28 17:28:33 +0000] [55336] [INFO] Handling signal: term
+[2026-04-28 14:28:33 -0300] [55339] [INFO] Worker exiting (pid: 55339)
+[2026-04-28 14:28:33 -0300] [55340] [INFO] Worker exiting (pid: 55340)
+[2026-04-28 14:28:33 -0300] [55341] [INFO] Worker exiting (pid: 55341)
+[2026-04-28 17:28:33 +0000] [55336] [INFO] Worker (pid:55339) was sent SIGTERM!
+[2026-04-28 17:28:33 +0000] [55336] [INFO] Worker (pid:55340) was sent SIGTERM!
+[2026-04-28 17:28:33 +0000] [55336] [INFO] Worker (pid:55341) was sent SIGTERM!
+[2026-04-28 17:28:33 +0000] [55336] [INFO] Shutting down: Master
+[2026-04-28 17:28:33 +0000] [55680] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:28:33 +0000] [55680] [INFO] Listening at: http://127.0.0.1:8001 (55680)
+[2026-04-28 17:28:33 +0000] [55680] [INFO] Using worker: sync
+[2026-04-28 17:28:33 +0000] [55683] [INFO] Booting worker with pid: 55683
+[2026-04-28 17:28:33 +0000] [55684] [INFO] Booting worker with pid: 55684
+[2026-04-28 17:28:33 +0000] [55685] [INFO] Booting worker with pid: 55685
+[2026-04-28 17:28:33 +0000] [55680] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-28 17:34:03 +0000] [55680] [INFO] Handling signal: term
+[2026-04-28 14:34:03 -0300] [55683] [INFO] Worker exiting (pid: 55683)
+[2026-04-28 14:34:03 -0300] [55684] [INFO] Worker exiting (pid: 55684)
+[2026-04-28 14:34:03 -0300] [55685] [INFO] Worker exiting (pid: 55685)
+[2026-04-28 17:34:03 +0000] [55680] [INFO] Worker (pid:55683) was sent SIGTERM!
+[2026-04-28 17:34:03 +0000] [55680] [INFO] Worker (pid:55684) was sent SIGTERM!
+[2026-04-28 17:34:03 +0000] [55680] [INFO] Shutting down: Master
+[2026-04-28 17:34:04 +0000] [55992] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:34:04 +0000] [55992] [INFO] Listening at: http://127.0.0.1:8001 (55992)
+[2026-04-28 17:34:04 +0000] [55992] [INFO] Using worker: sync
+[2026-04-28 17:34:04 +0000] [55994] [INFO] Booting worker with pid: 55994
+[2026-04-28 17:34:04 +0000] [55995] [INFO] Booting worker with pid: 55995
+[2026-04-28 17:34:04 +0000] [55996] [INFO] Booting worker with pid: 55996
+[2026-04-28 17:34:04 +0000] [55992] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
