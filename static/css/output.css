@@ -1968,11 +1968,6 @@ input[type="text"]:is(.dark *)::placeholder,
   border-color: var(--warning);
 }
 
-.border-gray-100 {
-  --tw-border-opacity: 1;
-  border-color: rgb(243 244 246 / var(--tw-border-opacity, 1));
-}
-
 .bg-\[var\(--bg\)\] {
   background-color: var(--bg);
 }
@@ -2560,11 +2555,6 @@ input[type="text"]:is(.dark *)::placeholder,
 .focus\:ring-blue-500:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity, 1));
-}
-
-.dark\:border-gray-800:is(.dark *) {
-  --tw-border-opacity: 1;
-  border-color: rgb(31 41 55 / var(--tw-border-opacity, 1));
 }
 
 .dark\:bg-amber-900\/40:is(.dark *) {
