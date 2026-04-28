@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
-
 {% block title %}Usuários — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}Usuários{% endblock %}
-
 {% block topbar_actions %}
   {% if perms.usuarios.add_usuario %}
   <a href="{% url 'usuario_novo' %}" class="btn-primary">
@@ -11,9 +9,8 @@
   </a>
   {% endif %}
 {% endblock %}
-
 {% block content %}
-<div class="card">
+<div class="card p-0 overflow-hidden">
   <table class="table-base">
     <thead>
       <tr>
@@ -28,18 +25,18 @@
     </thead>
     <tbody>
       {% for usuario in usuarios %}
-      <tr>
+      <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
         <td>
           <div class="flex items-center gap-3">
             {% if usuario.foto %}
               <img src="{{ usuario.foto.url }}" alt="{{ usuario.nome_completo }}"
-                   class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-1 ring-gray-200 dark:ring-gray-700">
+                   class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-1 ring-[var(--border)]">
             {% else %}
-              <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
-                <span class="text-xs font-semibold text-blue-700 dark:text-blue-300">{{ usuario.nome_completo|slice:":1"|upper }}</span>
+              <div class="w-8 h-8 rounded-full bg-[var(--info-bg)] flex items-center justify-center flex-shrink-0">
+                <span class="text-xs font-semibold text-[var(--accent)]">{{ usuario.nome_completo|slice:":1"|upper }}</span>
               </div>
             {% endif %}
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ usuario.nome_completo }}</span>
+            <span class="font-medium text-[var(--text-primary)]">{{ usuario.nome_completo }}</span>
           </div>
         </td>
         <td>{{ usuario.username }}</td>
@@ -48,18 +45,18 @@
         <td>{{ usuario.ramal|default:"—" }}</td>
         <td>
           {% if usuario.ativo %}
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">Ativo</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--success-bg)] text-[var(--success-text)]">Ativo</span>
           {% else %}
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">Inativo</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--surface-alt)] text-[var(--text-muted)]">Inativo</span>
           {% endif %}
         </td>
         <td>
           <div class="flex items-center gap-3">
             {% if perms.usuarios.change_usuario %}
-            <a href="{% url 'usuario_editar' usuario.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Editar</a>
-            <a href="{% url 'usuario_redefinir_senha' usuario.pk %}" class="text-sm text-amber-600 dark:text-amber-400 hover:underline">Redefinir senha</a>
+            <a href="{% url 'usuario_editar' usuario.pk %}" class="text-sm text-[var(--accent)] hover:underline">Editar</a>
+            <a href="{% url 'usuario_redefinir_senha' usuario.pk %}" class="text-sm text-[var(--warning-text)] hover:underline">Redefinir senha</a>
             {% if usuario.ativo %}
-            <a href="#" data-confirm-url="{% url 'usuario_desativar' usuario.pk %}" data-confirm-titulo="Desativar usuário" data-confirm-mensagem="Tem certeza que deseja desativar este usuário? Esta ação pode ser revertida pelo administrador." class="text-sm text-red-600 dark:text-red-400 hover:underline">Desativar</a>
+            <a href="#" data-confirm-url="{% url 'usuario_desativar' usuario.pk %}" data-confirm-titulo="Desativar usuário" data-confirm-mensagem="Tem certeza que deseja desativar este usuário? Esta ação pode ser revertida pelo administrador." class="text-sm text-[var(--danger-text)] hover:underline">Desativar</a>
             {% endif %}
             {% endif %}
           </div>
@@ -67,7 +64,7 @@
       </tr>
       {% empty %}
       <tr>
-        <td colspan="7" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum usuário encontrado.</td>
+        <td colspan="7" class="text-center text-[var(--text-muted)] py-8">Nenhum usuário encontrado.</td>
       </tr>
       {% endfor %}
     </tbody>
