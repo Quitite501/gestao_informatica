@@ -1,15 +1,12 @@
 {% extends 'base.html' %}
-
 {% block title %}{{ titulo }} — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}{{ titulo }}{% endblock %}
-
 {% block topbar_actions %}
   <a href="{% url 'usuario_lista' %}" class="btn-secondary">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     Voltar
   </a>
 {% endblock %}
-
 {% block content %}
 <div class="max-w-2xl">
   <div class="card">
@@ -20,8 +17,8 @@
         <label class="form-label">Foto atual</label>
         <div class="flex items-center gap-4 mt-1">
           <img src="{{ form.instance.foto.url }}" alt="Foto de {{ form.instance.nome_completo }}"
-               class="w-16 h-16 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700">
-          <span class="text-xs text-gray-500 dark:text-gray-400">Envie uma nova foto para substituir</span>
+               class="w-16 h-16 rounded-full object-cover ring-2 ring-[var(--border)]">
+          <span class="text-xs text-[var(--text-muted)]">Envie uma nova foto para substituir</span>
         </div>
       </div>
       {% endif %}
@@ -30,10 +27,10 @@
         <label class="form-label">{{ field.label }}</label>
         {{ field }}
         {% if field.errors %}
-        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ field.errors|join:", " }}</p>
+        <p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>
         {% endif %}
         {% if field.help_text %}
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ field.help_text }}</p>
+        <p class="mt-1 text-xs text-[var(--text-muted)]">{{ field.help_text }}</p>
         {% endif %}
       </div>
       {% endfor %}
