@@ -14,31 +14,31 @@
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
     <div class="card">
-      <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Total abertos</p>
-      <p class="text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ total_abertos }}</p>
-      <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">Em andamento</p>
+      <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-1">Total abertos</p>
+      <p class="text-3xl font-semibold text-[var(--text-primary)]">{{ total_abertos }}</p>
+      <p class="text-xs text-[var(--accent)] mt-1">Em andamento</p>
     </div>
 
     <div class="card">
-      <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Críticos ativos</p>
-      <p class="text-3xl font-semibold {% if total_criticos > 0 %}text-red-600 dark:text-red-400{% else %}text-gray-900 dark:text-gray-100{% endif %}">{{ total_criticos }}</p>
-      <p class="text-xs {% if total_criticos > 0 %}text-red-500 dark:text-red-400{% else %}text-gray-400 dark:text-gray-500{% endif %} mt-1">
+      <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-1">Críticos ativos</p>
+      <p class="text-3xl font-semibold {% if total_criticos > 0 %}text-[var(--danger)]{% else %}text-[var(--text-primary)]{% endif %}">{{ total_criticos }}</p>
+      <p class="text-xs {% if total_criticos > 0 %}text-[var(--danger-text)]{% else %}text-[var(--text-muted)]{% endif %} mt-1">
         {% if total_criticos > 0 %}Requer atenção{% else %}Nenhum crítico{% endif %}
       </p>
     </div>
 
     <div class="card">
-      <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">SLA vencidos</p>
-      <p class="text-3xl font-semibold {% if sla_vencido > 0 %}text-red-600 dark:text-red-400{% else %}text-gray-900 dark:text-gray-100{% endif %}">{{ sla_vencido }}</p>
-      <p class="text-xs {% if sla_em_risco > 0 %}text-yellow-600 dark:text-yellow-400{% else %}text-gray-400 dark:text-gray-500{% endif %} mt-1">
+      <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-1">SLA vencidos</p>
+      <p class="text-3xl font-semibold {% if sla_vencido > 0 %}text-[var(--danger)]{% else %}text-[var(--text-primary)]{% endif %}">{{ sla_vencido }}</p>
+      <p class="text-xs {% if sla_em_risco > 0 %}text-[var(--warning-text)]{% else %}text-[var(--text-muted)]{% endif %} mt-1">
         {% if sla_em_risco > 0 %}+{{ sla_em_risco }} em risco{% else %}Nenhum em risco{% endif %}
       </p>
     </div>
 
     <div class="card">
-      <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Abertos hoje</p>
-      <p class="text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ abertos_hoje }}</p>
-      <p class="text-xs text-green-600 dark:text-green-400 mt-1">Esta semana: {{ abertos_semana }}</p>
+      <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-1">Abertos hoje</p>
+      <p class="text-3xl font-semibold text-[var(--text-primary)]">{{ abertos_hoje }}</p>
+      <p class="text-xs text-[var(--success-text)] mt-1">Esta semana: {{ abertos_semana }}</p>
     </div>
 
   </div>
@@ -55,10 +55,10 @@
 
         <div>
           <div class="flex justify-between text-sm mb-1">
-            <span class="text-gray-600 dark:text-gray-400">Aberto</span>
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ por_status.aberto }}</span>
+            <span class="text-[var(--text-secondary)]">Aberto</span>
+            <span class="font-medium text-[var(--text-primary)]">{{ por_status.aberto }}</span>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+          <div class="w-full bg-[var(--surface-alt)] rounded-full h-2">
             {% if total > 0 %}
             <div class="h-2 rounded-full bg-blue-500" style="width: {% widthratio por_status.aberto total 100 %}%"></div>
             {% endif %}
@@ -67,10 +67,10 @@
 
         <div>
           <div class="flex justify-between text-sm mb-1">
-            <span class="text-gray-600 dark:text-gray-400">Em atendimento</span>
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ por_status.em_atendimento }}</span>
+            <span class="text-[var(--text-secondary)]">Em atendimento</span>
+            <span class="font-medium text-[var(--text-primary)]">{{ por_status.em_atendimento }}</span>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+          <div class="w-full bg-[var(--surface-alt)] rounded-full h-2">
             {% if total > 0 %}
             <div class="h-2 rounded-full bg-green-500" style="width: {% widthratio por_status.em_atendimento total 100 %}%"></div>
             {% endif %}
@@ -79,10 +79,10 @@
 
         <div>
           <div class="flex justify-between text-sm mb-1">
-            <span class="text-gray-600 dark:text-gray-400">Aguardando usuário</span>
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ por_status.aguardando_usuario }}</span>
+            <span class="text-[var(--text-secondary)]">Aguardando usuário</span>
+            <span class="font-medium text-[var(--text-primary)]">{{ por_status.aguardando_usuario }}</span>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+          <div class="w-full bg-[var(--surface-alt)] rounded-full h-2">
             {% if total > 0 %}
             <div class="h-2 rounded-full bg-yellow-500" style="width: {% widthratio por_status.aguardando_usuario total 100 %}%"></div>
             {% endif %}
@@ -91,10 +91,10 @@
 
         {% endwith %}
 
-        <div class="pt-2 border-t border-gray-100 dark:border-gray-800">
+        <div class="pt-2 border-t border-[var(--border)]">
           <div class="flex justify-between text-sm">
-            <span class="text-gray-500 dark:text-gray-400">Encerrados este mês</span>
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ por_status.encerrado_mes }}</span>
+            <span class="text-[var(--text-muted)]">Encerrados este mês</span>
+            <span class="font-medium text-[var(--text-primary)]">{{ por_status.encerrado_mes }}</span>
           </div>
         </div>
 
@@ -109,10 +109,10 @@
 
         <div>
           <div class="flex justify-between text-sm mb-1">
-            <span class="text-gray-600 dark:text-gray-400">Crítica</span>
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ por_prioridade.critica }}</span>
+            <span class="text-[var(--text-secondary)]">Crítica</span>
+            <span class="font-medium text-[var(--text-primary)]">{{ por_prioridade.critica }}</span>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+          <div class="w-full bg-[var(--surface-alt)] rounded-full h-2">
             {% if total > 0 %}
             <div class="h-2 rounded-full bg-red-500" style="width: {% widthratio por_prioridade.critica total 100 %}%"></div>
             {% endif %}
@@ -121,10 +121,10 @@
 
         <div>
           <div class="flex justify-between text-sm mb-1">
-            <span class="text-gray-600 dark:text-gray-400">Alta</span>
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ por_prioridade.alta }}</span>
+            <span class="text-[var(--text-secondary)]">Alta</span>
+            <span class="font-medium text-[var(--text-primary)]">{{ por_prioridade.alta }}</span>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+          <div class="w-full bg-[var(--surface-alt)] rounded-full h-2">
             {% if total > 0 %}
             <div class="h-2 rounded-full bg-orange-500" style="width: {% widthratio por_prioridade.alta total 100 %}%"></div>
             {% endif %}
@@ -133,10 +133,10 @@
 
         <div>
           <div class="flex justify-between text-sm mb-1">
-            <span class="text-gray-600 dark:text-gray-400">Média</span>
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ por_prioridade.media }}</span>
+            <span class="text-[var(--text-secondary)]">Média</span>
+            <span class="font-medium text-[var(--text-primary)]">{{ por_prioridade.media }}</span>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+          <div class="w-full bg-[var(--surface-alt)] rounded-full h-2">
             {% if total > 0 %}
             <div class="h-2 rounded-full bg-blue-500" style="width: {% widthratio por_prioridade.media total 100 %}%"></div>
             {% endif %}
@@ -145,10 +145,10 @@
 
         <div>
           <div class="flex justify-between text-sm mb-1">
-            <span class="text-gray-600 dark:text-gray-400">Baixa</span>
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ por_prioridade.baixa }}</span>
+            <span class="text-[var(--text-secondary)]">Baixa</span>
+            <span class="font-medium text-[var(--text-primary)]">{{ por_prioridade.baixa }}</span>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+          <div class="w-full bg-[var(--surface-alt)] rounded-full h-2">
             {% if total > 0 %}
             <div class="h-2 rounded-full bg-teal-500" style="width: {% widthratio por_prioridade.baixa total 100 %}%"></div>
             {% endif %}
@@ -169,13 +169,13 @@
       <div class="flex items-end gap-2 h-24 mt-2">
         {% for dia in ultimos_7 %}
         <div class="flex flex-col items-center gap-1 flex-1">
-          <span class="text-xs text-gray-500 dark:text-gray-400">{{ dia.total }}</span>
+          <span class="text-xs text-[var(--text-muted)]">{{ dia.total }}</span>
           <div class="w-full rounded-t"
                style="height: {% if max_dia > 0 %}{% widthratio dia.total max_dia 64 %}px{% else %}2px{% endif %};
                       background: {% if forloop.last %}#3B82F6{% else %}#93C5FD{% endif %};
                       min-height: 2px;">
           </div>
-          <span class="text-xs text-gray-400 dark:text-gray-500">{{ dia.dia }}</span>
+          <span class="text-xs text-[var(--text-muted)]">{{ dia.dia }}</span>
         </div>
         {% endfor %}
       </div>
@@ -183,21 +183,21 @@
 
     <div class="card">
       <h2 class="section-title">SLA — situação atual</h2>
-      <div class="grid grid-cols-3 gap-2 mb-4" style="display:flex;flex-direction:row;gap:8px;">
+      <div style="display:flex;flex-direction:row;gap:8px;" class="mb-4">
 
-        <div class="flex flex-col items-center gap-1 p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
-          <span class="text-2xl font-semibold text-green-700 dark:text-green-400">{{ sla_no_prazo }}</span>
-          <span class="text-xs text-green-600 dark:text-green-500">No prazo</span>
+        <div class="flex flex-col items-center gap-1 p-3 rounded-lg bg-[var(--success-bg)] flex-1">
+          <span class="text-2xl font-semibold text-[var(--success-text)]">{{ sla_no_prazo }}</span>
+          <span class="text-xs text-[var(--success-text)]">No prazo</span>
         </div>
 
-        <div class="flex flex-col items-center gap-1 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20">
-          <span class="text-2xl font-semibold text-yellow-700 dark:text-yellow-400">{{ sla_em_risco }}</span>
-          <span class="text-xs text-yellow-600 dark:text-yellow-500">Em risco</span>
+        <div class="flex flex-col items-center gap-1 p-3 rounded-lg bg-[var(--warning-bg)] flex-1">
+          <span class="text-2xl font-semibold text-[var(--warning-text)]">{{ sla_em_risco }}</span>
+          <span class="text-xs text-[var(--warning-text)]">Em risco</span>
         </div>
 
-        <div class="flex flex-col items-center gap-1 p-3 rounded-lg bg-red-50 dark:bg-red-900/20">
-          <span class="text-2xl font-semibold text-red-700 dark:text-red-400">{{ sla_vencido }}</span>
-          <span class="text-xs text-red-600 dark:text-red-500">Vencidos</span>
+        <div class="flex flex-col items-center gap-1 p-3 rounded-lg bg-[var(--danger-bg)] flex-1">
+          <span class="text-2xl font-semibold text-[var(--danger-text)]">{{ sla_vencido }}</span>
+          <span class="text-xs text-[var(--danger-text)]">Vencidos</span>
         </div>
 
       </div>
@@ -206,20 +206,20 @@
       <div class="space-y-2">
         {% for tec in por_tecnico %}
         <div class="flex items-center gap-2 py-1">
-          <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs font-medium text-blue-800 dark:text-blue-300 flex-shrink-0">
+          <div class="w-7 h-7 rounded-full bg-[var(--info-bg)] flex items-center justify-center text-xs font-medium text-[var(--accent)] flex-shrink-0">
             {% if tec.tecnico__nome_completo %}
               {{ tec.tecnico__nome_completo|slice:":2"|upper }}
             {% else %}
               —
             {% endif %}
           </div>
-          <span class="text-sm text-gray-700 dark:text-gray-300 flex-1 truncate">
+          <span class="text-sm text-[var(--text-secondary)] flex-1 truncate">
             {{ tec.tecnico__nome_completo|default:"Sem técnico" }}
           </span>
-          <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ tec.total }}</span>
+          <span class="text-sm font-medium text-[var(--text-primary)]">{{ tec.total }}</span>
         </div>
         {% empty %}
-        <p class="text-sm text-gray-400 dark:text-gray-500">Nenhum chamado ativo.</p>
+        <p class="text-sm text-[var(--text-muted)]">Nenhum chamado ativo.</p>
         {% endfor %}
       </div>
 
