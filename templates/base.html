@@ -170,7 +170,7 @@
         <img src="{{ request.user.foto.url }}" alt="{{ request.user.nome_completo }}"
              class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-1 ring-[var(--border)]">
         {% else %}
-        <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-semibold text-blue-700 dark:text-blue-300 flex-shrink-0">
+        <div class="w-8 h-8 rounded-full bg-[var(--info-bg)] flex items-center justify-center text-xs font-semibold text-[var(--accent)] flex-shrink-0">
           {{ request.user.nome_completo|slice:":1" }}{{ request.user.nome_completo|slice:"-1:" }}
         </div>
         {% endif %}
