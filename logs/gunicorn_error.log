@@ -1184,3 +1184,17 @@ ModuleNotFoundError: No module named 'core.wsgi'
 [2026-04-28 17:34:04 +0000] [55995] [INFO] Booting worker with pid: 55995
 [2026-04-28 17:34:04 +0000] [55996] [INFO] Booting worker with pid: 55996
 [2026-04-28 17:34:04 +0000] [55992] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-28 17:49:20 +0000] [55992] [INFO] Handling signal: term
+[2026-04-28 14:49:20 -0300] [55995] [INFO] Worker exiting (pid: 55995)
+[2026-04-28 14:49:20 -0300] [55994] [INFO] Worker exiting (pid: 55994)
+[2026-04-28 14:49:20 -0300] [55996] [INFO] Worker exiting (pid: 55996)
+[2026-04-28 17:49:20 +0000] [55992] [INFO] Worker (pid:55994) was sent SIGTERM!
+[2026-04-28 17:49:20 +0000] [55992] [INFO] Worker (pid:55995) was sent SIGTERM!
+[2026-04-28 17:49:21 +0000] [55992] [INFO] Shutting down: Master
+[2026-04-28 17:49:21 +0000] [56511] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:49:21 +0000] [56511] [INFO] Listening at: http://127.0.0.1:8001 (56511)
+[2026-04-28 17:49:21 +0000] [56511] [INFO] Using worker: sync
+[2026-04-28 17:49:21 +0000] [56516] [INFO] Booting worker with pid: 56516
+[2026-04-28 17:49:21 +0000] [56517] [INFO] Booting worker with pid: 56517
+[2026-04-28 17:49:21 +0000] [56518] [INFO] Booting worker with pid: 56518
+[2026-04-28 17:49:21 +0000] [56511] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
