@@ -221,6 +221,14 @@
 @layer components {
   .nav-item { @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--sidebar-text)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors cursor-pointer; }
   .nav-item.active { @apply bg-[var(--sidebar-active-bg)] text-[var(--sidebar-active-text)] font-medium; }
+
+  /* Accordion do menu lateral */
+  .nav-accordion-toggle { @apply justify-between; }
+  .nav-accordion-chevron { transition: transform 0.3s ease-in-out; }
+  .nav-accordion.open .nav-accordion-chevron { transform: rotate(90deg); }
+  .nav-accordion-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out; }
+  .nav-accordion.open .nav-accordion-panel { max-height: 200px; }
+  .nav-subitem { @apply pl-9 text-xs py-1.5; }
   .btn-primary { @apply inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] text-sm font-medium rounded-lg transition-colors; }
   .btn-secondary { @apply inline-flex items-center gap-2 px-4 py-2 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-alt)] text-[var(--text-secondary)] text-sm font-medium rounded-lg transition-colors; }
   .btn-danger { @apply inline-flex items-center gap-2 px-4 py-2 bg-[var(--danger)] hover:bg-[var(--danger-hover)] text-white text-sm font-medium rounded-lg transition-colors; }

@@ -1198,3 +1198,33 @@ ModuleNotFoundError: No module named 'core.wsgi'
 [2026-04-28 17:49:21 +0000] [56517] [INFO] Booting worker with pid: 56517
 [2026-04-28 17:49:21 +0000] [56518] [INFO] Booting worker with pid: 56518
 [2026-04-28 17:49:21 +0000] [56511] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-28 17:52:17 +0000] [56511] [INFO] Handling signal: term
+[2026-04-28 14:52:17 -0300] [56516] [INFO] Worker exiting (pid: 56516)
+[2026-04-28 14:52:17 -0300] [56517] [INFO] Worker exiting (pid: 56517)
+[2026-04-28 14:52:17 -0300] [56518] [INFO] Worker exiting (pid: 56518)
+[2026-04-28 17:52:17 +0000] [56511] [INFO] Worker (pid:56516) was sent SIGTERM!
+[2026-04-28 17:52:17 +0000] [56511] [INFO] Worker (pid:56517) was sent SIGTERM!
+[2026-04-28 17:52:17 +0000] [56511] [INFO] Worker (pid:56518) was sent SIGTERM!
+[2026-04-28 17:52:17 +0000] [56511] [INFO] Shutting down: Master
+[2026-04-28 17:52:18 +0000] [56828] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:52:18 +0000] [56828] [INFO] Listening at: http://127.0.0.1:8001 (56828)
+[2026-04-28 17:52:18 +0000] [56828] [INFO] Using worker: sync
+[2026-04-28 17:52:18 +0000] [56831] [INFO] Booting worker with pid: 56831
+[2026-04-28 17:52:18 +0000] [56832] [INFO] Booting worker with pid: 56832
+[2026-04-28 17:52:18 +0000] [56833] [INFO] Booting worker with pid: 56833
+[2026-04-28 17:52:18 +0000] [56828] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-04-28 14:58:51 -0300] [56831] [INFO] Worker exiting (pid: 56831)
+[2026-04-28 17:58:51 +0000] [56828] [INFO] Handling signal: term
+[2026-04-28 14:58:51 -0300] [56833] [INFO] Worker exiting (pid: 56833)
+[2026-04-28 14:58:51 -0300] [56832] [INFO] Worker exiting (pid: 56832)
+[2026-04-28 17:58:51 +0000] [56828] [INFO] Worker (pid:56831) was sent SIGTERM!
+[2026-04-28 17:58:51 +0000] [56828] [INFO] Worker (pid:56832) was sent SIGTERM!
+[2026-04-28 17:58:51 +0000] [56828] [INFO] Worker (pid:56833) was sent SIGTERM!
+[2026-04-28 17:58:51 +0000] [56828] [INFO] Shutting down: Master
+[2026-04-28 17:58:51 +0000] [57147] [INFO] Starting gunicorn 25.3.0
+[2026-04-28 17:58:51 +0000] [57147] [INFO] Listening at: http://127.0.0.1:8001 (57147)
+[2026-04-28 17:58:51 +0000] [57147] [INFO] Using worker: sync
+[2026-04-28 17:58:51 +0000] [57150] [INFO] Booting worker with pid: 57150
+[2026-04-28 17:58:51 +0000] [57151] [INFO] Booting worker with pid: 57151
+[2026-04-28 17:58:51 +0000] [57152] [INFO] Booting worker with pid: 57152
+[2026-04-28 17:58:51 +0000] [57147] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
