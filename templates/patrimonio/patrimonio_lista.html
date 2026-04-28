@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
-
 {% block title %}Patrimônio — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}Patrimônio{% endblock %}
-
 {% block topbar_actions %}
   {% if perms.patrimonio.can_manage_patrimonio %}
   <a href="{% url 'patrimonio_novo' %}" class="btn-primary">
@@ -11,10 +9,8 @@
   </a>
   {% endif %}
 {% endblock %}
-
 {% block content %}
 <div class="space-y-4">
-
   <div class="card">
     <form method="get" class="flex flex-wrap items-end gap-4">
       <div>
@@ -35,8 +31,7 @@
       </div>
     </form>
   </div>
-
-  <div class="card">
+  <div class="card p-0 overflow-hidden">
     <table class="table-base">
       <thead>
         <tr>
@@ -52,8 +47,8 @@
       </thead>
       <tbody>
         {% for pat in patrimonios %}
-        <tr>
-          <td class="font-medium text-gray-900 dark:text-gray-100">{{ pat.etiqueta }}</td>
+        <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+          <td class="font-medium text-[var(--text-primary)]">{{ pat.etiqueta }}</td>
           <td>{{ pat.hostname|default:"—" }}</td>
           <td>{{ pat.tipo.nome }}</td>
           <td>{{ pat.marca }} {{ pat.modelo }}</td>
@@ -64,16 +59,16 @@
           </td>
           <td>
             <div class="flex items-center gap-3">
-              <a href="{% url 'patrimonio_detalhe' pat.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Ver</a>
+              <a href="{% url 'patrimonio_detalhe' pat.pk %}" class="text-sm text-[var(--accent)] hover:underline">Ver</a>
               {% if perms.patrimonio.can_manage_patrimonio %}
-              <a href="{% url 'patrimonio_editar' pat.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Editar</a>
+              <a href="{% url 'patrimonio_editar' pat.pk %}" class="text-sm text-[var(--accent)] hover:underline">Editar</a>
               {% endif %}
             </div>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="8" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum patrimônio encontrado.</td>
+          <td colspan="8" class="text-center text-[var(--text-muted)] py-8">Nenhum patrimônio encontrado.</td>
         </tr>
         {% endfor %}
       </tbody>
