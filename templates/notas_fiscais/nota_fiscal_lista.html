@@ -1,17 +1,14 @@
 {% extends 'base.html' %}
-
 {% block title %}Notas Fiscais — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}Notas Fiscais{% endblock %}
-
 {% block topbar_actions %}
   <a href="{% url 'nota_fiscal_nova' %}" class="btn-primary">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Nova nota fiscal
   </a>
 {% endblock %}
-
 {% block content %}
-<div class="card">
+<div class="card p-0 overflow-hidden">
   <table class="table-base">
     <thead>
       <tr>
@@ -25,22 +22,22 @@
     </thead>
     <tbody>
       {% for nf in notas %}
-      <tr>
-        <td class="font-medium text-gray-900 dark:text-gray-100">{{ nf.numero }}</td>
+      <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+        <td class="font-medium text-[var(--text-primary)]">{{ nf.numero }}</td>
         <td>{{ nf.fornecedor }}</td>
         <td>{{ nf.data_emissao|date:"d/m/Y" }}</td>
         <td>R$ {{ nf.valor_total|floatformat:2 }}</td>
         <td>{{ nf.patrimonios.count }}</td>
         <td>
           <div class="flex items-center gap-3">
-            <a href="{% url 'nota_fiscal_detalhe' nf.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Ver</a>
-            <a href="{% url 'nota_fiscal_editar' nf.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Editar</a>
+            <a href="{% url 'nota_fiscal_detalhe' nf.pk %}" class="text-sm text-[var(--accent)] hover:underline">Ver</a>
+            <a href="{% url 'nota_fiscal_editar' nf.pk %}" class="text-sm text-[var(--accent)] hover:underline">Editar</a>
           </div>
         </td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="6" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhuma nota fiscal encontrada.</td>
+        <td colspan="6" class="text-center text-[var(--text-muted)] py-8">Nenhuma nota fiscal encontrada.</td>
       </tr>
       {% endfor %}
     </tbody>
