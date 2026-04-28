@@ -1,17 +1,14 @@
 {% extends 'base.html' %}
-
 {% block title %}Conformidade de Licenças — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}Conformidade de Licenças{% endblock %}
-
 {% block topbar_actions %}
   <a href="{% url 'software_lista' %}" class="btn-secondary">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     Voltar
   </a>
 {% endblock %}
-
 {% block content %}
-<div class="card">
+<div class="card p-0 overflow-hidden">
   <table class="table-base">
     <thead>
       <tr>
@@ -26,9 +23,9 @@
     </thead>
     <tbody>
       {% for item in relatorio %}
-      <tr>
-        <td class="font-medium text-gray-900 dark:text-gray-100">
-          <a href="{% url 'software_detalhe' item.software.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">
+      <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+        <td class="font-medium text-[var(--text-primary)]">
+          <a href="{% url 'software_detalhe' item.software.pk %}" class="text-[var(--accent)] hover:underline">
             {{ item.software.nome }}
           </a>
         </td>
@@ -36,7 +33,7 @@
         <td>{{ item.software.total_adquirido }}</td>
         <td>{{ item.software.total_instalado }}</td>
         <td>
-          <span class="font-medium {% if item.software.saldo < 0 %}text-red-600 dark:text-red-400{% elif item.software.saldo == 0 %}text-amber-600 dark:text-amber-400{% else %}text-green-600 dark:text-green-400{% endif %}">
+          <span class="font-medium {% if item.software.saldo < 0 %}text-[var(--danger-text)]{% elif item.software.saldo == 0 %}text-[var(--warning-text)]{% else %}text-[var(--success-text)]{% endif %}">
             {{ item.software.saldo }}
           </span>
         </td>
@@ -63,7 +60,7 @@
       </tr>
       {% empty %}
       <tr>
-        <td colspan="7" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum software cadastrado.</td>
+        <td colspan="7" class="text-center text-[var(--text-muted)] py-8">Nenhum software cadastrado.</td>
       </tr>
       {% endfor %}
     </tbody>
