@@ -13,24 +13,22 @@
     <div class="flex items-center gap-3 mb-6">
       {% if usuario.foto %}
         <img src="{{ usuario.foto.url }}" alt="{{ usuario.nome_completo }}"
-             class="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700">
+             class="w-12 h-12 rounded-full object-cover ring-2 ring-[var(--border)]">
       {% else %}
-        <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-          <span class="text-sm font-semibold text-blue-700 dark:text-blue-300">{{ usuario.nome_completo|slice:":1"|upper }}</span>
+        <div class="w-12 h-12 rounded-full bg-[var(--info-bg)] flex items-center justify-center">
+          <span class="text-sm font-semibold text-[var(--accent)]">{{ usuario.nome_completo|slice:":1"|upper }}</span>
         </div>
       {% endif %}
       <div>
-        <p class="font-medium text-gray-900 dark:text-gray-100">{{ usuario.nome_completo }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400">{{ usuario.login_rede }} — {{ usuario.email }}</p>
+        <p class="font-medium text-[var(--text-primary)]">{{ usuario.nome_completo }}</p>
+        <p class="text-xs text-[var(--text-muted)]">{{ usuario.login_rede }} — {{ usuario.email }}</p>
       </div>
     </div>
-
     {% if erro %}
-    <div class="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-      <p class="text-sm text-red-700 dark:text-red-400">{{ erro }}</p>
+    <div class="mb-4 p-3 rounded-lg bg-[var(--danger-bg)] border border-[var(--danger)]">
+      <p class="text-sm text-[var(--danger-text)]">{{ erro }}</p>
     </div>
     {% endif %}
-
     <form method="post" class="space-y-4">
       {% csrf_token %}
       <div>

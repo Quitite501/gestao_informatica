@@ -2532,11 +2532,6 @@ input[type="text"]:is(.dark *)::placeholder,
   --tw-ring-color: var(--border);
 }
 
-.ring-gray-200 {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(229 231 235 / var(--tw-ring-opacity, 1));
-}
-
 .transition-colors {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -2786,11 +2781,6 @@ input[type="text"]:is(.dark *)::placeholder,
 .dark\:text-white:is(.dark *) {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
-}
-
-.dark\:ring-gray-700:is(.dark *) {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(55 65 81 / var(--tw-ring-opacity, 1));
 }
 
 .dark\:hover\:bg-gray-600:hover:is(.dark *) {
