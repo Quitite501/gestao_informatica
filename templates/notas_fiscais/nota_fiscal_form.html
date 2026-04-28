@@ -1,15 +1,12 @@
 {% extends 'base.html' %}
-
 {% block title %}{{ titulo }} — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}{{ titulo }}{% endblock %}
-
 {% block topbar_actions %}
   <a href="{% url 'nota_fiscal_lista' %}" class="btn-secondary">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     Voltar
   </a>
 {% endblock %}
-
 {% block content %}
 <div class="max-w-2xl">
   <div class="card">
@@ -20,7 +17,7 @@
         <label class="form-label">{{ field.label }}</label>
         {{ field }}
         {% if field.errors %}
-        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ field.errors|join:", " }}</p>
+        <p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>
         {% endif %}
       </div>
       {% endfor %}
