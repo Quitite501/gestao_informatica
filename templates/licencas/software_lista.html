@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
-
 {% block title %}Softwares e Licenças — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}Softwares e Licenças{% endblock %}
-
 {% block topbar_actions %}
   <a href="{% url 'software_novo' %}" class="btn-primary">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -10,9 +8,8 @@
   </a>
   <a href="{% url 'relatorio_conformidade' %}" class="btn-secondary">Conformidade</a>
 {% endblock %}
-
 {% block content %}
-<div class="card">
+<div class="card p-0 overflow-hidden">
   <table class="table-base">
     <thead>
       <tr>
@@ -27,8 +24,8 @@
     </thead>
     <tbody>
       {% for sw in softwares %}
-      <tr>
-        <td class="font-medium text-gray-900 dark:text-gray-100">{{ sw.nome }}</td>
+      <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+        <td class="font-medium text-[var(--text-primary)]">{{ sw.nome }}</td>
         <td>{{ sw.fabricante|default:"—" }}</td>
         <td>{{ sw.total_adquirido }}</td>
         <td>{{ sw.total_instalado }}</td>
@@ -43,12 +40,12 @@
           {% endif %}
         </td>
         <td>
-          <a href="{% url 'software_detalhe' sw.pk %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Ver</a>
+          <a href="{% url 'software_detalhe' sw.pk %}" class="text-sm text-[var(--accent)] hover:underline">Ver</a>
         </td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="7" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum software cadastrado.</td>
+        <td colspan="7" class="text-center text-[var(--text-muted)] py-8">Nenhum software cadastrado.</td>
       </tr>
       {% endfor %}
     </tbody>
