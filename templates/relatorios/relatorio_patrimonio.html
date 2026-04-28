@@ -19,14 +19,14 @@
       </table>
     </div>
   </div>
-  <div class="card">
-    <h2 class="section-title">Lista Completa</h2>
+  <div class="card p-0 overflow-hidden">
+    <div class="px-6 pt-6 pb-4"><h2 class="section-title">Lista Completa</h2></div>
     <table class="table-base">
       <thead><tr><th>Etiqueta</th><th>Hostname</th><th>Tipo</th><th>Marca/Modelo</th><th>Status</th><th>Setor</th><th>Usuário atual</th></tr></thead>
       <tbody>
         {% for pat in patrimonios %}
-        <tr>
-          <td><a href="{% url 'patrimonio_detalhe' pat.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ pat.etiqueta }}</a></td>
+        <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+          <td><a href="{% url 'patrimonio_detalhe' pat.pk %}" class="text-[var(--accent)] hover:underline">{{ pat.etiqueta }}</a></td>
           <td>{{ pat.hostname|default:"—" }}</td>
           <td>{{ pat.tipo.nome }}</td>
           <td>{{ pat.marca }} {{ pat.modelo }}</td>
@@ -35,7 +35,7 @@
           <td>{{ pat.usuario_atual.nome_completo|default:"—" }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center text-gray-400 py-4">Nenhum patrimônio.</td></tr>
+        <tr><td colspan="7" class="text-center text-[var(--text-muted)] py-4">Nenhum patrimônio.</td></tr>
         {% endfor %}
       </tbody>
     </table>

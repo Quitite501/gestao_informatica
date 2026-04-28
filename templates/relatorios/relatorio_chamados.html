@@ -27,15 +27,15 @@
       </table>
     </div>
   </div>
-  <div class="card">
-    <h2 class="section-title">Lista Completa</h2>
+  <div class="card p-0 overflow-hidden">
+    <div class="px-6 pt-6 pb-4"><h2 class="section-title">Lista Completa</h2></div>
     <table class="table-base">
       <thead><tr><th>Nº</th><th>Título</th><th>Solicitante</th><th>Categoria</th><th>Prioridade</th><th>Status</th><th>Técnico</th></tr></thead>
       <tbody>
         {% for c in chamados %}
-        <tr>
+        <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
           <td>#{{ c.pk }}</td>
-          <td><a href="{% url 'chamado_detalhe' c.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ c.titulo }}</a></td>
+          <td><a href="{% url 'chamado_detalhe' c.pk %}" class="text-[var(--accent)] hover:underline">{{ c.titulo }}</a></td>
           <td>{{ c.solicitante.nome_completo }}</td>
           <td>{{ c.categoria.nome }}</td>
           <td><span class="badge-{{ c.prioridade }}">{{ c.get_prioridade_display }}</span></td>
@@ -43,7 +43,7 @@
           <td>{{ c.tecnico.nome_completo|default:"—" }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center text-gray-400 py-4">Nenhum chamado.</td></tr>
+        <tr><td colspan="7" class="text-center text-[var(--text-muted)] py-4">Nenhum chamado.</td></tr>
         {% endfor %}
       </tbody>
     </table>
