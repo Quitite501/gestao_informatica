@@ -61,23 +61,24 @@
   </div>
 
   {% if filtro_padrao_ativo %}
-  <div class="flex items-center justify-between px-4 py-2.5 mb-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-sm text-blue-700 dark:text-blue-300">
+  <div class="flex items-center justify-between px-4 py-2.5 mb-3 rounded-lg bg-[var(--info-bg)] border border-[var(--border)] text-sm text-[var(--info-text)]">
     <div class="flex items-center gap-2">
       <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
       <span>Exibindo chamados <strong>ativos</strong> e <strong>encerrados nos últimos 30 dias</strong>.</span>
     </div>
-    <a href="{% url 'chamado_lista' %}?limpar=1" class="flex items-center gap-1 font-medium underline underline-offset-2 hover:text-blue-900 dark:hover:text-blue-100 whitespace-nowrap ml-4">
+    <a href="{% url 'chamado_lista' %}?limpar=1" class="flex items-center gap-1 font-medium underline underline-offset-2 hover:text-[var(--accent)] whitespace-nowrap ml-4">
       Ver todos
     </a>
   </div>
   {% endif %}
+
   <div class="card p-0 overflow-hidden">
     <form method="post" action="{% url 'chamado_excluir_multiplos' %}" id="form-exclusao">
       {% csrf_token %}
 
       {% if perms.usuarios.change_usuario %}
-      <div id="barra-exclusao" class="hidden items-center justify-between px-4 py-2 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
-        <span id="contador-selecionados" class="text-sm text-red-700 dark:text-red-300 font-medium"></span>
+      <div id="barra-exclusao" class="hidden items-center justify-between px-4 py-2 bg-[var(--danger-bg)] border-b border-[var(--danger)]">
+        <span id="contador-selecionados" class="text-sm text-[var(--danger-text)] font-medium"></span>
         <button type="button" class="btn-danger text-xs py-1.5"
           data-confirm-form="form-exclusao"
           data-confirm-titulo="Excluir chamados selecionados"
@@ -93,7 +94,7 @@
           <tr>
             {% if perms.usuarios.change_usuario %}
             <th class="w-10">
-              <input type="checkbox" id="selecionar-todos" class="rounded border-gray-300 dark:border-gray-600 text-blue-600">
+              <input type="checkbox" id="selecionar-todos" class="rounded border-[var(--input-border)] text-blue-600">
             </th>
             {% endif %}
             <th>Nº</th>
@@ -111,16 +112,16 @@
         </thead>
         <tbody id="tabela-chamados">
           {% for chamado in chamados %}
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+          <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
             {% if perms.usuarios.change_usuario %}
             <td>
               <input type="checkbox" name="chamados_selecionados" value="{{ chamado.pk }}"
-                class="checkbox-chamado rounded border-gray-300 dark:border-gray-600 text-blue-600">
+                class="checkbox-chamado rounded border-[var(--input-border)] text-blue-600">
             </td>
             {% endif %}
-            <td class="text-gray-500 dark:text-gray-400 text-xs">#{{ chamado.pk }}</td>
-            <td class="font-medium text-gray-900 dark:text-gray-100">
-              <a href="{% url 'chamado_detalhe' chamado.pk %}" class="hover:text-blue-600 dark:hover:text-blue-400">
+            <td class="text-[var(--text-muted)] text-xs">#{{ chamado.pk }}</td>
+            <td class="font-medium text-[var(--text-primary)]">
+              <a href="{% url 'chamado_detalhe' chamado.pk %}" class="hover:text-[var(--accent)]">
                 {{ chamado.titulo }}
               </a>
             </td>
@@ -129,8 +130,8 @@
             <td><span class="badge-{{ chamado.prioridade }}">{{ chamado.get_prioridade_display }}</span></td>
             <td><span class="badge-{{ chamado.status }}">{{ chamado.get_status_display }}</span></td>
             <td>{{ chamado.tecnico.nome_completo|default:"—" }}</td>
-            <td class="text-xs text-gray-500 dark:text-gray-400">{{ chamado.criado_em|date:"d/m/Y H:i" }}</td>
-            <td class="text-xs text-gray-500 dark:text-gray-400">
+            <td class="text-xs text-[var(--text-muted)]">{{ chamado.criado_em|date:"d/m/Y H:i" }}</td>
+            <td class="text-xs text-[var(--text-muted)]">
               {% if chamado.encerrado_em %}
                 {{ chamado.encerrado_em|date:"d/m/Y H:i" }}
               {% else %}
@@ -140,34 +141,34 @@
             <td>
               {% with status=chamado.status_sla pct=chamado.percentual_sla %}
                 {% if status == "vencido" %}
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-[var(--danger-bg)] text-[var(--danger-text)]">
                     &#9679; Vencido
                   </span>
                 {% elif status == "em_risco" %}
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-[var(--warning-bg)] text-[var(--warning-text)]">
                     &#9679; Em risco ({{ pct }}%)
                   </span>
                 {% elif status == "no_prazo" %}
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-[var(--success-bg)] text-[var(--success-text)]">
                     &#9679; No prazo ({{ pct }}%)
                   </span>
                 {% else %}
-                  <span class="text-xs text-gray-400 dark:text-gray-500">—</span>
+                  <span class="text-xs text-[var(--text-muted)]">—</span>
                 {% endif %}
               {% endwith %}
             </td>
             <td>
               <div class="flex items-center gap-2">
-                <a href="{% url 'chamado_detalhe' chamado.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline text-xs">Ver</a>
+                <a href="{% url 'chamado_detalhe' chamado.pk %}" class="text-[var(--accent)] hover:underline text-xs">Ver</a>
                 {% if perms.usuarios.change_usuario %}
-                <a href="#" data-confirm-url="{% url 'chamado_excluir' chamado.pk %}" data-confirm-titulo="Excluir chamado" data-confirm-mensagem="Tem certeza que deseja excluir este chamado? Esta ação não pode ser desfeita." class="text-red-500 dark:text-red-400 hover:underline text-xs">Excluir</a>
+                <a href="#" data-confirm-url="{% url 'chamado_excluir' chamado.pk %}" data-confirm-titulo="Excluir chamado" data-confirm-mensagem="Tem certeza que deseja excluir este chamado? Esta ação não pode ser desfeita." class="text-[var(--danger-text)] hover:underline text-xs">Excluir</a>
                 {% endif %}
               </div>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="10" class="text-center text-gray-400 dark:text-gray-500 py-8">Nenhum chamado encontrado.</td>
+            <td colspan="10" class="text-center text-[var(--text-muted)] py-8">Nenhum chamado encontrado.</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -175,8 +176,8 @@
     </form>
 
     {% if page_obj.has_other_pages %}
-    <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
-      <p class="text-sm text-gray-500 dark:text-gray-400">
+    <div class="flex items-center justify-between px-4 py-3 border-t border-[var(--border)]">
+      <p class="text-sm text-[var(--text-muted)]">
         Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
         — {{ page_obj.paginator.count }} chamado{{ page_obj.paginator.count|pluralize }}
       </p>
@@ -206,8 +207,8 @@
       </div>
     </div>
     {% else %}
-    <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-800">
-      <p class="text-sm text-gray-500 dark:text-gray-400">
+    <div class="px-4 py-3 border-t border-[var(--border)]">
+      <p class="text-sm text-[var(--text-muted)]">
         {{ page_obj.paginator.count }} chamado{{ page_obj.paginator.count|pluralize }}
       </p>
     </div>
@@ -217,7 +218,6 @@
 </div>
 
 <script>
-  // Checkboxes de exclusão
   const checkboxes = document.querySelectorAll('.checkbox-chamado');
   const selecionarTodos = document.getElementById('selecionar-todos');
   const barraExclusao = document.getElementById('barra-exclusao');
@@ -244,7 +244,6 @@
     });
   }
 
-  // Paginação preserva filtros
   const formFiltro = document.getElementById('form-filtro');
   if (formFiltro) {
     formFiltro.addEventListener('submit', function () {
@@ -253,7 +252,6 @@
     });
   }
 
-  // Atualização automática — verifica novos chamados a cada 30 segundos
   let ultimoPk = {{ chamados.object_list.0.pk|default:0 }};
 
   function verificarNovoChamado() {
