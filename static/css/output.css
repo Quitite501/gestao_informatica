@@ -1988,11 +1988,6 @@ input[type="text"]:is(.dark *)::placeholder,
   border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
 }
 
-.border-red-200 {
-  --tw-border-opacity: 1;
-  border-color: rgb(254 202 202 / var(--tw-border-opacity, 1));
-}
-
 .bg-\[var\(--bg\)\] {
   background-color: var(--bg);
 }
@@ -2114,11 +2109,6 @@ input[type="text"]:is(.dark *)::placeholder,
 .bg-red-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(254 226 226 / var(--tw-bg-opacity, 1));
-}
-
-.bg-red-50 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 242 242 / var(--tw-bg-opacity, 1));
 }
 
 .bg-red-500 {
@@ -2642,11 +2632,6 @@ input[type="text"]:is(.dark *)::placeholder,
   border-color: rgb(31 41 55 / var(--tw-border-opacity, 1));
 }
 
-.dark\:border-red-800:is(.dark *) {
-  --tw-border-opacity: 1;
-  border-color: rgb(153 27 27 / var(--tw-border-opacity, 1));
-}
-
 .dark\:bg-amber-800:is(.dark *) {
   --tw-bg-opacity: 1;
   background-color: rgb(146 64 14 / var(--tw-bg-opacity, 1));
@@ -2704,10 +2689,6 @@ input[type="text"]:is(.dark *)::placeholder,
 
 .dark\:bg-green-900\/40:is(.dark *) {
   background-color: rgb(20 83 45 / 0.4);
-}
-
-.dark\:bg-red-900\/20:is(.dark *) {
-  background-color: rgb(127 29 29 / 0.2);
 }
 
 .dark\:bg-red-900\/30:is(.dark *) {
