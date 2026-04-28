@@ -1,36 +1,32 @@
 {% extends 'base.html' %}
 {% block title %}Transferir Chamado {{ chamado.pk }} — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}Transferir Chamado #{{ chamado.pk }}{% endblock %}
-
 {% block topbar_actions %}
   <a href="{% url 'chamado_detalhe' chamado.pk %}" class="btn-secondary">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     Voltar
   </a>
 {% endblock %}
-
 {% block content %}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
   <div class="lg:col-span-2">
     <div class="card">
       <h2 class="section-title">Transferir chamado para outro atendente</h2>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Selecione o técnico que assumirá este chamado. A transferência ficará registrada na auditoria.</p>
-
+      <p class="text-xs text-[var(--text-muted)] mb-4">Selecione o técnico que assumirá este chamado. A transferência ficará registrada na auditoria.</p>
       <form method="post" class="space-y-4">
         {% csrf_token %}
         <div>
           <label for="id_novo_tecnico" class="form-label">Transferir para</label>
           {{ form.novo_tecnico }}
           {% if form.novo_tecnico.errors %}
-            <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.novo_tecnico.errors|join:", " }}</p>
+            <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.novo_tecnico.errors|join:", " }}</p>
           {% endif %}
         </div>
         <div>
           <label for="id_motivo" class="form-label">Motivo da transferência (opcional)</label>
           {{ form.motivo }}
           {% if form.motivo.errors %}
-            <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.motivo.errors|join:", " }}</p>
+            <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.motivo.errors|join:", " }}</p>
           {% endif %}
         </div>
         <div class="flex items-center gap-3 pt-2">
@@ -43,36 +39,34 @@
       </form>
     </div>
   </div>
-
   <div class="space-y-4">
     <div class="card text-sm space-y-3">
       <h2 class="section-title">Chamado</h2>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Título</p>
-        <p class="font-medium text-gray-900 dark:text-gray-100">{{ chamado.titulo }}</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Título</p>
+        <p class="font-medium text-[var(--text-primary)]">{{ chamado.titulo }}</p>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Solicitante</p>
-        <p class="text-gray-900 dark:text-gray-100">{{ chamado.solicitante.nome_completo }}</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Solicitante</p>
+        <p class="text-[var(--text-primary)]">{{ chamado.solicitante.nome_completo }}</p>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Status</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Status</p>
         <span class="badge-{{ chamado.status }}">{{ chamado.get_status_display }}</span>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Técnico atual</p>
-        <p class="font-medium text-gray-900 dark:text-gray-100">{{ tecnico_anterior.nome_completo|default:"Não atribuído" }}</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Técnico atual</p>
+        <p class="font-medium text-[var(--text-primary)]">{{ tecnico_anterior.nome_completo|default:"Não atribuído" }}</p>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Prioridade</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Prioridade</p>
         <span class="badge-{{ chamado.prioridade }}">{{ chamado.get_prioridade_display }}</span>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Aberto em</p>
-        <p class="text-gray-900 dark:text-gray-100">{{ chamado.criado_em|date:"d/m/Y H:i" }}</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Aberto em</p>
+        <p class="text-[var(--text-primary)]">{{ chamado.criado_em|date:"d/m/Y H:i" }}</p>
       </div>
     </div>
   </div>
-
 </div>
 {% endblock %}
