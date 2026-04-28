@@ -8,24 +8,24 @@
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
-<body class="h-full bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+<body class="h-full bg-[var(--bg)] text-[var(--text-primary)]">
 <!-- Modal de confirmação reutilizável -->
 <div id="modal-confirmacao" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;align-items:center;justify-content:center;">
   <div id="modal-overlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);"></div>
-  <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6" style="z-index:10;width:100%;max-width:28rem;margin:auto;">
+  <div class="relative bg-[var(--surface)] rounded-xl shadow-2xl p-6" style="z-index:10;width:100%;max-width:28rem;margin:auto;">
     <div class="flex items-start gap-4">
-      <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
-        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[var(--danger-bg)] flex items-center justify-center">
+        <svg class="w-5 h-5 text-[var(--danger)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
         </svg>
       </div>
       <div class="flex-1">
-        <h3 id="modal-titulo" class="text-base font-semibold text-gray-900 dark:text-white mb-1">Confirmar ação</h3>
-        <p id="modal-mensagem" class="text-sm text-gray-500 dark:text-gray-400">Tem certeza que deseja continuar?</p>
+        <h3 id="modal-titulo" class="text-base font-semibold text-[var(--text-primary)] mb-1">Confirmar ação</h3>
+        <p id="modal-mensagem" class="text-sm text-[var(--text-muted)]">Tem certeza que deseja continuar?</p>
       </div>
     </div>
     <div class="flex justify-end gap-3 mt-6">
-      <button id="modal-cancelar" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+      <button id="modal-cancelar" class="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] bg-[var(--surface-alt)] hover:brightness-90 rounded-lg transition-colors">
         Cancelar
       </button>
       <a id="modal-confirmar-link" href="#" class="hidden px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
@@ -62,7 +62,6 @@
     formAlvo = null;
   }
 
-  // Gatilho para <a> ou <button> com data-confirm-url
   document.addEventListener('click', function (e) {
     const el = e.target.closest('[data-confirm-url]');
     if (!el) return;
@@ -76,7 +75,6 @@
     abrirModal(t, m);
   });
 
-  // Gatilho para botão submit com data-confirm-form
   document.addEventListener('click', function (e) {
     const el = e.target.closest('[data-confirm-form]');
     if (!el) return;
@@ -105,25 +103,25 @@
 
 <div class="flex h-screen overflow-hidden">
 
-  <aside class="w-56 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-    <div class="px-4 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
+  <aside class="w-56 flex-shrink-0 bg-[var(--sidebar-bg)] border-r border-[var(--border)] flex flex-col">
+    <div class="px-4 py-4 border-b border-[var(--border)] flex items-center gap-3">
       <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
       </div>
       <div>
-        <div class="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight">Sistema TI</div>
-        <div class="text-xs text-gray-500 dark:text-gray-400 leading-tight">9º Ofício de Notas</div>
+        <div class="text-sm font-semibold text-[var(--text-primary)] leading-tight">Sistema TI</div>
+        <div class="text-xs text-[var(--text-muted)] leading-tight">9º Ofício de Notas</div>
       </div>
     </div>
 
     <nav class="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-      <p class="px-3 pt-2 pb-1 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Principal</p>
+      <p class="px-3 pt-2 pb-1 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Principal</p>
       <a href="{% url 'painel' %}" class="nav-item {% if request.resolver_match.url_name == 'painel' %}active{% endif %}">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         Painel
       </a>
 
-      <p class="px-3 pt-3 pb-1 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Módulos</p>
+      <p class="px-3 pt-3 pb-1 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Módulos</p>
       <a href="{% url 'usuario_lista' %}" class="nav-item {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Usuários
@@ -153,7 +151,7 @@
         Licenças
       </a>
 
-      <p class="px-3 pt-3 pb-1 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Gestão</p>
+      <p class="px-3 pt-3 pb-1 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Gestão</p>
       <a href="{% url 'relatorio_chamados' %}" class="nav-item {% if 'relatorio' in request.resolver_match.url_name %}active{% endif %}">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         Relatórios
@@ -166,23 +164,23 @@
       {% endif %}
     </nav>
 
-    <div class="border-t border-gray-200 dark:border-gray-700 p-3">
+    <div class="border-t border-[var(--border)] p-3">
       <div class="flex items-center gap-3">
         {% if request.user.foto %}
         <img src="{{ request.user.foto.url }}" alt="{{ request.user.nome_completo }}"
-             class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-1 ring-gray-200 dark:ring-gray-700">
+             class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-1 ring-[var(--border)]">
         {% else %}
         <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-semibold text-blue-700 dark:text-blue-300 flex-shrink-0">
           {{ request.user.nome_completo|slice:":1" }}{{ request.user.nome_completo|slice:"-1:" }}
         </div>
         {% endif %}
         <div class="flex-1 min-w-0">
-          <a href="{% url 'usuario_meu_perfil' %}" class="text-xs font-medium text-gray-900 dark:text-gray-100 truncate hover:text-blue-600 dark:hover:text-blue-400 block">{{ request.user.nome_completo }}</a>
-          <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ request.user.login_rede }}</div>
+          <a href="{% url 'usuario_meu_perfil' %}" class="text-xs font-medium text-[var(--text-primary)] truncate hover:text-[var(--accent)] block">{{ request.user.nome_completo }}</a>
+          <div class="text-xs text-[var(--text-muted)] truncate">{{ request.user.login_rede }}</div>
         </div>
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
-          <button type="submit" title="Sair" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+          <button type="submit" title="Sair" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           </button>
         </form>
@@ -191,10 +189,10 @@
   </aside>
 
   <div class="flex-1 flex flex-col overflow-hidden">
-    <header class="h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center px-6 gap-4 flex-shrink-0">
+    <header class="h-14 bg-[var(--topbar-bg)] border-b border-[var(--topbar-border)] flex items-center px-6 gap-4 flex-shrink-0">
       <h1 class="page-title flex-1">{% block page_title %}{% endblock %}</h1>
       {% block topbar_actions %}{% endblock %}
-      <button id="theme-toggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Alternar tema">
+      <button id="theme-toggle" class="p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-alt)] transition-colors" title="Alternar tema">
         <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         <svg id="icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
@@ -204,10 +202,10 @@
       <div class="mb-4 space-y-2">
         {% for message in messages %}
         <div class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium
-          {% if message.tags == 'success' %}bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300
-          {% elif message.tags == 'error' %}bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300
-          {% elif message.tags == 'warning' %}bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300
-          {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300{% endif %}">
+          {% if message.tags == 'success' %}bg-[var(--success-bg)] text-[var(--success-text)]
+          {% elif message.tags == 'error' %}bg-[var(--danger-bg)] text-[var(--danger-text)]
+          {% elif message.tags == 'warning' %}bg-[var(--warning-bg)] text-[var(--warning-text)]
+          {% else %}bg-[var(--info-bg)] text-[var(--info-text)]{% endif %}">
           <span>{{ message }}</span>
           <button onclick="this.parentElement.remove()" class="ml-auto text-current opacity-50 hover:opacity-100">&times;</button>
         </div>
@@ -237,8 +235,6 @@
     iconMoon.classList.toggle('hidden', isDark);
   });
 </script>
-
-
 
 </body>
 </html>

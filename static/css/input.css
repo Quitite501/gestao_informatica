@@ -93,12 +93,12 @@
 }
 
 @layer components {
-  .nav-item { @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors cursor-pointer; }
-  .nav-item.active { @apply bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium; }
+  .nav-item { @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--sidebar-text)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors cursor-pointer; }
+  .nav-item.active { @apply bg-[var(--sidebar-active-bg)] text-[var(--sidebar-active-text)] font-medium; }
   .btn-primary { @apply inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors; }
-  .btn-secondary { @apply inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition-colors; }
+  .btn-secondary { @apply inline-flex items-center gap-2 px-4 py-2 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-alt)] text-[var(--text-secondary)] text-sm font-medium rounded-lg transition-colors; }
   .btn-danger { @apply inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors; }
-  .card { @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6; }
+  .card { @apply bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6; }
   .badge-critica { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300; }
   .badge-alta { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300; }
   .badge-media { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300; }
@@ -112,14 +112,14 @@
   .badge-em_manutencao { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300; }
   .badge-baixado { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400; }
   .table-base { @apply w-full text-sm text-left; }
-  .table-base th { @apply px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50; }
-  .table-base td { @apply px-4 py-3 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800; }
+  .table-base th { @apply px-4 py-3 text-xs font-medium text-[var(--table-header-text)] uppercase tracking-wide border-b border-[var(--border)] bg-[var(--table-header-bg)]; }
+  .table-base td { @apply px-4 py-3 text-[var(--text-secondary)] border-b border-[var(--table-border)]; }
   .table-base tr:last-child td { @apply border-b-0; }
-  .table-base tr:hover td { @apply bg-gray-50 dark:bg-gray-800/40; }
-  .form-label { @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1; }
-  .form-input { @apply block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500; }
-  .page-title { @apply text-xl font-semibold text-gray-900 dark:text-gray-100; }
-  .section-title { @apply text-base font-medium text-gray-900 dark:text-gray-100 mb-4; }
+  .table-base tr:hover td { @apply bg-[var(--table-row-hover)]; }
+  .form-label { @apply block text-sm font-medium text-[var(--text-secondary)] mb-1; }
+  .form-input { @apply block w-full rounded-lg border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] text-sm shadow-sm focus:border-[var(--input-focus)] focus:ring-[var(--input-focus)]; }
+  .page-title { @apply text-xl font-semibold text-[var(--text-primary)]; }
+  .section-title { @apply text-base font-medium text-[var(--text-primary)] mb-4; }
 }
 
 @layer base {
