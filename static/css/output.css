@@ -2747,11 +2747,6 @@ input[type="text"]:is(.dark *)::placeholder,
   border-color: rgb(153 27 27 / var(--tw-border-opacity, 1));
 }
 
-.dark\:border-red-900:is(.dark *) {
-  --tw-border-opacity: 1;
-  border-color: rgb(127 29 29 / var(--tw-border-opacity, 1));
-}
-
 .dark\:bg-amber-800:is(.dark *) {
   --tw-bg-opacity: 1;
   background-color: rgb(146 64 14 / var(--tw-bg-opacity, 1));
