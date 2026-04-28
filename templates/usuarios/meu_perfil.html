@@ -4,36 +4,32 @@
 {% block content %}
 <div class="max-w-md">
   <div class="card">
-
     {% if sucesso %}
-    <div class="mb-5 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-      <p class="text-sm text-green-700 dark:text-green-400">Perfil atualizado com sucesso.</p>
+    <div class="mb-5 p-3 rounded-lg bg-[var(--success-bg)] border border-[var(--success)]">
+      <p class="text-sm text-[var(--success-text)]">Perfil atualizado com sucesso.</p>
     </div>
     {% endif %}
-
     {% if erro %}
-    <div class="mb-5 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-      <p class="text-sm text-red-700 dark:text-red-400">{{ erro }}</p>
+    <div class="mb-5 p-3 rounded-lg bg-[var(--danger-bg)] border border-[var(--danger)]">
+      <p class="text-sm text-[var(--danger-text)]">{{ erro }}</p>
     </div>
     {% endif %}
-
     <!-- Cabeçalho com avatar -->
     <div class="flex items-center gap-4 mb-6">
       {% if request.user.foto %}
         <img src="{{ request.user.foto.url }}" alt="{{ request.user.nome_completo }}"
-             class="w-16 h-16 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700">
+             class="w-16 h-16 rounded-full object-cover ring-2 ring-[var(--border)]">
       {% else %}
-        <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-          <span class="text-lg font-semibold text-blue-700 dark:text-blue-300">{{ request.user.nome_completo|slice:":1"|upper }}</span>
+        <div class="w-16 h-16 rounded-full bg-[var(--info-bg)] flex items-center justify-center">
+          <span class="text-lg font-semibold text-[var(--accent)]">{{ request.user.nome_completo|slice:":1"|upper }}</span>
         </div>
       {% endif %}
       <div>
-        <p class="font-semibold text-gray-900 dark:text-gray-100">{{ request.user.nome_completo }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400">{{ request.user.login_rede }} — {{ request.user.email }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400">{{ request.user.cargo|default:"Cargo não informado" }} — {{ request.user.setor.nome|default:"Setor não informado" }}</p>
+        <p class="font-semibold text-[var(--text-primary)]">{{ request.user.nome_completo }}</p>
+        <p class="text-xs text-[var(--text-muted)]">{{ request.user.login_rede }} — {{ request.user.email }}</p>
+        <p class="text-xs text-[var(--text-muted)]">{{ request.user.cargo|default:"Cargo não informado" }} — {{ request.user.setor.nome|default:"Setor não informado" }}</p>
       </div>
     </div>
-
     <form method="post" enctype="multipart/form-data" class="space-y-5">
       {% csrf_token %}
       <div>
@@ -45,7 +41,7 @@
         <label class="form-label">Foto de perfil</label>
         <input type="file" name="foto" accept="image/*" class="form-input">
         {% if request.user.foto %}
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Envie uma nova foto para substituir a atual.</p>
+        <p class="mt-1 text-xs text-[var(--text-muted)]">Envie uma nova foto para substituir a atual.</p>
         {% endif %}
       </div>
       <div class="flex items-center gap-3 pt-2">
