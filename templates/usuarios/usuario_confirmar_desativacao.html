@@ -1,47 +1,42 @@
 {% extends 'base.html' %}
-
 {% block title %}Desativar usuário — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}Desativar usuário{% endblock %}
-
 {% block topbar_actions %}
   <a href="{% url 'usuario_lista' %}" class="btn-secondary">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     Voltar
   </a>
 {% endblock %}
-
 {% block content %}
 <div class="max-w-lg">
   <div class="card">
     <div class="flex items-start gap-4 mb-6">
-      <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
-        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div class="w-10 h-10 rounded-full bg-[var(--danger-bg)] flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5 text-[var(--danger-text)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       </div>
       <div>
-        <h2 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-1">Confirmar desativação</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">O usuário abaixo será desativado e não conseguirá mais acessar o sistema.</p>
+        <h2 class="text-base font-medium text-[var(--text-primary)] mb-1">Confirmar desativação</h2>
+        <p class="text-sm text-[var(--text-muted)]">O usuário abaixo será desativado e não conseguirá mais acessar o sistema.</p>
       </div>
     </div>
-
-    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6 space-y-2">
+    <div class="bg-[var(--surface-alt)] rounded-lg p-4 mb-6 space-y-2">
       <div class="flex gap-2 text-sm">
-        <span class="text-gray-500 dark:text-gray-400 w-28">Nome:</span>
-        <span class="text-gray-900 dark:text-gray-100 font-medium">{{ usuario.nome_completo }}</span>
+        <span class="text-[var(--text-muted)] w-28">Nome:</span>
+        <span class="text-[var(--text-primary)] font-medium">{{ usuario.nome_completo }}</span>
       </div>
       <div class="flex gap-2 text-sm">
-        <span class="text-gray-500 dark:text-gray-400 w-28">Usuário:</span>
-        <span class="text-gray-900 dark:text-gray-100">{{ usuario.username }}</span>
+        <span class="text-[var(--text-muted)] w-28">Usuário:</span>
+        <span class="text-[var(--text-primary)]">{{ usuario.username }}</span>
       </div>
       <div class="flex gap-2 text-sm">
-        <span class="text-gray-500 dark:text-gray-400 w-28">Login de rede:</span>
-        <span class="text-gray-900 dark:text-gray-100">{{ usuario.login_rede }}</span>
+        <span class="text-[var(--text-muted)] w-28">Login de rede:</span>
+        <span class="text-[var(--text-primary)]">{{ usuario.login_rede }}</span>
       </div>
       <div class="flex gap-2 text-sm">
-        <span class="text-gray-500 dark:text-gray-400 w-28">Setor:</span>
-        <span class="text-gray-900 dark:text-gray-100">{{ usuario.setor.nome|default:"—" }}</span>
+        <span class="text-[var(--text-muted)] w-28">Setor:</span>
+        <span class="text-[var(--text-primary)]">{{ usuario.setor.nome|default:"—" }}</span>
       </div>
     </div>
-
     <form method="post" class="flex items-center gap-3">
       {% csrf_token %}
       <button type="submit" class="btn-danger">Confirmar desativação</button>
