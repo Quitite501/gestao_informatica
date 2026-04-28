@@ -24,53 +24,53 @@
       <h2 class="section-title">Dados do equipamento</h2>
       <dl class="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Etiqueta</dt>
-          <dd class="font-medium text-gray-900 dark:text-gray-100 mt-0.5">{{ patrimonio.etiqueta }}</dd>
+          <dt class="text-[var(--text-muted)]">Etiqueta</dt>
+          <dd class="font-medium text-[var(--text-primary)] mt-0.5">{{ patrimonio.etiqueta }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Status</dt>
+          <dt class="text-[var(--text-muted)]">Status</dt>
           <dd class="mt-0.5"><span class="badge-{{ patrimonio.status }}">{{ patrimonio.get_status_display }}</span></dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Tipo</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ patrimonio.tipo.nome }}</dd>
+          <dt class="text-[var(--text-muted)]">Tipo</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ patrimonio.tipo.nome }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Hostname</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ patrimonio.hostname|default:"—" }}</dd>
+          <dt class="text-[var(--text-muted)]">Hostname</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ patrimonio.hostname|default:"—" }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Marca</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ patrimonio.marca|default:"—" }}</dd>
+          <dt class="text-[var(--text-muted)]">Marca</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ patrimonio.marca|default:"—" }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Modelo</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ patrimonio.modelo|default:"—" }}</dd>
+          <dt class="text-[var(--text-muted)]">Modelo</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ patrimonio.modelo|default:"—" }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Número de série</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ patrimonio.numero_serie|default:"—" }}</dd>
+          <dt class="text-[var(--text-muted)]">Número de série</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ patrimonio.numero_serie|default:"—" }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Nota fiscal</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">
+          <dt class="text-[var(--text-muted)]">Nota fiscal</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">
             {% if patrimonio.nota_fiscal %}
-            <a href="{% url 'nota_fiscal_detalhe' patrimonio.nota_fiscal.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">NF {{ patrimonio.nota_fiscal.numero }}</a>
+            <a href="{% url 'nota_fiscal_detalhe' patrimonio.nota_fiscal.pk %}" class="text-[var(--accent)] hover:underline">NF {{ patrimonio.nota_fiscal.numero }}</a>
             {% else %}—{% endif %}
           </dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Setor</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ patrimonio.setor.nome|default:"—" }}</dd>
+          <dt class="text-[var(--text-muted)]">Setor</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ patrimonio.setor.nome|default:"—" }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Usuário atual</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ patrimonio.usuario_atual.nome_completo|default:"—" }}</dd>
+          <dt class="text-[var(--text-muted)]">Usuário atual</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ patrimonio.usuario_atual.nome_completo|default:"—" }}</dd>
         </div>
         {% if patrimonio.observacoes %}
         <div class="col-span-2">
-          <dt class="text-gray-500 dark:text-gray-400">Observações</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ patrimonio.observacoes }}</dd>
+          <dt class="text-[var(--text-muted)]">Observações</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ patrimonio.observacoes }}</dd>
         </div>
         {% endif %}
       </dl>
@@ -86,17 +86,17 @@
         <div class="flex items-start gap-3 text-sm">
           <span class="mt-1.5 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
           <div>
-            <p class="text-gray-700 dark:text-gray-300">{{ mov.get_tipo_display }}</p>
+            <p class="text-[var(--text-secondary)]">{{ mov.get_tipo_display }}</p>
             {% if mov.usuario_novo %}
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{ mov.usuario_novo.nome_completo }}</p>
+            <p class="text-xs text-[var(--text-muted)]">{{ mov.usuario_novo.nome_completo }}</p>
             {% endif %}
-            <p class="text-xs text-gray-400 dark:text-gray-500">{{ mov.criado_em|date:"d/m/Y H:i" }}</p>
+            <p class="text-xs text-[var(--text-muted)]">{{ mov.criado_em|date:"d/m/Y H:i" }}</p>
           </div>
         </div>
         {% endfor %}
       </div>
       {% else %}
-      <p class="text-sm text-gray-400 dark:text-gray-500">Nenhuma movimentação registrada.</p>
+      <p class="text-sm text-[var(--text-muted)]">Nenhuma movimentação registrada.</p>
       {% endif %}
     </div>
   </div>
