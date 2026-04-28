@@ -23,15 +23,15 @@
       <div class="space-y-3">
         {% for acao in acoes %}
         <div class="flex gap-3">
-          <div class="flex-shrink-0 w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-            <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div class="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--info-bg)] flex items-center justify-center">
+            <svg class="w-3.5 h-3.5 text-[var(--accent)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
-              <span class="text-xs font-medium text-gray-900 dark:text-gray-100">{{ acao.autor.nome_completo }}</span>
-              <span class="text-xs text-gray-400">{{ acao.criado_em|date:"d/m/Y H:i" }}</span>
+              <span class="text-xs font-medium text-[var(--text-primary)]">{{ acao.autor.nome_completo }}</span>
+              <span class="text-xs text-[var(--text-muted)]">{{ acao.criado_em|date:"d/m/Y H:i" }}</span>
             </div>
-            <div class="text-xs text-gray-600 dark:text-gray-400 quill-content bg-gray-50 dark:bg-gray-800 rounded px-3 py-2">
+            <div class="text-xs text-[var(--text-secondary)] quill-content bg-[var(--surface-alt)] rounded px-3 py-2">
               {{ acao.descricao|safe }}
             </div>
           </div>
@@ -39,7 +39,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p class="text-sm text-amber-600 dark:text-amber-400">Nenhuma ação registrada. Volte e registre ao menos uma ação antes de encerrar.</p>
+      <p class="text-sm text-[var(--warning-text)]">Nenhuma ação registrada. Volte e registre ao menos uma ação antes de encerrar.</p>
       {% endif %}
       {% endwith %}
     </div>
@@ -47,7 +47,7 @@
     <!-- Solução técnica -->
     <div class="card">
       <h2 class="section-title">Solução técnica</h2>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Descreva a solução aplicada, conclusões e orientações ao solicitante. Este campo é obrigatório.</p>
+      <p class="text-xs text-[var(--text-muted)] mb-4">Descreva a solução aplicada, conclusões e orientações ao solicitante. Este campo é obrigatório.</p>
 
       <form method="post" id="form-encerramento" class="space-y-4">
         {% csrf_token %}
@@ -55,7 +55,7 @@
           <div id="editor-solucao" class="quill-container"></div>
           <input type="hidden" name="solucao_tecnica" id="hidden-solucao">
           {% if form.solucao_tecnica.errors %}
-            <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.solucao_tecnica.errors|join:", " }}</p>
+            <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.solucao_tecnica.errors|join:", " }}</p>
           {% endif %}
         </div>
 
@@ -76,28 +76,28 @@
     <div class="card text-sm space-y-3">
       <h2 class="section-title">Chamado</h2>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Título</p>
-        <p class="font-medium text-gray-900 dark:text-gray-100">{{ chamado.titulo }}</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Título</p>
+        <p class="font-medium text-[var(--text-primary)]">{{ chamado.titulo }}</p>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Solicitante</p>
-        <p class="text-gray-900 dark:text-gray-100">{{ chamado.solicitante.nome_completo }}</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Solicitante</p>
+        <p class="text-[var(--text-primary)]">{{ chamado.solicitante.nome_completo }}</p>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Categoria</p>
-        <p class="text-gray-900 dark:text-gray-100">{{ chamado.categoria.nome }}</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Categoria</p>
+        <p class="text-[var(--text-primary)]">{{ chamado.categoria.nome }}</p>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Prioridade</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Prioridade</p>
         <span class="badge-{{ chamado.prioridade }}">{{ chamado.get_prioridade_display }}</span>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Aberto em</p>
-        <p class="text-gray-900 dark:text-gray-100">{{ chamado.criado_em|date:"d/m/Y H:i" }}</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Aberto em</p>
+        <p class="text-[var(--text-primary)]">{{ chamado.criado_em|date:"d/m/Y H:i" }}</p>
       </div>
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">Ações registradas</p>
-        <p class="font-medium text-gray-900 dark:text-gray-100">{{ chamado.acoes.count }}</p>
+        <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Ações registradas</p>
+        <p class="font-medium text-[var(--text-primary)]">{{ chamado.acoes.count }}</p>
       </div>
     </div>
   </div>
@@ -108,16 +108,13 @@
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
 <style>
-  .quill-container { background: white; border-radius: 0.5rem; }
-  .dark .quill-container { background: #1f2937; }
-  .ql-toolbar { border-radius: 0.5rem 0.5rem 0 0 !important; border-color: #d1d5db !important; }
-  .dark .ql-toolbar { border-color: #4b5563 !important; background: #374151; }
-  .dark .ql-toolbar .ql-stroke { stroke: #d1d5db; }
-  .dark .ql-toolbar .ql-fill { fill: #d1d5db; }
-  .dark .ql-toolbar .ql-picker { color: #d1d5db; }
-  .ql-container { border-radius: 0 0 0.5rem 0.5rem !important; border-color: #d1d5db !important; min-height: 180px; font-size: 14px; }
-  .dark .ql-container { border-color: #4b5563 !important; color: #f3f4f6; }
-  .dark .ql-editor.ql-blank::before { color: #6b7280; }
+  .quill-container { background: var(--input-bg); border-radius: 0.5rem; }
+  .ql-toolbar { border-radius: 0.5rem 0.5rem 0 0 !important; border-color: var(--input-border) !important; background: var(--surface-alt); }
+  .dark .ql-toolbar .ql-stroke { stroke: var(--text-secondary); }
+  .dark .ql-toolbar .ql-fill { fill: var(--text-secondary); }
+  .dark .ql-toolbar .ql-picker { color: var(--text-secondary); }
+  .ql-container { border-radius: 0 0 0.5rem 0.5rem !important; border-color: var(--input-border) !important; min-height: 180px; font-size: 14px; color: var(--input-text); }
+  .ql-editor.ql-blank::before { color: var(--input-placeholder); }
   .quill-content img { max-width: 100%; border-radius: 0.375rem; margin: 0.5rem 0; }
   .quill-content p { margin-bottom: 0.5rem; }
   .quill-content ul, .quill-content ol { padding-left: 1.5rem; margin-bottom: 0.5rem; }
