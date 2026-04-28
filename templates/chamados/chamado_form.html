@@ -22,7 +22,7 @@
             <div id="editor-descricao" class="quill-container"></div>
             <input type="hidden" name="descricao" id="hidden-descricao">
             {% if field.errors %}
-              <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ field.errors|join:", " }}</p>
+              <p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>
             {% endif %}
           </div>
         {% else %}
@@ -30,7 +30,7 @@
             <label class="form-label">{{ field.label }}</label>
             {{ field }}
             {% if field.errors %}
-              <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ field.errors|join:", " }}</p>
+              <p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>
             {% endif %}
           </div>
         {% endif %}
@@ -38,12 +38,12 @@
 
       <div>
         <label class="form-label">Anexos (opcional)</label>
-        <div id="drop-zone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors">
-          <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <div id="drop-zone" class="border-2 border-dashed border-[var(--border)] rounded-lg p-6 text-center cursor-pointer hover:border-[var(--accent)] transition-colors">
+          <svg class="w-8 h-8 mx-auto text-[var(--text-muted)] mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
           </svg>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Clique ou arraste arquivos aqui</p>
-          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Imagens, PDFs e documentos</p>
+          <p class="text-sm text-[var(--text-muted)]">Clique ou arraste arquivos aqui</p>
+          <p class="text-xs text-[var(--text-muted)] mt-1">Imagens, PDFs e documentos</p>
           <input type="file" name="anexos" id="input-anexos" multiple class="hidden">
         </div>
         <ul id="lista-anexos" class="mt-2 space-y-1"></ul>
@@ -61,20 +61,16 @@
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
 <style>
-  .quill-container { background: white; border-radius: 0.5rem; }
-  .dark .quill-container { background: #1f2937; }
-  .ql-toolbar { border-radius: 0.5rem 0.5rem 0 0 !important; border-color: #d1d5db !important; }
-  .dark .ql-toolbar { border-color: #4b5563 !important; background: #374151; }
-  .dark .ql-toolbar .ql-stroke { stroke: #d1d5db; }
-  .dark .ql-toolbar .ql-fill { fill: #d1d5db; }
-  .dark .ql-toolbar .ql-picker { color: #d1d5db; }
-  .ql-container { border-radius: 0 0 0.5rem 0.5rem !important; border-color: #d1d5db !important; min-height: 160px; font-size: 14px; }
-  .dark .ql-container { border-color: #4b5563 !important; color: #f3f4f6; }
-  .dark .ql-editor.ql-blank::before { color: #6b7280; }
+  .quill-container { background: var(--input-bg); border-radius: 0.5rem; }
+  .ql-toolbar { border-radius: 0.5rem 0.5rem 0 0 !important; border-color: var(--input-border) !important; background: var(--surface-alt); }
+  .dark .ql-toolbar .ql-stroke { stroke: var(--text-secondary); }
+  .dark .ql-toolbar .ql-fill { fill: var(--text-secondary); }
+  .dark .ql-toolbar .ql-picker { color: var(--text-secondary); }
+  .ql-container { border-radius: 0 0 0.5rem 0.5rem !important; border-color: var(--input-border) !important; min-height: 160px; font-size: 14px; color: var(--input-text); }
+  .ql-editor.ql-blank::before { color: var(--input-placeholder); }
 </style>
 
 <script>
-  // Editor Quill - Descrição
   const quillDescricao = new Quill('#editor-descricao', {
     theme: 'snow',
     placeholder: 'Descreva o problema ou solicitação em detalhes...',
@@ -94,7 +90,7 @@
   {% if form.descricao.value %}
   quillDescricao.root.innerHTML = `{{ form.descricao.value|escapejs }}`;
   {% endif %}
-  // Foco automático no Quill ao pressionar Tab no campo Título
+
   const campoTitulo = document.querySelector('input[name="titulo"]');
   if (campoTitulo) {
     campoTitulo.addEventListener('keydown', function (e) {
@@ -104,39 +100,33 @@
       }
     });
   }
-  // Foco automático ao clicar na área do editor (fora do ql-editor)
+
   document.getElementById('editor-descricao').addEventListener('click', function () {
     quillDescricao.focus();
   });
 
-  // Preenche o hidden input antes de enviar
   document.getElementById('form-chamado').addEventListener('submit', function () {
     document.getElementById('hidden-descricao').value = quillDescricao.root.innerHTML;
   });
 
-  // Drag and drop de anexos
   const dropZone = document.getElementById('drop-zone');
   const inputAnexos = document.getElementById('input-anexos');
   const listaAnexos = document.getElementById('lista-anexos');
   let arquivosSelecionados = [];
 
   dropZone.addEventListener('click', () => inputAnexos.click());
-
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
-    dropZone.classList.add('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900/10');
+    dropZone.classList.add('border-[var(--accent)]', 'bg-[var(--info-bg)]');
   });
-
   dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900/10');
+    dropZone.classList.remove('border-[var(--accent)]', 'bg-[var(--info-bg)]');
   });
-
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
-    dropZone.classList.remove('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900/10');
+    dropZone.classList.remove('border-[var(--accent)]', 'bg-[var(--info-bg)]');
     adicionarArquivos(e.dataTransfer.files);
   });
-
   inputAnexos.addEventListener('change', () => adicionarArquivos(inputAnexos.files));
 
   function adicionarArquivos(files) {
@@ -155,9 +145,9 @@
     listaAnexos.innerHTML = '';
     arquivosSelecionados.forEach((f, i) => {
       const li = document.createElement('li');
-      li.className = 'flex items-center justify-between text-sm bg-gray-50 dark:bg-gray-800 rounded px-3 py-1.5';
-      li.innerHTML = `<span class="text-gray-700 dark:text-gray-300 truncate">${f.name}</span>
-        <button type="button" onclick="removerArquivo(${i})" class="text-red-500 hover:text-red-700 ml-2 text-xs">remover</button>`;
+      li.className = 'flex items-center justify-between text-sm bg-[var(--surface-alt)] rounded px-3 py-1.5';
+      li.innerHTML = `<span class="text-[var(--text-secondary)] truncate">${f.name}</span>
+        <button type="button" onclick="removerArquivo(${i})" class="text-[var(--danger-text)] hover:underline ml-2 text-xs">remover</button>`;
       listaAnexos.appendChild(li);
     });
   }
