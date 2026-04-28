@@ -1,39 +1,36 @@
 {% extends "base.html" %}
-
-{% block title %}Calendario Operacional{% endblock %}
-
+{% block title %}Calendário Operacional{% endblock %}
 {% block content %}
 <div class="max-w-7xl mx-auto">
-
-  <!-- Cabecalho -->
+  <!-- Cabeçalho -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Calendário Operacional</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gerencie o expediente, feriados e dias atípicos para cálculo de SLA</p>
+      <h1 class="text-2xl font-bold text-[var(--text-primary)]">Calendário Operacional</h1>
+      <p class="text-sm text-[var(--text-muted)] mt-1">Gerencie o expediente, feriados e dias atípicos para cálculo de SLA</p>
     </div>
   </div>
 
   <!-- Card Expediente -->
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Horário de Expediente</h2>
+  <div class="card mb-6">
+    <h2 class="section-title">Horário de Expediente</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {% for exp in expedientes %}
       <div class="flex items-center justify-between p-3 rounded-lg border
-                  {% if exp.ativo %}border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-900/30
-                  {% else %}border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700/50{% endif %}">
+                  {% if exp.ativo %}border-[var(--success)] bg-[var(--success-bg)]
+                  {% else %}border-[var(--border)] bg-[var(--surface-alt)]{% endif %}">
         <div>
-          <p class="text-sm font-medium {% if exp.ativo %}text-green-700 dark:text-green-300{% else %}text-gray-500 dark:text-gray-400{% endif %}">
+          <p class="text-sm font-medium {% if exp.ativo %}text-[var(--success-text)]{% else %}text-[var(--text-muted)]{% endif %}">
             {{ exp.get_dia_semana_display }}
           </p>
           {% if exp.ativo %}
-          <p class="text-xs text-green-600 dark:text-green-400">{{ exp.hora_inicio|time:"H:i" }} às {{ exp.hora_fim|time:"H:i" }}</p>
+          <p class="text-xs text-[var(--success-text)]">{{ exp.hora_inicio|time:"H:i" }} às {{ exp.hora_fim|time:"H:i" }}</p>
           {% else %}
-          <p class="text-xs text-gray-400 dark:text-gray-500">Sem expediente</p>
+          <p class="text-xs text-[var(--text-muted)]">Sem expediente</p>
           {% endif %}
         </div>
         <span class="text-xs px-2 py-0.5 rounded-full
-              {% if exp.ativo %}bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300
-              {% else %}bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-400{% endif %}">
+              {% if exp.ativo %}bg-[var(--success-bg)] text-[var(--success-text)]
+              {% else %}bg-[var(--surface-alt)] text-[var(--text-muted)]{% endif %}">
           {% if exp.ativo %}Ativo{% else %}Inativo{% endif %}
         </span>
       </div>
@@ -41,65 +38,62 @@
     </div>
   </div>
 
-  <!-- Feriados e dias atipicos -->
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+  <!-- Feriados e dias atípicos -->
+  <div class="card">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Feriados e Dias Atípicos</h2>
-      <a href="{% url 'calendario_feriado_novo' %}"
-         class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+      <h2 class="section-title mb-0">Feriados e Dias Atípicos</h2>
+      <a href="{% url 'calendario_feriado_novo' %}" class="btn-primary">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
         Novo feriado
       </a>
     </div>
-
     {% if feriados %}
     <div class="overflow-x-auto">
-      <table class="min-w-full text-sm">
+      <table class="table-base">
         <thead>
-          <tr class="border-b border-gray-200 dark:border-gray-700">
-            <th class="text-left py-3 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Data</th>
-            <th class="text-left py-3 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Descrição</th>
-            <th class="text-left py-3 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Tipo</th>
-            <th class="text-left py-3 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">SLA</th>
-            <th class="text-left py-3 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Horário especial</th>
-            <th class="text-right py-3 px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ações</th>
+          <tr>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Tipo</th>
+            <th>SLA</th>
+            <th>Horário especial</th>
+            <th class="text-right">Ações</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+        <tbody>
           {% for f in feriados %}
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-            <td class="py-3 px-3 font-medium text-gray-800 dark:text-gray-100 whitespace-nowrap">{{ f.data|date:"d/m/Y" }}</td>
-            <td class="py-3 px-3 text-gray-700 dark:text-gray-300">{{ f.descricao }}</td>
-            <td class="py-3 px-3">
-              <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+          <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+            <td class="font-medium text-[var(--text-primary)] whitespace-nowrap">{{ f.data|date:"d/m/Y" }}</td>
+            <td class="text-[var(--text-secondary)]">{{ f.descricao }}</td>
+            <td>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-[var(--surface-alt)] text-[var(--text-secondary)]">
                 {{ f.get_tipo_display }}
               </span>
             </td>
-            <td class="py-3 px-3">
+            <td>
               {% if f.contabiliza_sla %}
-              <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300">Contabiliza</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-[var(--success-bg)] text-[var(--success-text)]">Contabiliza</span>
               {% else %}
-              <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-300">Não contabiliza</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-[var(--danger-bg)] text-[var(--danger-text)]">Não contabiliza</span>
               {% endif %}
             </td>
-            <td class="py-3 px-3 text-gray-600 dark:text-gray-400">
+            <td class="text-[var(--text-secondary)]">
               {% if f.hora_inicio_especial and f.hora_fim_especial %}
                 {{ f.hora_inicio_especial|time:"H:i" }} às {{ f.hora_fim_especial|time:"H:i" }}
               {% else %}
-                <span class="text-gray-400 dark:text-gray-500">—</span>
+                <span class="text-[var(--text-muted)]">—</span>
               {% endif %}
             </td>
-            <td class="py-3 px-3 text-right">
+            <td class="text-right">
               <div class="flex items-center justify-end gap-2">
                 <a href="{% url 'calendario_feriado_editar' f.pk %}"
-                   class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-xs font-medium">Editar</a>
+                   class="text-[var(--accent)] hover:underline text-xs font-medium">Editar</a>
                 <form method="post" action="{% url 'calendario_feriado_excluir' f.pk %}"
                       onsubmit="return confirm('Confirma a exclusão deste feriado?')">
                   {% csrf_token %}
-                  <button type="submit"
-                          class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-xs font-medium">
+                  <button type="submit" class="text-[var(--danger-text)] hover:underline text-xs font-medium">
                     Excluir
                   </button>
                 </form>
@@ -112,11 +106,10 @@
     </div>
     {% else %}
     <div class="text-center py-8">
-      <p class="text-gray-500 dark:text-gray-400">Nenhum feriado ou dia atípico cadastrado.</p>
-      <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">O SLA será calculado com base apenas no expediente padrão.</p>
+      <p class="text-[var(--text-muted)]">Nenhum feriado ou dia atípico cadastrado.</p>
+      <p class="text-sm text-[var(--text-muted)] mt-1">O SLA será calculado com base apenas no expediente padrão.</p>
     </div>
     {% endif %}
   </div>
-
 </div>
 {% endblock %}
