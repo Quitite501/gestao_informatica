@@ -22,48 +22,50 @@
       <h2 class="section-title">Dados da nota fiscal</h2>
       <dl class="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Número</dt>
-          <dd class="font-medium text-gray-900 dark:text-gray-100 mt-0.5">{{ nota.numero }}</dd>
+          <dt class="text-[var(--text-muted)]">Número</dt>
+          <dd class="font-medium text-[var(--text-primary)] mt-0.5">{{ nota.numero }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Fornecedor</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ nota.fornecedor }}</dd>
+          <dt class="text-[var(--text-muted)]">Fornecedor</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ nota.fornecedor }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Data de emissão</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ nota.data_emissao|date:"d/m/Y" }}</dd>
+          <dt class="text-[var(--text-muted)]">Data de emissão</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ nota.data_emissao|date:"d/m/Y" }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Valor total</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">R$ {{ nota.valor_total|floatformat:2 }}</dd>
+          <dt class="text-[var(--text-muted)]">Valor total</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">R$ {{ nota.valor_total|floatformat:2 }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Arquivo PDF</dt>
+          <dt class="text-[var(--text-muted)]">Arquivo PDF</dt>
           <dd class="mt-0.5">
             {% if nota.arquivo_pdf %}
-            <a href="{{ nota.arquivo_pdf.url }}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline text-sm">Download PDF</a>
+            <a href="{{ nota.arquivo_pdf.url }}" target="_blank" class="text-[var(--accent)] hover:underline text-sm">Download PDF</a>
             {% else %}—{% endif %}
           </dd>
         </div>
         <div>
-          <dt class="text-gray-500 dark:text-gray-400">Arquivo XML</dt>
+          <dt class="text-[var(--text-muted)]">Arquivo XML</dt>
           <dd class="mt-0.5">
             {% if nota.arquivo_xml %}
-            <a href="{{ nota.arquivo_xml.url }}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline text-sm">Download XML</a>
+            <a href="{{ nota.arquivo_xml.url }}" target="_blank" class="text-[var(--accent)] hover:underline text-sm">Download XML</a>
             {% else %}—{% endif %}
           </dd>
         </div>
         {% if nota.observacoes %}
         <div class="col-span-2">
-          <dt class="text-gray-500 dark:text-gray-400">Observações</dt>
-          <dd class="text-gray-900 dark:text-gray-100 mt-0.5">{{ nota.observacoes }}</dd>
+          <dt class="text-[var(--text-muted)]">Observações</dt>
+          <dd class="text-[var(--text-primary)] mt-0.5">{{ nota.observacoes }}</dd>
         </div>
         {% endif %}
       </dl>
     </div>
 
-    <div class="card">
-      <h2 class="section-title">Patrimônios vinculados</h2>
+    <div class="card p-0 overflow-hidden">
+      <div class="px-6 pt-6 pb-4">
+        <h2 class="section-title">Patrimônios vinculados</h2>
+      </div>
       <table class="table-base">
         <thead>
           <tr>
@@ -76,15 +78,15 @@
         </thead>
         <tbody>
           {% for p in patrimonios %}
-          <tr>
-            <td><a href="{% url 'patrimonio_detalhe' p.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ p.etiqueta }}</a></td>
+          <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+            <td><a href="{% url 'patrimonio_detalhe' p.pk %}" class="text-[var(--accent)] hover:underline">{{ p.etiqueta }}</a></td>
             <td>{{ p.tipo|default:"—" }}</td>
             <td>{{ p.modelo|default:"—" }}</td>
             <td>{{ p.usuario_atual.nome_completo|default:"—" }}</td>
             <td><span class="badge-{{ p.status }}">{{ p.get_status_display }}</span></td>
           </tr>
           {% empty %}
-          <tr><td colspan="5" class="text-center text-gray-400 dark:text-gray-500 py-4">Nenhum patrimônio vinculado.</td></tr>
+          <tr><td colspan="5" class="text-center text-[var(--text-muted)] py-4">Nenhum patrimônio vinculado.</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -95,12 +97,12 @@
     <div class="card">
       <h2 class="section-title">Licenças vinculadas</h2>
       {% for lic in licencas %}
-      <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0 text-sm">
-        <a href="{% url 'software_detalhe' lic.software.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ lic.software }}</a>
-        <span class="text-gray-500 dark:text-gray-400">{{ lic.quantidade_adquirida }} lic.</span>
+      <div class="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0 text-sm">
+        <a href="{% url 'software_detalhe' lic.software.pk %}" class="text-[var(--accent)] hover:underline">{{ lic.software }}</a>
+        <span class="text-[var(--text-muted)]">{{ lic.quantidade_adquirida }} lic.</span>
       </div>
       {% empty %}
-      <p class="text-sm text-gray-400 dark:text-gray-500">Nenhuma licença vinculada.</p>
+      <p class="text-sm text-[var(--text-muted)]">Nenhuma licença vinculada.</p>
       {% endfor %}
     </div>
   </div>

@@ -2208,6 +2208,10 @@ input[type="text"]:is(.dark *)::placeholder,
   padding-bottom: 0.25rem;
 }
 
+.pb-4 {
+  padding-bottom: 1rem;
+}
+
 .pt-2 {
   padding-top: 0.5rem;
 }
