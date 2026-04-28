@@ -84,7 +84,7 @@
       <div class="space-y-3">
         {% for mov in movimentacoes %}
         <div class="flex items-start gap-3 text-sm">
-          <span class="mt-1.5 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
+          <span class="mt-1.5 w-2 h-2 rounded-full bg-[var(--dot-accent)] flex-shrink-0"></span>
           <div>
             <p class="text-[var(--text-secondary)]">{{ mov.get_tipo_display }}</p>
             {% if mov.usuario_novo %}

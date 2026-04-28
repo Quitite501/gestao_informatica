@@ -23,6 +23,7 @@
   --danger: #b91c1c;
   --danger-bg: #fef2f2;
   --danger-text: #991b1b;
+  --danger-hover: #991b1b;
   --info-bg: #eff6ff;
   --info-text: #1e40af;
   --sidebar-bg: #ffffff;
@@ -41,6 +42,60 @@
   --input-text: #111827;
   --input-placeholder: #9ca3af;
   --input-focus: #2563eb;
+
+  /* Cores de status - barras de progresso e indicadores */
+  --status-aberto: #3b82f6;
+  --status-em-atendimento: #22c55e;
+  --status-aguardando: #eab308;
+  --status-encerrado: #6b7280;
+
+  /* Cores de prioridade - barras de progresso e indicadores */
+  --prioridade-critica: #ef4444;
+  --prioridade-alta: #f97316;
+  --prioridade-media: #3b82f6;
+  --prioridade-baixa: #9ca3af;
+
+  /* Cores de acao - timeline */
+  --acao-criacao: #22c55e;
+  --acao-edicao: #3b82f6;
+  --acao-encerramento: #22c55e;
+  --acao-reabertura: #ef4444;
+  --acao-padrao: #9ca3af;
+
+  /* Indicadores e acentos visuais */
+  --dot-accent: #3b82f6;
+  --checkbox-accent: #2563eb;
+
+  /* Badge tokens */
+  --badge-red-bg: #fee2e2;
+  --badge-red-text: #b91c1c;
+  --badge-amber-bg: #fef3c7;
+  --badge-amber-text: #92400e;
+  --badge-blue-bg: #dbeafe;
+  --badge-blue-text: #1d4ed8;
+  --badge-gray-bg: #f3f4f6;
+  --badge-gray-text: #4b5563;
+  --badge-purple-bg: #f3e8ff;
+  --badge-purple-text: #7c3aed;
+  --badge-green-bg: #dcfce7;
+  --badge-green-text: #166534;
+
+  /* Componente: header erro 403 */
+  --error-header-bg: #dc2626;
+  --error-header-text: #ffffff;
+  --error-header-sub: #fecaca;
+
+  /* Componente: logo/brand */
+  --brand-bg: #2563eb;
+  --brand-text: #ffffff;
+
+  /* Componente: paginacao ativa */
+  --page-active-bg: #2563eb;
+  --page-active-text: #ffffff;
+
+  /* Componente: notificacao toast */
+  --toast-bg: #2563eb;
+  --toast-text: #ffffff;
 }
 
 .dark {
@@ -64,6 +119,7 @@
   --danger: #f87171;
   --danger-bg: rgba(239,68,68,0.15);
   --danger-text: #fca5a5;
+  --danger-hover: #fca5a5;
   --info-bg: rgba(59,130,246,0.15);
   --info-text: #93c5fd;
   --sidebar-bg: #0f172a;
@@ -82,6 +138,60 @@
   --input-text: #f1f5f9;
   --input-placeholder: #64748b;
   --input-focus: #60a5fa;
+
+  /* Cores de status */
+  --status-aberto: #60a5fa;
+  --status-em-atendimento: #4ade80;
+  --status-aguardando: #facc15;
+  --status-encerrado: #94a3b8;
+
+  /* Cores de prioridade */
+  --prioridade-critica: #f87171;
+  --prioridade-alta: #fb923c;
+  --prioridade-media: #60a5fa;
+  --prioridade-baixa: #64748b;
+
+  /* Cores de acao */
+  --acao-criacao: #4ade80;
+  --acao-edicao: #60a5fa;
+  --acao-encerramento: #4ade80;
+  --acao-reabertura: #f87171;
+  --acao-padrao: #64748b;
+
+  /* Indicadores */
+  --dot-accent: #60a5fa;
+  --checkbox-accent: #60a5fa;
+
+  /* Badge tokens */
+  --badge-red-bg: rgba(239,68,68,0.15);
+  --badge-red-text: #fca5a5;
+  --badge-amber-bg: rgba(234,179,8,0.15);
+  --badge-amber-text: #fde68a;
+  --badge-blue-bg: rgba(59,130,246,0.15);
+  --badge-blue-text: #93c5fd;
+  --badge-gray-bg: rgba(30,41,59,0.5);
+  --badge-gray-text: #94a3b8;
+  --badge-purple-bg: rgba(147,51,234,0.15);
+  --badge-purple-text: #d8b4fe;
+  --badge-green-bg: rgba(34,197,94,0.15);
+  --badge-green-text: #86efac;
+
+  /* Componente: header erro 403 */
+  --error-header-bg: #991b1b;
+  --error-header-text: #fef2f2;
+  --error-header-sub: #fca5a5;
+
+  /* Componente: logo/brand */
+  --brand-bg: #2563eb;
+  --brand-text: #ffffff;
+
+  /* Componente: paginacao ativa */
+  --page-active-bg: #2563eb;
+  --page-active-text: #ffffff;
+
+  /* Componente: notificacao toast */
+  --toast-bg: #1e40af;
+  --toast-text: #ffffff;
 }
 
 @tailwind base;
@@ -95,22 +205,22 @@
 @layer components {
   .nav-item { @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--sidebar-text)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors cursor-pointer; }
   .nav-item.active { @apply bg-[var(--sidebar-active-bg)] text-[var(--sidebar-active-text)] font-medium; }
-  .btn-primary { @apply inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors; }
+  .btn-primary { @apply inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] text-sm font-medium rounded-lg transition-colors; }
   .btn-secondary { @apply inline-flex items-center gap-2 px-4 py-2 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-alt)] text-[var(--text-secondary)] text-sm font-medium rounded-lg transition-colors; }
-  .btn-danger { @apply inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors; }
+  .btn-danger { @apply inline-flex items-center gap-2 px-4 py-2 bg-[var(--danger)] hover:bg-[var(--danger-hover)] text-white text-sm font-medium rounded-lg transition-colors; }
   .card { @apply bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6; }
-  .badge-critica { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300; }
-  .badge-alta { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300; }
-  .badge-media { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300; }
-  .badge-baixa { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400; }
-  .badge-aberto { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300; }
-  .badge-em_atendimento { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300; }
-  .badge-aguardando_usuario { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300; }
-  .badge-encerrado { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300; }
-  .badge-disponivel { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300; }
-  .badge-em_uso { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300; }
-  .badge-em_manutencao { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300; }
-  .badge-baixado { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400; }
+  .badge-critica { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-red-bg); color: var(--badge-red-text); }
+  .badge-alta { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-amber-bg); color: var(--badge-amber-text); }
+  .badge-media { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-blue-bg); color: var(--badge-blue-text); }
+  .badge-baixa { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-gray-bg); color: var(--badge-gray-text); }
+  .badge-aberto { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-blue-bg); color: var(--badge-blue-text); }
+  .badge-em_atendimento { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-amber-bg); color: var(--badge-amber-text); }
+  .badge-aguardando_usuario { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-purple-bg); color: var(--badge-purple-text); }
+  .badge-encerrado { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-green-bg); color: var(--badge-green-text); }
+  .badge-disponivel { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-green-bg); color: var(--badge-green-text); }
+  .badge-em_uso { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-blue-bg); color: var(--badge-blue-text); }
+  .badge-em_manutencao { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-amber-bg); color: var(--badge-amber-text); }
+  .badge-baixado { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background: var(--badge-gray-bg); color: var(--badge-gray-text); }
   .table-base { @apply w-full text-sm text-left; }
   .table-base th { @apply px-4 py-3 text-xs font-medium text-[var(--table-header-text)] uppercase tracking-wide border-b border-[var(--border)] bg-[var(--table-header-bg)]; }
   .table-base td { @apply px-4 py-3 text-[var(--text-secondary)] border-b border-[var(--table-border)]; }
@@ -120,27 +230,8 @@
   .form-input { @apply block w-full rounded-lg border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] text-sm shadow-sm focus:border-[var(--input-focus)] focus:ring-[var(--input-focus)]; }
   .page-title { @apply text-xl font-semibold text-[var(--text-primary)]; }
   .section-title { @apply text-base font-medium text-[var(--text-primary)] mb-4; }
-}
-
-@layer base {
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="date"],
-  input[type="search"],
-  select,
-  textarea {
-    @apply dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400;
-  }
-}
-
-@layer utilities {
-  .break-anywhere { overflow-wrap: anywhere; word-break: break-word; }
-}
-
-  .badge-em_atendimento { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300; }
   .quill-content { overflow-wrap: anywhere; word-break: break-word; }
+}
 
 @layer utilities {
   .break-anywhere { overflow-wrap: anywhere; word-break: break-word; }

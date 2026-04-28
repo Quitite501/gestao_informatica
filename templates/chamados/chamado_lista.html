@@ -94,7 +94,7 @@
           <tr>
             {% if perms.usuarios.change_usuario %}
             <th class="w-10">
-              <input type="checkbox" id="selecionar-todos" class="rounded border-[var(--input-border)] text-blue-600">
+              <input type="checkbox" id="selecionar-todos" class="rounded border-[var(--input-border)] text-[var(--checkbox-accent)]">
             </th>
             {% endif %}
             <th>Nº</th>
@@ -116,7 +116,7 @@
             {% if perms.usuarios.change_usuario %}
             <td>
               <input type="checkbox" name="chamados_selecionados" value="{{ chamado.pk }}"
-                class="checkbox-chamado rounded border-[var(--input-border)] text-blue-600">
+                class="checkbox-chamado rounded border-[var(--input-border)] text-[var(--checkbox-accent)]">
             </td>
             {% endif %}
             <td class="text-[var(--text-muted)] text-xs">#{{ chamado.pk }}</td>
@@ -191,7 +191,7 @@
 
         {% for num in page_obj.paginator.page_range %}
           {% if page_obj.number == num %}
-          <span class="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg">{{ num }}</span>
+          <span class="px-3 py-1.5 text-xs font-medium bg-[var(--page-active-bg)] text-[var(--page-active-text)] rounded-lg">{{ num }}</span>
           {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
           <a href="?page={{ num }}"
             class="btn-secondary py-1.5 px-3 text-xs">{{ num }}</a>
@@ -268,7 +268,7 @@
 
   function mostrarNotificacao(total) {
     const notif = document.createElement('div');
-    notif.className = 'fixed top-4 right-4 z-50 flex items-center gap-3 bg-blue-600 text-white px-4 py-3 rounded-xl shadow-lg text-sm font-medium cursor-pointer';
+    notif.className = 'fixed top-4 right-4 z-50 flex items-center gap-3 bg-[var(--toast-bg)] text-[var(--toast-text)] px-4 py-3 rounded-xl shadow-lg text-sm font-medium cursor-pointer';
     notif.innerHTML = `
       <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
       <span>${total === 1 ? 'Novo chamado aberto' : total + ' novos chamados'}. Clique para atualizar.</span>
