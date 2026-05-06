@@ -3,68 +3,69 @@
    TOKENS SEMANTICOS - Tema claro/escuro
    ============================================ */
 :root {
-  --bg: #f8fafc;
+  /* ── Borboleta ao Sol — tema claro ── */
+  --bg: #fdf7f0;
   --surface: #ffffff;
-  --surface-alt: #f1f5f9;
-  --text-primary: #111827;
-  --text-secondary: #374151;
-  --text-muted: #6b7280;
-  --border: #d1d5db;
-  --border-light: #e5e7eb;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
+  --surface-alt: #fef3e8;
+  --text-primary: #1a0c02;
+  --text-secondary: #3d2010;
+  --text-muted: #8a6040;
+  --border: #e8c8a0;
+  --border-light: #f5e0c8;
+  --accent: #c45808;
+  --accent-hover: #a84406;
   --accent-text: #ffffff;
   --success: #15803d;
   --success-bg: #f0fdf4;
   --success-text: #166534;
-  --warning: #a16207;
-  --warning-bg: #fefce8;
-  --warning-text: #854d0e;
+  --warning: #9a6a08;
+  --warning-bg: #fef8e8;
+  --warning-text: #7a4a04;
   --danger: #b91c1c;
   --danger-bg: #fef2f2;
   --danger-text: #991b1b;
   --danger-hover: #991b1b;
-  --info-bg: #eff6ff;
-  --info-text: #1e40af;
-  --sidebar-bg: #ffffff;
-  --sidebar-text: #374151;
-  --sidebar-hover: #f3f4f6;
-  --sidebar-active-bg: #eff6ff;
-  --sidebar-active-text: #1d4ed8;
-  --topbar-bg: #ffffff;
-  --topbar-border: #e5e7eb;
-  --table-header-bg: #f9fafb;
-  --table-header-text: #6b7280;
-  --table-row-hover: #f9fafb;
-  --table-border: #f3f4f6;
+  --info-bg: #fef3e0;
+  --info-text: #7a3808;
+  --sidebar-bg: #b84e08;
+  --sidebar-text: rgba(255,255,255,0.88);
+  --sidebar-hover: rgba(255,255,255,0.14);
+  --sidebar-active-bg: rgba(255,255,255,0.22);
+  --sidebar-active-text: #ffffff;
+  --topbar-bg: #d46010;
+  --topbar-border: transparent;
+  --table-header-bg: #fef3e8;
+  --table-header-text: #8a4a18;
+  --table-row-hover: #fef8f0;
+  --table-border: #f5e0c8;
   --input-bg: #ffffff;
-  --input-border: #d1d5db;
-  --input-text: #111827;
-  --input-placeholder: #9ca3af;
-  --input-focus: #2563eb;
+  --input-border: #e8c8a0;
+  --input-text: #1a0c02;
+  --input-placeholder: #a07850;
+  --input-focus: #c45808;
 
-  /* Cores de status - barras de progresso e indicadores */
+  /* Cores de status */
   --status-aberto: #3b82f6;
   --status-em-atendimento: #22c55e;
   --status-aguardando: #eab308;
   --status-encerrado: #6b7280;
 
-  /* Cores de prioridade - barras de progresso e indicadores */
+  /* Cores de prioridade */
   --prioridade-critica: #ef4444;
   --prioridade-alta: #f97316;
   --prioridade-media: #3b82f6;
   --prioridade-baixa: #9ca3af;
 
-  /* Cores de acao - timeline */
+  /* Cores de acao */
   --acao-criacao: #22c55e;
-  --acao-edicao: #3b82f6;
+  --acao-edicao: #c45808;
   --acao-encerramento: #22c55e;
   --acao-reabertura: #ef4444;
   --acao-padrao: #9ca3af;
 
   /* Indicadores e acentos visuais */
-  --dot-accent: #3b82f6;
-  --checkbox-accent: #2563eb;
+  --dot-accent: #c45808;
+  --checkbox-accent: #c45808;
 
   /* Badge tokens */
   --badge-red-bg: #fee2e2;
@@ -73,8 +74,8 @@
   --badge-amber-text: #92400e;
   --badge-blue-bg: #dbeafe;
   --badge-blue-text: #1d4ed8;
-  --badge-gray-bg: #f3f4f6;
-  --badge-gray-text: #4b5563;
+  --badge-gray-bg: #f5ede0;
+  --badge-gray-text: #6a4a30;
   --badge-purple-bg: #f3e8ff;
   --badge-purple-text: #7c3aed;
   --badge-green-bg: #dcfce7;
@@ -86,16 +87,24 @@
   --error-header-sub: #fecaca;
 
   /* Componente: logo/brand */
-  --brand-bg: #2563eb;
+  --brand-bg: #c45808;
   --brand-text: #ffffff;
 
   /* Componente: paginacao ativa */
-  --page-active-bg: #2563eb;
+  --page-active-bg: #c45808;
   --page-active-text: #ffffff;
 
   /* Componente: notificacao toast */
-  --toast-bg: #2563eb;
+  --toast-bg: #c45808;
   --toast-text: #ffffff;
+
+  /* Shell/App-Frame */
+  --bg-header: #d46010;
+  --bg-sidebar: #b84e08;
+  --shell-gap: 10px;
+  --topbar-h: 56px;
+  --sidebar-w: 224px;
+  --nav-label-color: rgba(255,255,255,0.50);
 }
 
 .dark {
