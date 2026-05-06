@@ -39,3 +39,13 @@ class UsuarioForm(forms.ModelForm):
             self.save_m2m()
 
         return usuario
+
+
+class CredencialExternaForm(forms.ModelForm):
+    class Meta:
+        from .models import CredencialExterna
+        model = CredencialExterna
+        fields = ['plataforma', 'login', 'observacao', 'ativo']
+        widgets = {
+            'observacao': forms.Textarea(attrs={'rows': 3}),
+        }

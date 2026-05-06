@@ -10,6 +10,8 @@ from .views import (
     usuario_recuperar_senha,
     usuario_redefinir_senha,
     usuario_meu_perfil,
+    credencial_salvar,
+    credencial_desativar,
 )
 
 urlpatterns = [
@@ -23,4 +25,6 @@ urlpatterns = [
     path('usuarios/novo/', usuario_novo, name='usuario_novo'),
     path('usuarios/<int:pk>/editar/', usuario_editar, name='usuario_editar'),
     path('usuarios/<int:pk>/desativar/', usuario_desativar, name='usuario_desativar'),
+    path('usuarios/<int:pk>/credenciais/salvar/', credencial_salvar, name='credencial_salvar'),
+    path('usuarios/<int:pk>/credenciais/<int:cpk>/desativar/', credencial_desativar, name='credencial_desativar'),
 ]

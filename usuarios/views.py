@@ -236,3 +236,41 @@ def usuario_meu_perfil(request):
         'erro': erro,
         'sucesso': sucesso,
     })
+
+
+@login_required
+@permission_required('usuarios.change_usuario', raise_exception=True)
+def credencial_lista(request, pk):
+    usuario = get_object_or_404(Usuario, pk=pk)
+    credenciais = usuario.credenciais.select_related('plataforma').all()
+    return render(request, 'usuarios/usuario_form.html', {
+        'usuario': usuario,
+        'credenciais': credenciais,
+    })
+
+@login_required
+@permission_required('usuarios.change_usuario', raise_exception=True)
+def credencial_salvar(request, pk):
+    from .forms import CredencialExternaForm
+    from .models import CredencialExterna
+    usuario = get_object_or_404(Usuario, pk=pk)
+    credencial_pk = request.POST.get('credencial_pk')
+    if credencial_pk:
+        credencial = get_object_or_404(CredencialExterna, pk=credencial_pk, usuario=usuario)
+        form = CredencialExternaForm(request.POST, instance=credencial)
+    else:
+        form = CredencialExternaForm(request.POST)
+    if form.is_valid():
+        credencial = form.save(commit=False)
+        credencial.usuario = usuario
+        credencial.save()
+    return redirect('usuario_editar', pk=pk)
+
+@login_required
+@permission_required('usuarios.change_usuario', raise_exception=True)
+def credencial_desativar(request, pk, cpk):
+    from .models import CredencialExterna
+    credencial = get_object_or_404(CredencialExterna, pk=cpk, usuario__pk=pk)
+    credencial.ativo = False
+    credencial.save()
+    return redirect('usuario_editar', pk=pk)

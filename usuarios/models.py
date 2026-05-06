@@ -52,3 +52,46 @@ class Usuario(AbstractUser):
     def save(self, *args, **kwargs):
         self.is_active = self.ativo
         super().save(*args, **kwargs)
+
+
+class Plataforma(models.Model):
+    nome = models.CharField(max_length=150, unique=True)
+    url = models.CharField(max_length=255, blank=True, null=True)
+    descricao = models.TextField(blank=True, null=True)
+    ativo = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Plataforma"
+        verbose_name_plural = "Plataformas"
+        ordering = ["nome"]
+
+    def __str__(self):
+        return self.nome
+
+
+class CredencialExterna(models.Model):
+    usuario = models.ForeignKey(
+        'Usuario',
+        on_delete=models.CASCADE,
+        related_name='credenciais',
+    )
+    plataforma = models.ForeignKey(
+        Plataforma,
+        on_delete=models.PROTECT,
+        related_name='credenciais',
+    )
+    login = models.CharField(max_length=255)
+    observacao = models.TextField(blank=True, null=True)
+    ativo = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Credencial Externa"
+        verbose_name_plural = "Credenciais Externas"
+        ordering = ["plataforma__nome"]
+        unique_together = [["usuario", "plataforma"]]
+
+    def __str__(self):
+        return f"{self.usuario} — {self.plataforma}"

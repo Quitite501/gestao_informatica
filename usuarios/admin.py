@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario, Setor
+from .models import Usuario, Setor, Plataforma, CredencialExterna
 
 
 @admin.register(Setor)
@@ -58,3 +58,10 @@ class UsuarioAdmin(UserAdmin):
             },
         ),
     )
+
+
+@admin.register(Plataforma)
+class PlataformaAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'url', 'ativo', 'criado_em')
+    search_fields = ('nome',)
+    list_filter = ('ativo',)

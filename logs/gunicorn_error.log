@@ -1228,3 +1228,31 @@ ModuleNotFoundError: No module named 'core.wsgi'
 [2026-04-28 17:58:51 +0000] [57151] [INFO] Booting worker with pid: 57151
 [2026-04-28 17:58:51 +0000] [57152] [INFO] Booting worker with pid: 57152
 [2026-04-28 17:58:51 +0000] [57147] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-06 09:53:27 -0300] [57152] [INFO] Worker exiting (pid: 57152)
+[2026-05-06 09:53:27 -0300] [57150] [INFO] Worker exiting (pid: 57150)
+[2026-05-06 09:53:27 -0300] [57151] [INFO] Worker exiting (pid: 57151)
+[2026-05-06 12:53:27 +0000] [57147] [INFO] Handling signal: term
+[2026-05-06 12:53:27 +0000] [57147] [INFO] Worker (pid:57150) was sent SIGTERM!
+[2026-05-06 12:53:27 +0000] [57147] [INFO] Worker (pid:57151) was sent SIGTERM!
+[2026-05-06 12:53:27 +0000] [57147] [INFO] Worker (pid:57152) was sent SIGTERM!
+[2026-05-06 12:53:27 +0000] [57147] [INFO] Shutting down: Master
+[2026-05-06 12:53:28 +0000] [123669] [INFO] Starting gunicorn 25.3.0
+[2026-05-06 12:53:28 +0000] [123669] [INFO] Listening at: http://127.0.0.1:8001 (123669)
+[2026-05-06 12:53:28 +0000] [123669] [INFO] Using worker: sync
+[2026-05-06 12:53:28 +0000] [123672] [INFO] Booting worker with pid: 123672
+[2026-05-06 12:53:28 +0000] [123673] [INFO] Booting worker with pid: 123673
+[2026-05-06 12:53:28 +0000] [123674] [INFO] Booting worker with pid: 123674
+[2026-05-06 12:53:28 +0000] [123669] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-06 13:03:59 +0000] [123669] [INFO] Handling signal: term
+[2026-05-06 10:03:59 -0300] [123673] [INFO] Worker exiting (pid: 123673)
+[2026-05-06 10:03:59 -0300] [123672] [INFO] Worker exiting (pid: 123672)
+[2026-05-06 10:03:59 -0300] [123674] [INFO] Worker exiting (pid: 123674)
+[2026-05-06 13:03:59 +0000] [123669] [INFO] Worker (pid:123673) was sent SIGTERM!
+[2026-05-06 13:03:59 +0000] [123669] [INFO] Shutting down: Master
+[2026-05-06 13:04:00 +0000] [124050] [INFO] Starting gunicorn 25.3.0
+[2026-05-06 13:04:00 +0000] [124050] [INFO] Listening at: http://127.0.0.1:8001 (124050)
+[2026-05-06 13:04:00 +0000] [124050] [INFO] Using worker: sync
+[2026-05-06 13:04:00 +0000] [124053] [INFO] Booting worker with pid: 124053
+[2026-05-06 13:04:00 +0000] [124054] [INFO] Booting worker with pid: 124054
+[2026-05-06 13:04:00 +0000] [124055] [INFO] Booting worker with pid: 124055
+[2026-05-06 13:04:00 +0000] [124050] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
