@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br" class="h-full" id="html-root">
+<html lang="pt-br" id="html-root">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,36 +8,32 @@
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
-<body class="h-full bg-[var(--bg)] text-[var(--text-primary)]">
+<body style="margin:0;padding:0;background:var(--bg);color:var(--text-primary);height:100vh;overflow:hidden;">
+
 <!-- Modal de confirmação reutilizável -->
 <div id="modal-confirmacao" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;align-items:center;justify-content:center;">
   <div id="modal-overlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);"></div>
-  <div class="relative bg-[var(--surface)] rounded-xl shadow-2xl p-6" style="z-index:10;width:100%;max-width:28rem;margin:auto;">
+  <div style="position:relative;z-index:10;width:100%;max-width:28rem;margin:auto;background:var(--surface);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:1.5rem;">
     <div class="flex items-start gap-4">
-      <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[var(--danger-bg)] flex items-center justify-center">
-        <svg class="w-5 h-5 text-[var(--danger)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background:var(--danger-bg);">
+        <svg class="w-5 h-5" style="color:var(--danger);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
         </svg>
       </div>
       <div class="flex-1">
-        <h3 id="modal-titulo" class="text-base font-semibold text-[var(--text-primary)] mb-1">Confirmar ação</h3>
-        <p id="modal-mensagem" class="text-sm text-[var(--text-muted)]">Tem certeza que deseja continuar?</p>
+        <h3 id="modal-titulo" class="text-base font-semibold mb-1" style="color:var(--text-primary);">Confirmar ação</h3>
+        <p id="modal-mensagem" class="text-sm" style="color:var(--text-muted);">Tem certeza que deseja continuar?</p>
       </div>
     </div>
     <div class="flex justify-end gap-3 mt-6">
-      <button id="modal-cancelar" class="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] bg-[var(--surface-alt)] hover:brightness-90 rounded-lg transition-colors">
+      <button id="modal-cancelar" class="px-4 py-2 text-sm font-medium rounded-lg transition-colors" style="color:var(--text-secondary);background:var(--surface-alt);">
         Cancelar
       </button>
-      <a id="modal-confirmar-link" href="#" class="hidden btn-danger">
-        Confirmar
-      </a>
-      <button id="modal-confirmar-form" type="button" class="hidden btn-danger">
-        Confirmar
-      </button>
+      <a id="modal-confirmar-link" href="#" class="hidden btn-danger">Confirmar</a>
+      <button id="modal-confirmar-form" type="button" class="hidden btn-danger">Confirmar</button>
     </div>
   </div>
 </div>
-
 <script>
 (function () {
   const modal     = document.getElementById('modal-confirmacao');
@@ -48,184 +44,223 @@
   const btnForm   = document.getElementById('modal-confirmar-form');
   const btnCancel = document.getElementById('modal-cancelar');
   let formAlvo = null;
-
-  function abrirModal(t, m) {
-    titulo.textContent  = t;
-    mensagem.textContent = m;
-    modal.style.display = 'flex';
-  }
-
-  function fecharModal() {
-    modal.style.display = 'none';
-    btnLink.classList.add('hidden');
-    btnForm.classList.add('hidden');
-    formAlvo = null;
-  }
-
-  document.addEventListener('click', function (e) {
+  function abrirModal(t, m) { titulo.textContent = t; mensagem.textContent = m; modal.style.display = 'flex'; }
+  function fecharModal() { modal.style.display = 'none'; btnLink.classList.add('hidden'); btnForm.classList.add('hidden'); formAlvo = null; }
+  document.addEventListener('click', function(e) {
     const el = e.target.closest('[data-confirm-url]');
-    if (!el) return;
-    e.preventDefault();
-    const url = el.dataset.confirmUrl;
-    const t   = el.dataset.confirmTitulo   || 'Confirmar ação';
-    const m   = el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?';
-    btnLink.href = url;
-    btnLink.classList.remove('hidden');
-    btnForm.classList.add('hidden');
-    abrirModal(t, m);
+    if (!el) return; e.preventDefault();
+    btnLink.href = el.dataset.confirmUrl; btnLink.classList.remove('hidden'); btnForm.classList.add('hidden');
+    abrirModal(el.dataset.confirmTitulo || 'Confirmar ação', el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?');
   });
-
-  document.addEventListener('click', function (e) {
+  document.addEventListener('click', function(e) {
     const el = e.target.closest('[data-confirm-form]');
-    if (!el) return;
-    e.preventDefault();
-    const formId = el.dataset.confirmForm;
-    formAlvo = document.getElementById(formId);
-    const t  = el.dataset.confirmTitulo   || 'Confirmar ação';
-    const m  = el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?';
-    btnForm.classList.remove('hidden');
-    btnLink.classList.add('hidden');
-    abrirModal(t, m);
+    if (!el) return; e.preventDefault();
+    formAlvo = document.getElementById(el.dataset.confirmForm);
+    btnForm.classList.remove('hidden'); btnLink.classList.add('hidden');
+    abrirModal(el.dataset.confirmTitulo || 'Confirmar ação', el.dataset.confirmMensagem || 'Tem certeza que deseja continuar?');
   });
-
-  btnForm.addEventListener('click', function () {
-    if (formAlvo) formAlvo.submit();
-    fecharModal();
-  });
-
+  btnForm.addEventListener('click', function() { if (formAlvo) formAlvo.submit(); fecharModal(); });
   btnCancel.addEventListener('click', fecharModal);
   overlay.addEventListener('click', fecharModal);
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') fecharModal();
-  });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') fecharModal(); });
 })();
 </script>
 
-<div class="flex h-screen overflow-hidden">
+<!-- ══ TOP-BAR ══════════════════════════════════════════════ -->
+<header class="top-bar">
 
-  <aside class="w-56 flex-shrink-0 bg-[var(--sidebar-bg)] border-r border-[var(--border)] flex flex-col">
-    <div class="px-4 py-4 border-b border-[var(--border)] flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg bg-[var(--brand-bg)] flex items-center justify-center flex-shrink-0">
-        <svg class="w-4 h-4 text-[var(--brand-text)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-      </div>
-      <div>
-        <div class="text-sm font-semibold text-[var(--text-primary)] leading-tight">Sistema TI</div>
-        <div class="text-xs text-[var(--text-muted)] leading-tight">9º Ofício de Notas</div>
-      </div>
+  <!-- Logo + nome do sistema -->
+  <div class="flex items-center gap-2 flex-shrink-0">
+    <div class="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.20);">
+      <svg class="w-4 h-4" style="color:#ffffff;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+      </svg>
     </div>
-
-    <nav class="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-      <p class="px-3 pt-2 pb-1 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Principal</p>
-      <a href="{% url 'painel' %}" class="nav-item {% if request.resolver_match.url_name == 'painel' %}active{% endif %}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        Painel
-      </a>
-
-      <p class="px-3 pt-3 pb-1 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Módulos</p>
-      <a href="{% url 'usuario_lista' %}" class="nav-item {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Usuários
-      </a>
-      <a href="{% url 'patrimonio_lista' %}" class="nav-item {% if 'patrimonio' in request.resolver_match.url_name %}active{% endif %}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-        Patrimônio
-      </a>
-      <!-- Accordion Chamados -->
-      {% with is_chamados=request.resolver_match.url_name|slugify %}
-      <div class="nav-accordion {% if 'chamado' in is_chamados or 'calendario' in is_chamados %}open{% endif %}">
-        <button type="button" class="nav-item nav-accordion-toggle w-full {% if 'chamado' in is_chamados or 'calendario' in is_chamados %}active{% endif %}" onclick="this.parentElement.classList.toggle('open')">
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          <span class="flex-1 text-left">Chamados</span>
-          <svg class="nav-accordion-chevron w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-        <div class="nav-accordion-panel">
-          <a href="{% url 'chamado_dashboard' %}" class="nav-item nav-subitem {% if is_chamados == 'chamado_dashboard' %}active{% endif %}">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            Dashboard
-          </a>
-          <a href="{% url 'chamado_lista' %}" class="nav-item nav-subitem {% if is_chamados == 'chamado_lista' or is_chamados == 'chamado_detalhe' or is_chamados == 'chamado_novo' %}active{% endif %}">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-            Gestão de Ocorrências
-          </a>
-          <a href="{% url 'calendario_operacional' %}" class="nav-item nav-subitem {% if 'calendario' in is_chamados %}active{% endif %}">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            Cronograma de SLAs
-          </a>
-        </div>
-      </div>
-      {% endwith %}
-      <a href="{% url 'nota_fiscal_lista' %}" class="nav-item {% if 'nota_fiscal' in request.resolver_match.url_name %}active{% endif %}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 2 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        Notas Fiscais
-      </a>
-      <a href="{% url 'software_lista' %}" class="nav-item {% if 'software' in request.resolver_match.url_name or 'licenca' in request.resolver_match.url_name or 'instalacao' in request.resolver_match.url_name %}active{% endif %}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8h4M7 12h4M15 8h2M15 12h2"/></svg>
-        Licenças
-      </a>
-
-      <p class="px-3 pt-3 pb-1 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Gestão</p>
-      <a href="{% url 'relatorio_chamados' %}" class="nav-item {% if 'relatorio' in request.resolver_match.url_name %}active{% endif %}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        Relatórios
-      </a>
-      {% if perms.auditoria.view_registroauditoria %}
-      <a href="{% url 'auditoria_lista' %}" class="nav-item {% if 'auditoria' in request.resolver_match.url_name %}active{% endif %}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Auditoria
-      </a>
-      {% endif %}
-    </nav>
-
-    <div class="border-t border-[var(--border)] p-3">
-      <div class="flex items-center gap-3">
-        {% if request.user.foto %}
-        <img src="{{ request.user.foto.url }}" alt="{{ request.user.nome_completo }}"
-             class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-1 ring-[var(--border)]">
-        {% else %}
-        <div class="w-8 h-8 rounded-full bg-[var(--info-bg)] flex items-center justify-center text-xs font-semibold text-[var(--accent)] flex-shrink-0">
-          {{ request.user.nome_completo|slice:":1" }}{{ request.user.nome_completo|slice:"-1:" }}
-        </div>
-        {% endif %}
-        <div class="flex-1 min-w-0">
-          <a href="{% url 'usuario_meu_perfil' %}" class="text-xs font-medium text-[var(--text-primary)] truncate hover:text-[var(--accent)] block">{{ request.user.nome_completo }}</a>
-          <div class="text-xs text-[var(--text-muted)] truncate">{{ request.user.login_rede }}</div>
-        </div>
-        <form method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" title="Sair" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          </button>
-        </form>
-      </div>
+    <div class="hidden sm:block leading-tight">
+      <div class="text-sm font-semibold" style="color:#ffffff;">Sistema TI</div>
+      <div class="text-xs" style="color:rgba(255,255,255,0.60);">9º Ofício de Notas</div>
     </div>
-  </aside>
+  </div>
 
-  <div class="flex-1 flex flex-col overflow-hidden">
-    <header class="h-14 bg-[var(--topbar-bg)] border-b border-[var(--topbar-border)] flex items-center px-6 gap-4 flex-shrink-0">
-      <h1 class="page-title flex-1">{% block page_title %}{% endblock %}</h1>
-      {% block topbar_actions %}{% endblock %}
-      <button id="theme-toggle" class="p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-alt)] transition-colors" title="Alternar tema">
-        <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <svg id="icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  <!-- Separador -->
+  <div class="flex-shrink-0 w-px h-6 mx-1" style="background:rgba(255,255,255,0.25);"></div>
+
+  <!-- Título da página -->
+  <h1 class="flex-1 text-sm font-semibold truncate" style="color:#ffffff;">
+    {% block page_title %}{% endblock %}
+  </h1>
+
+  <!-- Ações da página -->
+  <div class="flex items-center gap-2 flex-shrink-0">
+    {% block topbar_actions %}{% endblock %}
+  </div>
+
+  <!-- Toggle de tema -->
+  <button id="theme-toggle" class="flex-shrink-0 p-1.5 rounded-lg transition-colors" style="color:rgba(255,255,255,0.75);" title="Alternar tema"
+          onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='transparent'">
+    <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+    <svg id="icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  </button>
+
+  <!-- Separador -->
+  <div class="flex-shrink-0 w-px h-6 mx-1" style="background:rgba(255,255,255,0.25);"></div>
+
+  <!-- Usuário + logout -->
+  <div class="flex items-center gap-2 flex-shrink-0">
+    {% if request.user.foto %}
+    <img src="{{ request.user.foto.url }}" alt="{{ request.user.nome_completo }}"
+         class="w-7 h-7 rounded-full object-cover flex-shrink-0" style="ring:2px solid rgba(255,255,255,0.30);">
+    {% else %}
+    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0"
+         style="background:rgba(255,255,255,0.20);color:#ffffff;">
+      {{ request.user.nome_completo|slice:":1" }}{{ request.user.nome_completo|slice:"-1:" }}
+    </div>
+    {% endif %}
+    <a href="{% url 'usuario_meu_perfil' %}" class="hidden sm:block text-xs font-medium truncate max-w-[120px] transition-colors"
+       style="color:rgba(255,255,255,0.90);"
+       onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='rgba(255,255,255,0.90)'">
+      {{ request.user.nome_completo }}
+    </a>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" title="Sair" class="p-1.5 rounded-lg transition-colors" style="color:rgba(255,255,255,0.70);"
+              onmouseover="this.style.color='#ffffff';this.style.background='rgba(255,255,255,0.15)'"
+              onmouseout="this.style.color='rgba(255,255,255,0.70)';this.style.background='transparent'">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
       </button>
-    </header>
-    <main class="flex-1 overflow-y-auto p-6">
-      {% if messages %}
-      <div class="mb-4 space-y-2">
-        {% for message in messages %}
-        <div class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium
-          {% if message.tags == 'success' %}bg-[var(--success-bg)] text-[var(--success-text)]
-          {% elif message.tags == 'error' %}bg-[var(--danger-bg)] text-[var(--danger-text)]
-          {% elif message.tags == 'warning' %}bg-[var(--warning-bg)] text-[var(--warning-text)]
-          {% else %}bg-[var(--info-bg)] text-[var(--info-text)]{% endif %}">
-          <span>{{ message }}</span>
-          <button onclick="this.parentElement.remove()" class="ml-auto text-current opacity-50 hover:opacity-100">&times;</button>
-        </div>
-        {% endfor %}
+    </form>
+  </div>
+
+</header>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+<aside class="sidebar-shell">
+  <nav class="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+
+    <p class="nav-group-label">Principal</p>
+    <a href="{% url 'painel' %}" class="nav-item {% if request.resolver_match.url_name == 'painel' %}active{% endif %}">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+      </svg>
+      Painel
+    </a>
+
+    <p class="nav-group-label">Módulos</p>
+    <a href="{% url 'usuario_lista' %}" class="nav-item {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Usuários
+    </a>
+    <a href="{% url 'patrimonio_lista' %}" class="nav-item {% if 'patrimonio' in request.resolver_match.url_name %}active{% endif %}">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+      </svg>
+      Patrimônio
+    </a>
+
+    <!-- Accordion Chamados -->
+    {% with is_chamados=request.resolver_match.url_name|slugify %}
+    <div class="nav-accordion {% if 'chamado' in is_chamados or 'calendario' in is_chamados %}open{% endif %}">
+      <button type="button" class="nav-item nav-accordion-toggle w-full {% if 'chamado' in is_chamados or 'calendario' in is_chamados %}active{% endif %}"
+              onclick="this.parentElement.classList.toggle('open')">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <span class="flex-1 text-left">Chamados</span>
+        <svg class="nav-accordion-chevron w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+      <div class="nav-accordion-panel">
+        <a href="{% url 'chamado_dashboard' %}" class="nav-item nav-subitem {% if is_chamados == 'chamado-dashboard' %}active{% endif %}">
+          <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+          </svg>
+          Dashboard
+        </a>
+        <a href="{% url 'chamado_lista' %}" class="nav-item nav-subitem {% if is_chamados == 'chamado-lista' or is_chamados == 'chamado-detalhe' or is_chamados == 'chamado-novo' %}active{% endif %}">
+          <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+            <rect x="9" y="3" width="6" height="4" rx="1"/>
+          </svg>
+          Gestão de Ocorrências
+        </a>
+        <a href="{% url 'calendario_operacional' %}" class="nav-item nav-subitem {% if 'calendario' in is_chamados %}active{% endif %}">
+          <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          Cronograma de SLAs
+        </a>
       </div>
-      {% endif %}
-      {% block content %}{% endblock %}
-    </main>
+    </div>
+    {% endwith %}
+
+    <a href="{% url 'nota_fiscal_lista' %}" class="nav-item {% if 'nota_fiscal' in request.resolver_match.url_name %}active{% endif %}">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 2 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+      </svg>
+      Notas Fiscais
+    </a>
+    <a href="{% url 'software_lista' %}" class="nav-item {% if 'software' in request.resolver_match.url_name or 'licenca' in request.resolver_match.url_name or 'instalacao' in request.resolver_match.url_name %}active{% endif %}">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h4M15 8h2M15 12h2"/>
+      </svg>
+      Licenças
+    </a>
+
+    <p class="nav-group-label">Gestão</p>
+    <a href="{% url 'relatorio_chamados' %}" class="nav-item {% if 'relatorio' in request.resolver_match.url_name %}active{% endif %}">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Relatórios
+    </a>
+    {% if perms.auditoria.view_registroauditoria %}
+    <a href="{% url 'auditoria_lista' %}" class="nav-item {% if 'auditoria' in request.resolver_match.url_name %}active{% endif %}">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      Auditoria
+    </a>
+    {% endif %}
+
+  </nav>
+</aside>
+
+<!-- ══ CONTEÚDO PRINCIPAL ═══════════════════════════════════ -->
+<div class="main-wrap">
+  <div class="page-body">
+
+    {% if messages %}
+    <div class="mb-4 space-y-2">
+      {% for message in messages %}
+      <div class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium
+        {% if message.tags == 'success' %}bg-[var(--success-bg)] text-[var(--success-text)]
+        {% elif message.tags == 'error' %}bg-[var(--danger-bg)] text-[var(--danger-text)]
+        {% elif message.tags == 'warning' %}bg-[var(--warning-bg)] text-[var(--warning-text)]
+        {% else %}bg-[var(--info-bg)] text-[var(--info-text)]{% endif %}">
+        <span>{{ message }}</span>
+        <button onclick="this.parentElement.remove()" class="ml-auto opacity-50 hover:opacity-100 text-current">&times;</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
   </div>
 </div>
 
@@ -234,8 +269,7 @@
   const btn = document.getElementById('theme-toggle');
   const iconSun = document.getElementById('icon-sun');
   const iconMoon = document.getElementById('icon-moon');
-  const saved = localStorage.getItem('theme');
-  if (saved === 'dark') {
+  if (localStorage.getItem('theme') === 'dark') {
     html.classList.add('dark');
     iconSun.classList.remove('hidden');
     iconMoon.classList.add('hidden');
