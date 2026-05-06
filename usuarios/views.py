@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
 from datetime import timedelta
@@ -141,9 +142,15 @@ def usuario_editar(request, pk):
         registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Usuario",
             usuario.pk, f"Usuário {usuario.nome_completo} editado.")
         return redirect("usuario_lista")
+    from .models import Plataforma
+    credenciais = usuario.credenciais.select_related('plataforma').all()
+    plataformas = Plataforma.objects.filter(ativo=True).order_by('nome')
     return render(request, "usuarios/usuario_form.html", {
         "form": form,
         "titulo": f"Editar usuário: {usuario.nome_completo}",
+        "usuario": usuario,
+        "credenciais": credenciais,
+        "plataformas": plataformas,
     })
 
 
@@ -274,3 +281,20 @@ def credencial_desativar(request, pk, cpk):
     credencial.ativo = False
     credencial.save()
     return redirect('usuario_editar', pk=pk)
+
+
+@login_required
+@permission_required('usuarios.change_usuario', raise_exception=True)
+def plataforma_salvar(request):
+    import json
+    from .models import Plataforma
+    if request.method == 'POST':
+        nome = request.POST.get('nome', '').strip()
+        url = request.POST.get('url', '').strip()
+        if not nome:
+            return JsonResponse({'erro': 'Nome obrigatório.'}, status=400)
+        if Plataforma.objects.filter(nome__iexact=nome).exists():
+            return JsonResponse({'erro': 'Plataforma já cadastrada.'}, status=400)
+        p = Plataforma.objects.create(nome=nome, url=url or None)
+        return JsonResponse({'pk': p.pk, 'nome': p.nome})
+    return JsonResponse({'erro': 'Método não permitido.'}, status=405)
