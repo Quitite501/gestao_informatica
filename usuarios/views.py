@@ -112,8 +112,33 @@ def painel(request):
 @login_required
 @permission_required("usuarios.view_usuario", raise_exception=True)
 def usuario_lista(request):
-    usuarios = Usuario.objects.select_related("setor").all().order_by("nome_completo")
-    return render(request, "usuarios/usuario_lista.html", {"usuarios": usuarios})
+    from django.core.paginator import Paginator
+    from .models import Setor
+    qs = Usuario.objects.select_related("setor").all().order_by("nome_completo")
+    busca = request.GET.get("busca", "").strip()
+    situacao = request.GET.get("situacao", "")
+    setor_id = request.GET.get("setor", "")
+    if busca:
+        qs = qs.filter(nome_completo__icontains=busca) | qs.filter(username__icontains=busca) | qs.filter(login_rede__icontains=busca)
+        qs = qs.distinct()
+    if situacao == "ativo":
+        qs = qs.filter(ativo=True)
+    elif situacao == "inativo":
+        qs = qs.filter(ativo=False)
+    if setor_id:
+        qs = qs.filter(setor_id=setor_id)
+    paginator = Paginator(qs, 20)
+    page = request.GET.get("page", 1)
+    usuarios = paginator.get_page(page)
+    setores = Setor.objects.filter(ativo=True).order_by("nome")
+    return render(request, "usuarios/usuario_lista.html", {
+        "usuarios": usuarios,
+        "setores": setores,
+        "busca": busca,
+        "situacao": situacao,
+        "setor_id": setor_id,
+        "total": paginator.count,
+    })
 
 
 @login_required
@@ -124,6 +149,8 @@ def usuario_novo(request):
         usuario = form.save()
         registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "Usuario",
             usuario.pk, f"Usuário {usuario.nome_completo} criado.")
+        from django.contrib import messages
+        messages.success(request, f"Usuário {usuario.nome_completo} salvo com sucesso.")
         return redirect("usuario_lista")
     return render(request, "usuarios/usuario_form.html", {
         "form": form,

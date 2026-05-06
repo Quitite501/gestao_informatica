@@ -11,6 +11,11 @@
 
 {% block content %}
 <style>
+#form-usuario input[type=text],
+#form-usuario input[type=email],
+#form-usuario input[type=password],
+#form-usuario select,
+#form-usuario textarea,
 #modal-acesso input[type=text],
 #modal-acesso input[type=email],
 #modal-acesso select,
@@ -19,24 +24,24 @@
   width: 100%;
   box-sizing: border-box;
 }
-#form-usuario input[type=text],
-#form-usuario input[type=email],
-#form-usuario input[type=password],
-#form-usuario select,
-#form-usuario textarea {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.toggle-wrap input[type=checkbox]{appearance:none;width:2.5rem;height:1.25rem;border-radius:999px;background:var(--border);cursor:pointer;position:relative;transition:background .15s;flex-shrink:0;margin:0}
-.toggle-wrap input[type=checkbox]:checked{background:var(--accent)}
-.toggle-wrap input[type=checkbox]::after{content:"";position:absolute;width:1rem;height:1rem;border-radius:50%;background:white;top:.125rem;left:.125rem;transition:left .15s}
-.toggle-wrap input[type=checkbox]:checked::after{left:1.25rem}
-.grupos-wrap ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:.5rem}
-.grupos-wrap ul li{display:flex;align-items:center;gap:.375rem;font-size:.8125rem;color:var(--text-secondary)}
-.grupos-wrap ul li input[type=checkbox]{width:1rem;height:1rem;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.field-group { display: flex; flex-direction: column; gap: .375rem; }
+.field-group label { font-size: .75rem; font-weight: 500; color: var(--text-secondary); }
+.toggle-wrap input[type=checkbox] { appearance: none; width: 2.75rem; height: 1.5rem; border-radius: 999px; background: var(--border); cursor: pointer; position: relative; transition: background .2s; flex-shrink: 0; margin: 0; }
+.toggle-wrap input[type=checkbox]:checked { background: var(--accent); }
+.toggle-wrap input[type=checkbox]::after { content: ""; position: absolute; width: 1.125rem; height: 1.125rem; border-radius: 50%; background: white; top: .1875rem; left: .1875rem; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.toggle-wrap input[type=checkbox]:checked::after { left: 1.4375rem; }
+.grupos-wrap ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .75rem; }
+.grupos-wrap ul li { display: flex; align-items: center; gap: .5rem; font-size: .875rem; color: var(--text-secondary); }
+.grupos-wrap ul li input[type=checkbox] { width: 1rem; height: 1rem; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.section-header { display: flex; align-items: center; gap: .5rem; font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); padding-bottom: 1rem; border-bottom: 1px solid var(--border-light); margin-bottom: 1.25rem; }
+.modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,.35); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-light); }
+.modal-header h3 { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+.modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.modal-footer { display: flex; justify-content: flex-end; gap: .625rem; padding: 1rem 1.5rem; border-top: 1px solid var(--border-light); background: var(--surface-alt); }
 </style>
 <form method="post" enctype="multipart/form-data" id="form-usuario">
+
 {% csrf_token %}
 <div class="space-y-4 max-w-4xl">
 
@@ -44,14 +49,13 @@
   <div style="display:grid;grid-template-columns:180px 1fr;gap:1rem">
 
     
-    <div class="card flex flex-col items-center justify-center gap-3 py-6" style="border:1px solid var(--border)">
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem 1.5rem;border:1px solid var(--border)">
       {% if form.instance.pk and form.instance.foto %}
         <img src="{{ form.instance.foto.url }}"
              alt="Foto de {{ form.instance.nome_completo }}"
              class="w-20 h-20 rounded-full object-cover ring-2 ring-[var(--border)]">
       {% else %}
-        <div class="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-medium"
-             style="background:var(--accent);color:#fff">
+        <div style="width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:500;background:var(--accent);color:#fff;flex-shrink:0">
           {{ form.instance.nome_completo|default:"?"|slice:":2"|upper }}
         </div>
       {% endif %}
@@ -67,67 +71,92 @@
     </div>
 
     
-    <div class="card space-y-4">
-      <p class="text-xs font-medium uppercase tracking-wide" style="color:var(--text-muted)">
-        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Dados pessoais
-      </p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <div style="display:flex;flex-direction:column;gap:.25rem">
-          <label class="form-label">{{ form.nome_completo.label }}</label>
+    <div class="card" style="padding:1.75rem">
+      <div class="section-header"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Dados pessoais</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+        <div class="field-group">
+          <label>{{ form.nome_completo.label }}</label>
           <div style="width:100%">{{ form.nome_completo }}</div>
           {% if form.nome_completo.errors %}<p class="mt-1 text-xs" style="color:var(--danger-text)">{{ form.nome_completo.errors|join:", " }}</p>{% endif %}
         </div>
-        <div>
-          <label class="form-label">Usuário do sistema</label>
+        <div class="field-group">
+          <label>Usuário do sistema</label>
           {{ form.username }}
           {% if form.username.errors %}<p class="mt-1 text-xs" style="color:var(--danger-text)">{{ form.username.errors|join:", " }}</p>{% endif %}
         </div>
-        <div>
-          <label class="form-label">{{ form.email.label }}</label>
+        <div class="field-group">
+          <label>{{ form.email.label }}</label>
           {{ form.email }}
           {% if form.email.errors %}<p class="mt-1 text-xs" style="color:var(--danger-text)">{{ form.email.errors|join:", " }}</p>{% endif %}
         </div>
-        <div>
-          <label class="form-label">{{ form.ramal.label }}</label>
+        <div class="field-group">
+          <label>{{ form.ramal.label }}</label>
           {{ form.ramal }}
         </div>
-        <div>
-          <label class="form-label">{{ form.cargo.label }}</label>
+        <div class="field-group">
+          <label>{{ form.cargo.label }}</label>
           {{ form.cargo }}
         </div>
-        <div>
-          <label class="form-label">{{ form.setor.label }}</label>
+        <div class="field-group">
+          <label>{{ form.setor.label }}</label>
           {{ form.setor }}
+        </div>
+        <div class="field-group">
+          <label>Login do Windows <span style="font-size:.7rem;font-weight:400;color:var(--text-muted)">(usado na recuperação de senha)</span></label>
+          {{ form.login_rede }}
+          {% if form.login_rede.errors %}<p style="font-size:.75rem;color:var(--danger-text)">{{ form.login_rede.errors|join:", " }}</p>{% endif %}
         </div>
       </div>
     </div>
   </div>
 
   
-  <div class="card space-y-3">
-    <p class="text-xs font-medium uppercase tracking-wide" style="color:var(--text-muted)">
-      <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Permissões de acesso
-    </p>
-    <div class="divide-y" style="border-color:var(--border-light)">
-      <div class="flex items-center justify-between py-3">
+  <div class="card" style="padding:1.75rem">
+    <div class="section-header"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Permissões de acesso</div>
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid var(--border-light)">
         <div>
           <p class="text-sm font-medium" style="color:var(--text-primary)">Usuário ativo</p>
           <p class="text-xs" style="color:var(--text-muted)">Permite login no sistema. Desativar bloqueia o acesso imediatamente.</p>
         </div>
         <span class="toggle-wrap">{{ form.ativo }}</span>
       </div>
-      <div class="flex items-center justify-between py-3">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid var(--border-light)">
         <div>
-          <p class="text-sm font-medium" style="color:var(--text-primary)">Administrador</p>
+          <p style="font-size:.9375rem;font-weight:500;color:var(--text-primary);margin-bottom:.25rem">Administrador</p>
           <p class="text-xs" style="color:var(--text-muted)">Acesso ao menu de administração do sistema.</p>
         </div>
         <span class="toggle-wrap">{{ form.is_staff }}</span>
       </div>
-      <div class="py-3">
-        <p class="text-sm font-medium mb-2" style="color:var(--text-primary)">Grupos de acesso</p>
-        <div class="grupos-wrap">{{ form.groups }}</div>
+      <div style="padding:1rem 0">
+        <p style="font-size:.9375rem;font-weight:500;color:var(--text-primary);margin-bottom:.25rem">Pode abrir chamados</p>
+        <p style="font-size:.8125rem;color:var(--text-muted);margin-bottom:.625rem">Aparece como solicitante e pode registrar ocorrências.</p>
+        <span class="toggle-wrap">{{ form.perm_abrir_chamados }}</span>
+      </div>
+      <div style="padding:1rem 0;border-top:1px solid var(--border-light)">
+        <p style="font-size:.9375rem;font-weight:500;color:var(--text-primary);margin-bottom:.25rem">Técnico</p>
+        <p style="font-size:.8125rem;color:var(--text-muted);margin-bottom:.625rem">Pode atender chamados, gerenciar patrimônio e visualizar licenças.</p>
+        <span class="toggle-wrap">{{ form.perm_tecnico }}</span>
+      </div>
+      <div id="bloco-admin-perms" style="padding:1rem 0 0 1.5rem;border-top:1px solid var(--border-light)">
+        <p style="font-size:.75rem;font-weight:600;color:var(--text-muted);margin-bottom:.875rem;text-transform:uppercase;letter-spacing:.05em">Sub-permissões do administrador</p>
+        <div style="display:flex;flex-direction:column;gap:.875rem">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <p style="font-size:.9375rem;font-weight:500;color:var(--text-primary);margin-bottom:.125rem">Pode gerenciar usuários</p>
+              <p style="font-size:.8125rem;color:var(--text-muted)">Criar, editar usuários e redefinir senhas.</p>
+            </div>
+            <span class="toggle-wrap">{{ form.perm_gerenciar_usuarios }}</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem">
+            <div>
+              <p style="font-size:.9375rem;font-weight:500;color:var(--text-primary);margin-bottom:.125rem">Pode acessar parametrização</p>
+              <p style="font-size:.8125rem;color:var(--text-muted)">Alterar categorias, SLA, tipos de equipamento e feriados.</p>
+            </div>
+            <span class="toggle-wrap">{{ form.perm_parametrizacao }}</span>
+          </div>
+        </div>
+      </div>
         {% if form.groups.errors %}<p class="mt-1 text-xs" style="color:var(--danger-text)">{{ form.groups.errors|join:", " }}</p>{% endif %}
       </div>
     </div>
@@ -135,8 +164,8 @@
 
   
   {% if usuario %}
-  <div class="card space-y-3">
-    <div class="flex items-center justify-between">
+  <div class="card" style="padding:1.75rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
       <p class="text-xs font-medium uppercase tracking-wide" style="color:var(--text-muted)">
         <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
         Acessos externos
@@ -191,11 +220,8 @@
   {% endif %}
 
   
-  <div class="card space-y-4">
-    <p class="text-xs font-medium uppercase tracking-wide" style="color:var(--text-muted)">
-      <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Senha
-    </p>
+  <div class="card" style="padding:1.75rem">
+    <div class="section-header"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Senha</div>
     <div class="grid grid-cols-2 gap-4">
       <div>
         <label class="form-label">{{ form.password.label }} <span class="text-xs" style="color:var(--text-muted)">(deixe em branco para não alterar)</span></label>
@@ -221,17 +247,15 @@
 {% if usuario %}
 <div id="modal-acesso" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45)">
   <div class="flex items-center justify-center min-h-screen p-4">
-    <div class="card w-full max-w-md">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-medium" style="color:var(--text-primary)" id="modal-titulo">Adicionar acesso externo</h3>
-        <button type="button" onclick="fecharModalAcesso()" style="color:var(--text-muted)">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+    <div class="modal-card" style="width:100%;max-width:480px">
+      <div class="modal-header">
+        <h3 id="modal-titulo">Adicionar acesso externo</h3>
+        <button type="button" onclick="fecharModalAcesso()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:20px;line-height:1">&times;</button>
       </div>
       <form method="post" action="{% url "credencial_salvar" usuario.pk %}">
         {% csrf_token %}
         <input type="hidden" name="credencial_pk" id="credencial_pk" value="">
-        <div class="space-y-4">
+        <div class="modal-body">
           <div>
             <label class="form-label">Plataforma <span style="color:var(--danger)">*</span></label>
             <select name="plataforma" id="modal-plataforma-select" class="w-full">
@@ -256,13 +280,9 @@
             <label class="text-sm" style="color:var(--text-primary)">Acesso ativo</label>
             <input type="checkbox" name="ativo" id="modal-ativo" checked class="checkbox-accent">
           </div>
-        </div>
-        <div class="flex justify-end gap-3 mt-5">
+        <div class="modal-footer">
           <button type="button" onclick="fecharModalAcesso()" class="btn-secondary">Cancelar</button>
-          <button type="submit" class="btn-primary">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Salvar acesso
-          </button>
+          <button type="submit" class="btn-primary">Salvar acesso</button>
         </div>
       </form>
     </div>
@@ -271,6 +291,12 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+  var adminToggle = document.getElementById("{{ form.is_staff.id_for_label }}");
+  var blocoAdmin = document.getElementById("bloco-admin-perms");
+  function toggleAdmin() {
+    if (blocoAdmin) blocoAdmin.style.display = adminToggle && adminToggle.checked ? "block" : "none";
+  }
+  if (adminToggle) { adminToggle.addEventListener("change", toggleAdmin); toggleAdmin(); }
   var m = document.getElementById("modal-acesso");
   if (m) document.body.appendChild(m);
 });
@@ -316,12 +342,12 @@ document.addEventListener("keydown", function(e) {
       </div>
       <div id="plataforma-erro" style="display:none;color:var(--danger-text);font-size:13px;margin-bottom:.75rem;padding:.5rem;background:var(--danger-bg);border-radius:6px"></div>
       <div style="display:flex;flex-direction:column;gap:1rem">
-        <div>
-          <label class="form-label">Nome <span style="color:var(--danger)">*</span></label>
+        <div class="field-group">
+          <label>Nome <span style="color:var(--danger)">*</span></label>
           <input type="text" id="nova-plataforma-nome" class="w-full" placeholder="Ex: e-Notariado, RCPN...">
         </div>
-        <div>
-          <label class="form-label">URL <span style="color:var(--text-muted);font-weight:normal">(opcional)</span></label>
+        <div class="field-group">
+          <label>URL <span style="color:var(--text-muted);font-weight:normal">(opcional)</span></label>
           <input type="text" id="nova-plataforma-url" class="w-full" placeholder="https://...">
         </div>
       </div>

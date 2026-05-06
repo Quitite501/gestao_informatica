@@ -10,6 +10,46 @@
   {% endif %}
 {% endblock %}
 {% block content %}
+<style>
+.filtro-bar { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-bottom:1rem; }
+.filtro-bar input[type=text], .filtro-bar select { font-size:.875rem; height:36px; box-sizing:border-box; }
+.filtro-bar input[type=text] { flex:1; min-width:200px; }
+.pagination { display:flex; align-items:center; justify-content:space-between; padding:.875rem 1rem; border-top:1px solid var(--border-light); font-size:.8125rem; color:var(--text-muted); }
+.pagination-pages { display:flex; align-items:center; gap:.25rem; }
+.page-btn { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px; font-size:.8125rem; color:var(--text-secondary); border:0.5px solid var(--border); background:var(--surface); text-decoration:none; }
+.page-btn:hover { background:var(--surface-alt); }
+.page-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.page-btn.disabled { opacity:.4; pointer-events:none; }
+</style>
+
+<form method="get" id="form-filtro">
+<div class="filtro-bar">
+  <input type="text" name="busca" value="{{ busca }}" placeholder="Buscar por nome, usuário ou login...">
+  <select name="situacao" onchange="document.getElementById('form-filtro').submit()">
+    <option value="">Todas situações</option>
+    <option value="ativo" {% if situacao == "ativo" %}selected{% endif %}>Ativo</option>
+    <option value="inativo" {% if situacao == "inativo" %}selected{% endif %}>Inativo</option>
+  </select>
+  <select name="setor" onchange="document.getElementById('form-filtro').submit()">
+    <option value="">Todos os setores</option>
+    {% for s in setores %}
+    <option value="{{ s.pk }}" {% if setor_id == s.pk|stringformat:"s" %}selected{% endif %}>{{ s.nome }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn-primary" style="height:36px;white-space:nowrap">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Buscar
+  </button>
+  {% if busca or situacao or setor_id %}
+  <a href="{% url 'usuario_lista' %}" class="btn-secondary" style="height:36px;display:flex;align-items:center;gap:.375rem;white-space:nowrap">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    Limpar
+  </a>
+  {% endif %}
+  <span style="margin-left:auto;font-size:.8125rem;color:var(--text-muted)">{{ total }} usuário{{ total|pluralize:"s" }}</span>
+</div>
+</form>
+
 <div class="card p-0 overflow-hidden">
   <table class="table-base">
     <thead>
@@ -70,4 +110,33 @@
     </tbody>
   </table>
 </div>
+
+{% if usuarios.has_other_pages %}
+<div class="pagination">
+  <span>Página {{ usuarios.number }} de {{ usuarios.paginator.num_pages }}</span>
+  <div class="pagination-pages">
+    {% if usuarios.has_previous %}
+    <a href="?busca={{ busca }}&situacao={{ situacao }}&setor={{ setor_id }}&page={{ usuarios.previous_page_number }}" class="page-btn">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    {% else %}
+    <span class="page-btn disabled"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></span>
+    {% endif %}
+    {% for num in usuarios.paginator.page_range %}
+      {% if usuarios.number == num %}
+      <span class="page-btn active">{{ num }}</span>
+      {% elif num > usuarios.number|add:"-3" and num < usuarios.number|add:"3" %}
+      <a href="?busca={{ busca }}&situacao={{ situacao }}&setor={{ setor_id }}&page={{ num }}" class="page-btn">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if usuarios.has_next %}
+    <a href="?busca={{ busca }}&situacao={{ situacao }}&setor={{ setor_id }}&page={{ usuarios.next_page_number }}" class="page-btn">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+    {% else %}
+    <span class="page-btn disabled"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
 {% endblock %}
