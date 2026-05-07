@@ -9,6 +9,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+CSRF_TRUSTED_ORIGINS = ['https://10.0.1.10']
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -99,6 +103,10 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
+AUTHENTICATION_BACKENDS = [
+    'usuarios.backends.BackendSemAcento',
+    'django.contrib.auth.backends.ModelBackend',
+]
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'painel'
 LOGOUT_REDIRECT_URL = 'login'

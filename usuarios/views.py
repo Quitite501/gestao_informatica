@@ -151,7 +151,7 @@ def usuario_novo(request):
             usuario.pk, f"Usuário {usuario.nome_completo} criado.")
         from django.contrib import messages
         messages.success(request, f"Usuário {usuario.nome_completo} salvo com sucesso.")
-        return redirect("usuario_lista")
+        return redirect("usuario_editar", pk=usuario.pk)
     return render(request, "usuarios/usuario_form.html", {
         "form": form,
         "titulo": "Novo usuário",
