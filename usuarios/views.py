@@ -151,7 +151,7 @@ def usuario_novo(request):
             usuario.pk, f"Usuário {usuario.nome_completo} criado.")
         from django.contrib import messages
         messages.success(request, f"Usuário {usuario.nome_completo} salvo com sucesso.")
-        return redirect("usuario_editar", pk=usuario.pk)
+        return redirect("usuario_lista")
     return render(request, "usuarios/usuario_form.html", {
         "form": form,
         "titulo": "Novo usuário",
@@ -170,7 +170,7 @@ def usuario_editar(request, pk):
             usuario.pk, f"Usuário {usuario.nome_completo} editado.")
         from django.contrib import messages
         messages.success(request, f"Usuário {usuario.nome_completo} salvo com sucesso.")
-        return redirect("usuario_editar", pk=usuario.pk)
+        return redirect("usuario_lista")
     from .models import Plataforma
     credenciais = usuario.credenciais.select_related('plataforma').all()
     plataformas = Plataforma.objects.filter(ativo=True).order_by('nome')

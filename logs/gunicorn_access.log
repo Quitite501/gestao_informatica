@@ -31268,3 +31268,6 @@
 127.0.0.1 - - [07/May/2026:10:15:25 -0300] "GET /usuarios/8/editar/ HTTP/1.0" 200 33631 "https://10.0.1.10/usuarios/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
 127.0.0.1 - - [07/May/2026:10:15:31 -0300] "GET /usuarios/14/editar/ HTTP/1.0" 200 33593 "https://10.0.1.10/usuarios/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
 127.0.0.1 - - [07/May/2026:10:15:38 -0300] "GET /usuarios/ HTTP/1.0" 200 48125 "https://10.0.1.10/usuarios/86/editar/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0"
+127.0.0.1 - - [07/May/2026:10:20:15 -0300] "GET /usuarios/14/editar/ HTTP/1.0" 200 33584 "https://10.0.1.10/usuarios/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+127.0.0.1 - - [07/May/2026:10:20:22 -0300] "POST /usuarios/14/editar/ HTTP/1.0" 302 0 "https://10.0.1.10/usuarios/14/editar/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+127.0.0.1 - - [07/May/2026:10:20:22 -0300] "GET /usuarios/ HTTP/1.0" 200 49539 "https://10.0.1.10/usuarios/14/editar/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
