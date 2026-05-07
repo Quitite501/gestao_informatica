@@ -65,7 +65,7 @@
     </thead>
     <tbody>
       {% for usuario in usuarios %}
-      <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+      <tr class="hover:bg-[var(--table-row-hover)] transition-colors" style="cursor:pointer" ondblclick="window.location='{% url 'usuario_editar' usuario.pk %}'">
         <td>
           <div class="flex items-center gap-3">
             {% if usuario.foto %}
