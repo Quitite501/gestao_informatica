@@ -1,42 +1,21 @@
 {% extends 'base_auth.html' %}
-{% block title %}Recuperar senha — Sistema de Gestão de TI{% endblock %}
+{% block title %}Esqueci minha senha — Sistema de Gestão de TI{% endblock %}
 {% block content %}
-<h2 class="text-base font-medium text-[var(--text-primary)] mb-6">Recuperar senha</h2>
-{% if sucesso %}
-<div class="p-4 rounded-lg bg-[var(--success-bg)] border border-[var(--success)] mb-6">
-  <p class="text-sm font-medium text-[var(--success-text)]">Senha alterada com sucesso!</p>
-  <p class="text-sm text-[var(--success-text)] mt-1">Você já pode fazer login com a nova senha.</p>
+<div style="text-align:center;margin-bottom:1.5rem">
+  <div style="width:48px;height:48px;border-radius:50%;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;border:1px solid var(--border)">
+    <svg width="22" height="22" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  </div>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--text-primary);margin-bottom:.375rem">Esqueceu sua senha?</h2>
+  <p style="font-size:.8125rem;color:var(--text-muted);line-height:1.5">Entre em contato com o <strong>administrador do sistema</strong> para que sua senha seja redefinida.</p>
 </div>
-<a href="{% url 'login' %}" class="btn-primary w-full justify-center block text-center">Ir para o login</a>
-{% else %}
-{% if erro %}
-<div class="mb-4 p-3 rounded-lg bg-[var(--danger-bg)] border border-[var(--danger)]">
-  <p class="text-sm text-[var(--danger-text)]">{{ erro }}</p>
+<div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:.8125rem;color:var(--text-secondary);line-height:1.6">
+  <p style="margin-bottom:.25rem"><strong>O que o administrador fará:</strong></p>
+  <p>1. Acessar o cadastro do seu usuário no sistema</p>
+  <p>2. Redefinir sua senha temporária</p>
+  <p>3. No seu próximo acesso, você criará uma nova senha pessoal</p>
 </div>
-{% endif %}
-<form method="post" class="space-y-4">
-  {% csrf_token %}
-  <div>
-    <label class="form-label">Login de rede</label>
-    <input type="text" name="login_rede" class="form-input" placeholder="Ex: flavio" autofocus>
-  </div>
-  <div>
-    <label class="form-label">E-mail cadastrado</label>
-    <input type="email" name="email" class="form-input" placeholder="seu@email.com.br">
-  </div>
-  <div>
-    <label class="form-label">Nova senha</label>
-    <input type="password" name="nova_senha" class="form-input" placeholder="Mínimo 6 caracteres">
-  </div>
-  <div>
-    <label class="form-label">Confirmar nova senha</label>
-    <input type="password" name="confirmar_senha" class="form-input" placeholder="Repita a nova senha">
-  </div>
-  <button type="submit" class="btn-primary w-full justify-center mt-2">Redefinir senha</button>
-</form>
-<p class="mt-4 text-center text-xs text-[var(--text-muted)]">
-  Lembrou a senha?
-  <a href="{% url 'login' %}" class="text-[var(--accent)] hover:underline">Voltar ao login</a>
-</p>
-{% endif %}
+<a href="{% url 'login' %}" class="btn-secondary" style="display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:1.25rem">
+  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  Voltar ao login
+</a>
 {% endblock %}

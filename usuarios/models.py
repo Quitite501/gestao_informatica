@@ -24,6 +24,7 @@ class Usuario(AbstractUser):
     email = models.EmailField("e-mail", unique=True)
     nome_completo = models.CharField(max_length=255)
     login_rede = models.CharField(max_length=150, unique=True)
+    force_password_change = models.BooleanField(default=False, verbose_name="Forçar troca de senha")
     ramal = models.CharField(max_length=20, blank=True, null=True)
     cargo = models.CharField(max_length=120, blank=True, null=True)
     setor = models.ForeignKey(

@@ -200,31 +200,7 @@ def usuario_desativar(request, pk):
 
 # ─── Recuperação de senha (self-service sem e-mail) ───────────────────────────
 def usuario_recuperar_senha(request):
-    erro = None
-    sucesso = False
-    if request.method == 'POST':
-        login_rede = request.POST.get('login_rede', '').strip()
-        email = request.POST.get('email', '').strip()
-        nova_senha = request.POST.get('nova_senha', '').strip()
-        confirmar_senha = request.POST.get('confirmar_senha', '').strip()
-        try:
-            usuario = Usuario.objects.get(login_rede__iexact=login_rede, email__iexact=email, ativo=True)
-            if not nova_senha:
-                erro = 'A nova senha não pode ser vazia.'
-            elif len(nova_senha) < 6:
-                erro = 'A senha deve ter pelo menos 6 caracteres.'
-            elif nova_senha != confirmar_senha:
-                erro = 'As senhas não coincidem.'
-            else:
-                usuario.set_password(nova_senha)
-                usuario.save()
-                sucesso = True
-        except Usuario.DoesNotExist:
-            erro = 'Login de rede ou e-mail não encontrado. Verifique os dados informados.'
-    return render(request, 'usuarios/recuperar_senha.html', {
-        'erro': erro,
-        'sucesso': sucesso,
-    })
+    return render(request, 'usuarios/recuperar_senha.html')
 
 
 # ─── Redefinição de senha pelo administrador ──────────────────────────────────
@@ -244,9 +220,12 @@ def usuario_redefinir_senha(request, pk):
             erro = 'As senhas não coincidem.'
         else:
             usuario.set_password(nova_senha)
+            usuario.force_password_change = True
             usuario.save()
             registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, 'Usuario',
                 usuario.pk, f'Senha do usuário {usuario.nome_completo} redefinida pelo administrador.')
+            from django.contrib import messages
+            messages.success(request, f"Senha de {usuario.nome_completo} redefinida. O usuário deverá criar uma nova senha no próximo acesso.")
             return redirect('usuario_lista')
     return render(request, 'usuarios/redefinir_senha.html', {
         'usuario': usuario,
@@ -262,16 +241,50 @@ def usuario_meu_perfil(request):
     if request.method == 'POST':
         ramal = request.POST.get('ramal', '').strip()
         foto = request.FILES.get('foto')
+        nova_senha = request.POST.get('nova_senha', '').strip()
+        confirmar_senha = request.POST.get('confirmar_senha', '').strip()
         request.user.ramal = ramal
         if foto:
             request.user.foto = foto
-        request.user.save()
-        update_session_auth_hash(request, request.user)
-        sucesso = True
+        if nova_senha:
+            if len(nova_senha) < 6:
+                erro = 'A senha deve ter pelo menos 6 caracteres.'
+            elif nova_senha != confirmar_senha:
+                erro = 'As senhas não coincidem.'
+            else:
+                request.user.set_password(nova_senha)
+                sucesso = True
+        else:
+            sucesso = True
+        if not erro:
+            request.user.save()
+            update_session_auth_hash(request, request.user)
     return render(request, 'usuarios/meu_perfil.html', {
         'erro': erro,
         'sucesso': sucesso,
     })
+
+@login_required
+def usuario_trocar_senha(request):
+    erro = None
+    if request.method == 'POST':
+        nova_senha = request.POST.get('nova_senha', '').strip()
+        confirmar_senha = request.POST.get('confirmar_senha', '').strip()
+        if not nova_senha:
+            erro = 'A nova senha não pode ser vazia.'
+        elif len(nova_senha) < 6:
+            erro = 'A senha deve ter pelo menos 6 caracteres.'
+        elif nova_senha != confirmar_senha:
+            erro = 'As senhas não coincidem.'
+        else:
+            request.user.set_password(nova_senha)
+            request.user.force_password_change = False
+            request.user.save()
+            update_session_auth_hash(request, request.user)
+            from django.contrib import messages
+            messages.success(request, 'Senha atualizada com sucesso.')
+            return redirect('painel')
+    return render(request, 'usuarios/trocar_senha.html', {'erro': erro})
 
 
 @login_required

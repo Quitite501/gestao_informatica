@@ -44,8 +44,21 @@
         <p class="mt-1 text-xs text-[var(--text-muted)]">Envie uma nova foto para substituir a atual.</p>
         {% endif %}
       </div>
+      <hr style="border:none;border-top:1px solid var(--border-light);margin:.5rem 0">
+      <p style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:.75rem">Alterar senha <span style="font-weight:400">(deixe em branco para não alterar)</span></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+        <div>
+          <label class="form-label">Nova senha</label>
+          <input type="password" name="nova_senha" class="form-input" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div>
+          <label class="form-label">Confirmar nova senha</label>
+          <input type="password" name="confirmar_senha" class="form-input" placeholder="Repita a nova senha">
+        </div>
+      </div>
       <div class="flex items-center gap-3 pt-2">
         <button type="submit" class="btn-primary">Salvar</button>
+        <a href="{% url 'painel' %}" class="btn-secondary">Cancelar</a>
       </div>
     </form>
   </div>

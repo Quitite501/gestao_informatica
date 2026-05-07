@@ -13,6 +13,7 @@ from .views import (
     credencial_salvar,
     credencial_desativar,
     plataforma_salvar,
+    usuario_trocar_senha,
 )
 
 urlpatterns = [
@@ -29,4 +30,5 @@ urlpatterns = [
     path('usuarios/<int:pk>/credenciais/salvar/', credencial_salvar, name='credencial_salvar'),
     path('usuarios/<int:pk>/credenciais/<int:cpk>/desativar/', credencial_desativar, name='credencial_desativar'),
     path('plataformas/salvar/', plataforma_salvar, name='plataforma_salvar'),
+    path('trocar-senha/', usuario_trocar_senha, name='usuario_trocar_senha'),
 ]
