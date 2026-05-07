@@ -119,8 +119,17 @@ def usuario_lista(request):
     situacao = request.GET.get("situacao", "")
     setor_id = request.GET.get("setor", "")
     if busca:
-        qs = qs.filter(nome_completo__icontains=busca) | qs.filter(username__icontains=busca) | qs.filter(login_rede__icontains=busca)
-        qs = qs.distinct()
+        import unicodedata
+        def norm(s):
+            return unicodedata.normalize('NFKD', s).encode('ascii','ignore').decode('ascii').lower()
+        busca_norm = norm(busca)
+        qs_result = qs.none()
+        for u in qs:
+            if (busca_norm in norm(u.nome_completo or '') or
+                busca_norm in norm(u.username or '') or
+                busca_norm in norm(u.login_rede or '')):
+                qs_result = qs_result | qs.filter(pk=u.pk)
+        qs = qs_result
     if situacao == "ativo":
         qs = qs.filter(ativo=True)
     elif situacao == "inativo":

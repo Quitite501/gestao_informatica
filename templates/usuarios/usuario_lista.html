@@ -24,7 +24,7 @@
 
 <form method="get" id="form-filtro">
 <div class="filtro-bar">
-  <input type="text" name="busca" value="{{ busca }}" placeholder="Buscar por nome, usuário ou login...">
+  <input type="text" name="busca" value="{{ busca }}" placeholder="Buscar por nome, usuário ou login..." id="input-busca" autocomplete="off">
   <select name="situacao" onchange="document.getElementById('form-filtro').submit()">
     <option value="">Todas situações</option>
     <option value="ativo" {% if situacao == "ativo" %}selected{% endif %}>Ativo</option>
@@ -139,4 +139,21 @@
   </div>
 </div>
 {% endif %}
+<script>
+(function() {
+  var input = document.getElementById("input-busca");
+  if (!input) return;
+  var timer;
+  input.addEventListener("input", function() {
+    clearTimeout(timer);
+    timer = setTimeout(function() {
+      document.getElementById("form-filtro").submit();
+    }, 400);
+  });
+  input.focus();
+  var v = input.value;
+  input.value = '';
+  input.value = v;
+})();
+</script>
 {% endblock %}
