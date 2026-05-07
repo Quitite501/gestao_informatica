@@ -5,11 +5,53 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.db.models import Q
 from datetime import timedelta
 from auditoria.utils import registrar_auditoria
 from auditoria.models import RegistroAuditoria
 from .forms import UsuarioForm
 from .models import Usuario
+
+
+@login_required
+def usuario_busca(request):
+    if not (
+        request.user.is_superuser
+        or request.user.is_staff
+        or request.user.has_perm("chamados.can_manage_chamados")
+    ):
+        return JsonResponse({"results": []}, status=403)
+
+    termo = (request.GET.get("q") or "").strip()
+
+    if len(termo) < 2:
+        return JsonResponse({"results": []})
+
+    usuarios = (
+        Usuario.objects
+        .select_related("setor")
+        .filter(
+            Q(nome_completo__icontains=termo)
+            | Q(username__icontains=termo)
+            | Q(email__icontains=termo)
+            | Q(setor__nome__icontains=termo)
+        )
+        .order_by("nome_completo")[:50]
+    )
+
+    results = []
+    for usuario in usuarios:
+        setor = usuario.setor.nome if getattr(usuario, "setor_id", None) and usuario.setor else ""
+        nome = usuario.nome_completo or usuario.get_username()
+        texto = f"{nome} - {setor}" if setor else nome
+
+        results.append({
+            "value": usuario.pk,
+            "text": texto,
+        })
+
+    return JsonResponse({"results": results})
+
 
 
 class UsuarioLoginView(LoginView):

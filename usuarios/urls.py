@@ -14,6 +14,7 @@ from .views import (
     credencial_desativar,
     plataforma_salvar,
     usuario_trocar_senha,
+    usuario_busca,
 )
 
 urlpatterns = [
@@ -24,6 +25,7 @@ urlpatterns = [
     path('meu-perfil/', usuario_meu_perfil, name='usuario_meu_perfil'),
     path('', painel, name='painel'),
     path('usuarios/', usuario_lista, name='usuario_lista'),
+    path('usuarios/busca/', usuario_busca, name='usuario_busca'),
     path('usuarios/novo/', usuario_novo, name='usuario_novo'),
     path('usuarios/<int:pk>/editar/', usuario_editar, name='usuario_editar'),
     path('usuarios/<int:pk>/desativar/', usuario_desativar, name='usuario_desativar'),

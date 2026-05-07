@@ -9,7 +9,7 @@ from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from .forms import ChamadoForm, ChamadoFiltroForm, ChamadoEncerramentoForm, ChamadoEditarTituloForm, ChamadoTransferirForm
-from .models import Chamado, AnexoChamado, AcaoChamado, AnexoAcao
+from .models import Chamado, AnexoChamado, AcaoChamado, AnexoAcao, ConfiguracaoSLA
 from auditoria.utils import registrar_auditoria
 from auditoria.models import RegistroAuditoria
 
@@ -219,10 +219,58 @@ def chamado_detalhe(request, pk):
     )
 
 
+
+@login_required
+def chamado_sla_previsao(request):
+    categoria_id = request.GET.get("categoria")
+    prioridade = request.GET.get("prioridade")
+
+    prioridades_validas = dict(Chamado.PRIORIDADE_CHOICES)
+    if prioridade not in prioridades_validas:
+        return JsonResponse({
+            "ok": False,
+            "erro": "Prioridade invalida.",
+        }, status=400)
+
+    config = None
+
+    if categoria_id:
+        config = ConfiguracaoSLA.objects.filter(
+            prioridade=prioridade,
+            categoria_id=categoria_id,
+        ).first()
+
+    if config is None:
+        config = ConfiguracaoSLA.objects.filter(
+            prioridade=prioridade,
+            categoria__isnull=True,
+        ).first()
+
+    prazo_horas = (
+        config.prazo_horas
+        if config
+        else Chamado.PRAZO_PADRAO_HORAS.get(prioridade, 48)
+    )
+
+    from chamados.sla_utils import calcular_vencimento_sla
+
+    vencimento = calcular_vencimento_sla(timezone.now(), prazo_horas * 60)
+    vencimento_local = timezone.localtime(vencimento)
+
+    return JsonResponse({
+        "ok": True,
+        "prioridade": prioridade,
+        "prioridade_label": prioridades_validas[prioridade],
+        "prazo_horas": prazo_horas,
+        "prazo_texto": f"{prazo_horas} horas",
+        "vencimento_iso": vencimento.isoformat(),
+        "vencimento_formatado": vencimento_local.strftime("%d/%m/%Y %H:%M"),
+    })
+
 @login_required
 @permission_required("chamados.can_manage_chamados", raise_exception=True)
 def chamado_novo(request):
-    form = ChamadoForm(request.POST or None)
+    form = ChamadoForm(request.POST or None, user=request.user)
     if form.is_valid():
         chamado = form.save(commit=False)
         chamado.status = Chamado.STATUS_ABERTO

@@ -147,8 +147,6 @@
     </div>
   </div>
 
-</header>
-
 <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
 <aside class="sidebar-shell">
   <nav class="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">

@@ -1,161 +1,193 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block title %}{{ titulo }} — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}{{ titulo }}{% endblock %}
 
 {% block topbar_actions %}
   <a href="{% url 'chamado_lista' %}" class="btn-secondary">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
     Voltar
   </a>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-3xl space-y-6">
-  <div class="card">
-    <form method="post" enctype="multipart/form-data" class="space-y-5" id="form-chamado">
+<link href="{% static 'vendor/quill/css/quill.snow.css' %}" rel="stylesheet">
+<link href="{% static 'vendor/tom-select/css/tom-select.default.min.css' %}" rel="stylesheet">
+
+<div class="chamado-form-shell space-y-6">
+  <div class="card chamado-form-card">
+    {% if form.non_field_errors %}
+      <div class="mb-4 rounded-lg border border-[var(--danger)] bg-[var(--danger-bg)] p-3 text-sm text-[var(--danger-text)]">
+        {{ form.non_field_errors|join:", " }}
+      </div>
+    {% endif %}
+
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      id="form-chamado"
+      class="space-y-5"
+      data-draft="1"
+      data-has-errors="{% if form.errors %}1{% else %}0{% endif %}"
+      data-sla-url="{% url 'chamado_sla_previsao' %}"
+      data-usuarios-url="{% url 'usuario_busca' %}"
+    >
       {% csrf_token %}
 
-      {% for field in form %}
-        {% if field.name == "descricao" %}
-          <div>
-            <label class="form-label">{{ field.label }}</label>
-            <div id="editor-descricao" class="quill-container"></div>
-            <input type="hidden" name="descricao" id="hidden-descricao">
-            {% if field.errors %}
-              <p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>
-            {% endif %}
-          </div>
-        {% else %}
-          <div>
-            <label class="form-label">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-              <p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>
-            {% endif %}
-          </div>
-        {% endif %}
-      {% endfor %}
+      <div class="chamado-form-grid">
+        <div class="chamado-form-col">
+          <div class="chamado-campo">
+            <div class="chamado-field-header">
+              <label class="form-label chamado-required" for="{{ form.solicitante.id_for_label }}">
+                Solicitante
+              </label>
+            </div>
 
-      <div>
-        <label class="form-label">Anexos (opcional)</label>
-        <div id="drop-zone" class="border-2 border-dashed border-[var(--border)] rounded-lg p-6 text-center cursor-pointer hover:border-[var(--accent)] transition-colors">
-          <svg class="w-8 h-8 mx-auto text-[var(--text-muted)] mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
-          </svg>
-          <p class="text-sm text-[var(--text-muted)]">Clique ou arraste arquivos aqui</p>
-          <p class="text-xs text-[var(--text-muted)] mt-1">Imagens, PDFs e documentos</p>
-          <input type="file" name="anexos" id="input-anexos" multiple class="hidden">
+            {% if form.solicitante.is_hidden %}
+              {{ form.solicitante }}
+              <input
+                type="text"
+                class="form-input chamado-input-padrao"
+                value="{{ request.user.nome_completo }}"
+                readonly
+              >
+              <p class="chamado-help">Solicitante definido automaticamente pelo usuário logado.</p>
+            {% else %}
+              {{ form.solicitante }}
+              <p class="chamado-help">Digite para buscar o solicitante por nome ou setor.</p>
+            {% endif %}
+
+            {% if form.solicitante.errors %}
+              <p class="chamado-msg" data-type="erro">{{ form.solicitante.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div class="chamado-campo">
+            <div class="chamado-field-header">
+              <label class="form-label chamado-required" for="{{ form.titulo.id_for_label }}">
+                Título
+              </label>
+              <span id="contador-titulo" class="chamado-contador">0/255</span>
+            </div>
+
+            {{ form.titulo }}
+            <p id="erro-titulo" class="chamado-msg" data-type="erro" hidden></p>
+
+            {% if form.titulo.errors %}
+              <p class="chamado-msg" data-type="erro">{{ form.titulo.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div class="chamado-campo">
+            <div class="chamado-field-header">
+              <label class="form-label chamado-required" for="{{ form.categoria.id_for_label }}">
+                Categoria
+              </label>
+              <span title="A categoria influencia o cálculo do SLA." class="text-xs text-[var(--text-muted)] cursor-help">
+                ajuda
+              </span>
+            </div>
+
+            {{ form.categoria }}
+            <p class="chamado-help">Selecione a categoria para calcular o SLA previsto.</p>
+
+            {% if form.categoria.errors %}
+              <p class="chamado-msg" data-type="erro">{{ form.categoria.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div class="chamado-campo">
+            <div class="chamado-field-header">
+              <label class="form-label chamado-required" for="{{ form.prioridade.id_for_label }}">
+                Prioridade
+              </label>
+            </div>
+
+            <div class="chamado-prioridade-row">
+              {{ form.prioridade }}
+              <span id="badge-prioridade" class="chamado-prioridade-badge">Prioridade</span>
+            </div>
+
+            <p class="chamado-help">A prioridade altera o prazo de atendimento previsto.</p>
+
+            {% if form.prioridade.errors %}
+              <p class="chamado-msg" data-type="erro">{{ form.prioridade.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div id="sla-previsao" class="chamado-sla-box" data-status="neutro">
+            Selecione categoria e prioridade para calcular o SLA previsto.
+          </div>
         </div>
-        <ul id="lista-anexos" class="mt-2 space-y-1"></ul>
+
+        <div class="chamado-form-col">
+          <div class="chamado-campo">
+            <div class="chamado-field-header">
+              <label class="form-label chamado-required" for="editor-descricao">
+                Descrição
+              </label>
+            </div>
+
+            <div id="editor-descricao" class="quill-container"></div>
+            <input
+              type="hidden"
+              name="descricao"
+              id="hidden-descricao"
+              value="{{ form.descricao.value|default_if_none:'' }}"
+            >
+
+            {% if form.descricao.errors %}
+              <p class="chamado-msg" data-type="erro">{{ form.descricao.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div class="chamado-campo">
+            <div class="chamado-field-header">
+              <label class="form-label">Anexos</label>
+            </div>
+
+            <div id="drop-zone" class="chamado-drop-zone">
+              <svg class="w-8 h-8 mx-auto text-[var(--text-muted)] mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
+              </svg>
+
+              <p class="text-sm text-[var(--text-secondary)]">
+                Clique ou arraste arquivos aqui
+              </p>
+              <p class="text-xs text-[var(--text-muted)] mt-1">
+                PDF, imagens, documentos e planilhas até 10 MB
+              </p>
+
+              <input type="file" name="anexos" id="input-anexos" multiple class="hidden">
+            </div>
+
+            <p id="status-anexos" class="chamado-msg" hidden></p>
+            <ul id="lista-anexos" class="chamado-anexos-lista"></ul>
+          </div>
+        </div>
       </div>
 
-      <div class="flex items-center gap-3 pt-2">
-        <button type="submit" class="btn-primary">Abrir chamado</button>
-        <a href="{% url 'chamado_lista' %}" class="btn-secondary">Cancelar</a>
+      <div class="chamado-form-actions">
+        <button type="button" id="btn-limpar-formulario" class="btn-secondary">
+          Limpar formulário
+        </button>
+
+        <a href="{% url 'chamado_lista' %}" class="btn-secondary">
+          Cancelar
+        </a>
+
+        <button type="submit" class="btn-primary">
+          Abrir chamado
+        </button>
       </div>
     </form>
   </div>
 </div>
 
-<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-
-<style>
-  .quill-container { background: var(--input-bg); border-radius: 0.5rem; }
-  .ql-toolbar { border-radius: 0.5rem 0.5rem 0 0 !important; border-color: var(--input-border) !important; background: var(--surface-alt); }
-  .dark .ql-toolbar .ql-stroke { stroke: var(--text-secondary); }
-  .dark .ql-toolbar .ql-fill { fill: var(--text-secondary); }
-  .dark .ql-toolbar .ql-picker { color: var(--text-secondary); }
-  .ql-container { border-radius: 0 0 0.5rem 0.5rem !important; border-color: var(--input-border) !important; min-height: 160px; font-size: 14px; color: var(--input-text); }
-  .ql-editor.ql-blank::before { color: var(--input-placeholder); }
-</style>
-
-<script>
-  const quillDescricao = new Quill('#editor-descricao', {
-    theme: 'snow',
-    placeholder: 'Descreva o problema ou solicitação em detalhes...',
-    modules: {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ color: [] }, { background: [] }],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['blockquote', 'code-block'],
-        ['link', 'image'],
-        ['clean'],
-      ]
-    }
-  });
-
-  {% if form.descricao.value %}
-  quillDescricao.root.innerHTML = `{{ form.descricao.value|escapejs }}`;
-  {% endif %}
-
-  const campoTitulo = document.querySelector('input[name="titulo"]');
-  if (campoTitulo) {
-    campoTitulo.addEventListener('keydown', function (e) {
-      if (e.key === 'Tab' && !e.shiftKey) {
-        e.preventDefault();
-        quillDescricao.focus();
-      }
-    });
-  }
-
-  document.getElementById('editor-descricao').addEventListener('click', function () {
-    quillDescricao.focus();
-  });
-
-  document.getElementById('form-chamado').addEventListener('submit', function () {
-    document.getElementById('hidden-descricao').value = quillDescricao.root.innerHTML;
-  });
-
-  const dropZone = document.getElementById('drop-zone');
-  const inputAnexos = document.getElementById('input-anexos');
-  const listaAnexos = document.getElementById('lista-anexos');
-  let arquivosSelecionados = [];
-
-  dropZone.addEventListener('click', () => inputAnexos.click());
-  dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('border-[var(--accent)]', 'bg-[var(--info-bg)]');
-  });
-  dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('border-[var(--accent)]', 'bg-[var(--info-bg)]');
-  });
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('border-[var(--accent)]', 'bg-[var(--info-bg)]');
-    adicionarArquivos(e.dataTransfer.files);
-  });
-  inputAnexos.addEventListener('change', () => adicionarArquivos(inputAnexos.files));
-
-  function adicionarArquivos(files) {
-    for (const f of files) arquivosSelecionados.push(f);
-    renderizarLista();
-    sincronizarInput();
-  }
-
-  function removerArquivo(idx) {
-    arquivosSelecionados.splice(idx, 1);
-    renderizarLista();
-    sincronizarInput();
-  }
-
-  function renderizarLista() {
-    listaAnexos.innerHTML = '';
-    arquivosSelecionados.forEach((f, i) => {
-      const li = document.createElement('li');
-      li.className = 'flex items-center justify-between text-sm bg-[var(--surface-alt)] rounded px-3 py-1.5';
-      li.innerHTML = `<span class="text-[var(--text-secondary)] truncate">${f.name}</span>
-        <button type="button" onclick="removerArquivo(${i})" class="text-[var(--danger-text)] hover:underline ml-2 text-xs">remover</button>`;
-      listaAnexos.appendChild(li);
-    });
-  }
-
-  function sincronizarInput() {
-    const dt = new DataTransfer();
-    arquivosSelecionados.forEach(f => dt.items.add(f));
-    inputAnexos.files = dt.files;
-  }
-</script>
+<script src="{% static 'vendor/quill/js/quill.min.js' %}"></script>
+<script src="{% static 'vendor/tom-select/js/tom-select.complete.min.js' %}"></script>
+<script src="{% static 'js/chamados/chamado-form.js' %}"></script>
 {% endblock %}

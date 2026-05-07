@@ -1832,3 +1832,209 @@ ModuleNotFoundError: No module named 'core.wsgi'
 [2026-05-07 13:56:02 +0000] [144733] [INFO] Booting worker with pid: 144733
 [2026-05-07 13:56:02 +0000] [144734] [INFO] Booting worker with pid: 144734
 [2026-05-07 13:56:02 +0000] [144725] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 11:17:35 -0300] [144733] [INFO] Worker exiting (pid: 144733)
+[2026-05-07 11:17:35 -0300] [144732] [INFO] Worker exiting (pid: 144732)
+[2026-05-07 14:17:35 +0000] [144725] [INFO] Handling signal: term
+[2026-05-07 11:17:35 -0300] [144734] [INFO] Worker exiting (pid: 144734)
+[2026-05-07 14:17:35 +0000] [144725] [INFO] Worker (pid:144732) was sent SIGTERM!
+[2026-05-07 14:17:35 +0000] [144725] [INFO] Worker (pid:144733) was sent SIGTERM!
+[2026-05-07 14:17:35 +0000] [144725] [INFO] Worker (pid:144734) was sent SIGTERM!
+[2026-05-07 14:17:36 +0000] [144725] [INFO] Shutting down: Master
+[2026-05-07 14:17:36 +0000] [145433] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:17:36 +0000] [145433] [INFO] Listening at: http://127.0.0.1:8001 (145433)
+[2026-05-07 14:17:36 +0000] [145433] [INFO] Using worker: sync
+[2026-05-07 14:17:36 +0000] [145440] [INFO] Booting worker with pid: 145440
+[2026-05-07 14:17:36 +0000] [145441] [INFO] Booting worker with pid: 145441
+[2026-05-07 14:17:36 +0000] [145442] [INFO] Booting worker with pid: 145442
+[2026-05-07 14:17:36 +0000] [145433] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 14:19:50 +0000] [145433] [INFO] Handling signal: term
+[2026-05-07 11:19:50 -0300] [145440] [INFO] Worker exiting (pid: 145440)
+[2026-05-07 11:19:50 -0300] [145442] [INFO] Worker exiting (pid: 145442)
+[2026-05-07 11:19:50 -0300] [145441] [INFO] Worker exiting (pid: 145441)
+[2026-05-07 14:19:51 +0000] [145433] [INFO] Worker (pid:145440) was sent SIGTERM!
+[2026-05-07 14:19:51 +0000] [145433] [INFO] Shutting down: Master
+[2026-05-07 14:19:51 +0000] [145790] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:19:51 +0000] [145790] [INFO] Listening at: http://127.0.0.1:8001 (145790)
+[2026-05-07 14:19:51 +0000] [145790] [INFO] Using worker: sync
+[2026-05-07 14:19:51 +0000] [145795] [INFO] Booting worker with pid: 145795
+[2026-05-07 14:19:51 +0000] [145796] [INFO] Booting worker with pid: 145796
+[2026-05-07 14:19:51 +0000] [145797] [INFO] Booting worker with pid: 145797
+[2026-05-07 14:19:51 +0000] [145790] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 11:21:27 -0300] [145795] [INFO] Worker exiting (pid: 145795)
+[2026-05-07 11:21:27 -0300] [145797] [INFO] Worker exiting (pid: 145797)
+[2026-05-07 14:21:27 +0000] [145790] [INFO] Handling signal: term
+[2026-05-07 11:21:27 -0300] [145796] [INFO] Worker exiting (pid: 145796)
+[2026-05-07 14:21:27 +0000] [145790] [INFO] Worker (pid:145795) was sent SIGTERM!
+[2026-05-07 14:21:27 +0000] [145790] [INFO] Worker (pid:145796) was sent SIGTERM!
+[2026-05-07 14:21:27 +0000] [145790] [INFO] Worker (pid:145797) was sent SIGTERM!
+[2026-05-07 14:21:27 +0000] [145790] [INFO] Shutting down: Master
+[2026-05-07 14:21:27 +0000] [146140] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:21:27 +0000] [146140] [INFO] Listening at: http://127.0.0.1:8001 (146140)
+[2026-05-07 14:21:27 +0000] [146140] [INFO] Using worker: sync
+[2026-05-07 14:21:27 +0000] [146147] [INFO] Booting worker with pid: 146147
+[2026-05-07 14:21:27 +0000] [146148] [INFO] Booting worker with pid: 146148
+[2026-05-07 14:21:27 +0000] [146149] [INFO] Booting worker with pid: 146149
+[2026-05-07 14:21:28 +0000] [146140] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 14:23:23 +0000] [146140] [INFO] Handling signal: term
+[2026-05-07 11:23:23 -0300] [146149] [INFO] Worker exiting (pid: 146149)
+[2026-05-07 11:23:23 -0300] [146148] [INFO] Worker exiting (pid: 146148)
+[2026-05-07 11:23:23 -0300] [146147] [INFO] Worker exiting (pid: 146147)
+[2026-05-07 14:23:23 +0000] [146140] [INFO] Worker (pid:146147) was sent SIGTERM!
+[2026-05-07 14:23:23 +0000] [146140] [INFO] Worker (pid:146148) was sent SIGTERM!
+[2026-05-07 14:23:23 +0000] [146140] [INFO] Worker (pid:146149) was sent SIGTERM!
+[2026-05-07 14:23:23 +0000] [146140] [INFO] Shutting down: Master
+[2026-05-07 14:23:23 +0000] [146332] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:23:23 +0000] [146332] [INFO] Listening at: http://127.0.0.1:8001 (146332)
+[2026-05-07 14:23:23 +0000] [146332] [INFO] Using worker: sync
+[2026-05-07 14:23:23 +0000] [146339] [INFO] Booting worker with pid: 146339
+[2026-05-07 14:23:23 +0000] [146340] [INFO] Booting worker with pid: 146340
+[2026-05-07 14:23:23 +0000] [146341] [INFO] Booting worker with pid: 146341
+[2026-05-07 14:23:24 +0000] [146332] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 14:24:51 +0000] [146332] [INFO] Handling signal: term
+[2026-05-07 11:24:51 -0300] [146341] [INFO] Worker exiting (pid: 146341)
+[2026-05-07 11:24:51 -0300] [146339] [INFO] Worker exiting (pid: 146339)
+[2026-05-07 11:24:51 -0300] [146340] [INFO] Worker exiting (pid: 146340)
+[2026-05-07 14:24:51 +0000] [146332] [INFO] Worker (pid:146339) was sent SIGTERM!
+[2026-05-07 14:24:51 +0000] [146332] [INFO] Worker (pid:146340) was sent SIGTERM!
+[2026-05-07 14:24:51 +0000] [146332] [INFO] Worker (pid:146341) was sent SIGTERM!
+[2026-05-07 14:24:51 +0000] [146332] [INFO] Shutting down: Master
+[2026-05-07 14:24:51 +0000] [146515] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:24:51 +0000] [146515] [INFO] Listening at: http://127.0.0.1:8001 (146515)
+[2026-05-07 14:24:51 +0000] [146515] [INFO] Using worker: sync
+[2026-05-07 14:24:51 +0000] [146522] [INFO] Booting worker with pid: 146522
+[2026-05-07 14:24:51 +0000] [146523] [INFO] Booting worker with pid: 146523
+[2026-05-07 14:24:51 +0000] [146524] [INFO] Booting worker with pid: 146524
+[2026-05-07 14:24:52 +0000] [146515] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 14:26:59 +0000] [146515] [INFO] Handling signal: term
+[2026-05-07 11:26:59 -0300] [146524] [INFO] Worker exiting (pid: 146524)
+[2026-05-07 11:26:59 -0300] [146522] [INFO] Worker exiting (pid: 146522)
+[2026-05-07 11:26:59 -0300] [146523] [INFO] Worker exiting (pid: 146523)
+[2026-05-07 14:26:59 +0000] [146515] [INFO] Worker (pid:146522) was sent SIGTERM!
+[2026-05-07 14:26:59 +0000] [146515] [INFO] Worker (pid:146523) was sent SIGTERM!
+[2026-05-07 14:26:59 +0000] [146515] [INFO] Worker (pid:146524) was sent SIGTERM!
+[2026-05-07 14:26:59 +0000] [146515] [INFO] Shutting down: Master
+[2026-05-07 14:26:59 +0000] [146541] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:26:59 +0000] [146541] [INFO] Listening at: http://127.0.0.1:8001 (146541)
+[2026-05-07 14:26:59 +0000] [146541] [INFO] Using worker: sync
+[2026-05-07 14:26:59 +0000] [146548] [INFO] Booting worker with pid: 146548
+[2026-05-07 14:27:00 +0000] [146549] [INFO] Booting worker with pid: 146549
+[2026-05-07 14:27:00 +0000] [146550] [INFO] Booting worker with pid: 146550
+[2026-05-07 14:27:00 +0000] [146541] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 14:38:05 +0000] [146541] [INFO] Handling signal: term
+[2026-05-07 11:38:05 -0300] [146548] [INFO] Worker exiting (pid: 146548)
+[2026-05-07 11:38:05 -0300] [146549] [INFO] Worker exiting (pid: 146549)
+[2026-05-07 11:38:05 -0300] [146550] [INFO] Worker exiting (pid: 146550)
+[2026-05-07 14:38:05 +0000] [146541] [INFO] Worker (pid:146548) was sent SIGTERM!
+[2026-05-07 14:38:05 +0000] [146541] [INFO] Worker (pid:146549) was sent SIGTERM!
+[2026-05-07 14:38:05 +0000] [146541] [INFO] Worker (pid:146550) was sent SIGTERM!
+[2026-05-07 14:38:05 +0000] [146541] [INFO] Shutting down: Master
+[2026-05-07 14:38:05 +0000] [146791] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:38:05 +0000] [146791] [INFO] Listening at: http://127.0.0.1:8001 (146791)
+[2026-05-07 14:38:05 +0000] [146791] [INFO] Using worker: sync
+[2026-05-07 14:38:05 +0000] [146798] [INFO] Booting worker with pid: 146798
+[2026-05-07 14:38:05 +0000] [146799] [INFO] Booting worker with pid: 146799
+[2026-05-07 14:38:05 +0000] [146800] [INFO] Booting worker with pid: 146800
+[2026-05-07 14:38:05 +0000] [146791] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 14:41:09 +0000] [146791] [INFO] Handling signal: term
+[2026-05-07 11:41:09 -0300] [146799] [INFO] Worker exiting (pid: 146799)
+[2026-05-07 11:41:09 -0300] [146800] [INFO] Worker exiting (pid: 146800)
+[2026-05-07 11:41:09 -0300] [146798] [INFO] Worker exiting (pid: 146798)
+[2026-05-07 14:41:09 +0000] [146791] [INFO] Worker (pid:146798) was sent SIGTERM!
+[2026-05-07 14:41:09 +0000] [146791] [INFO] Worker (pid:146799) was sent SIGTERM!
+[2026-05-07 14:41:09 +0000] [146791] [INFO] Worker (pid:146800) was sent SIGTERM!
+[2026-05-07 14:41:09 +0000] [146791] [INFO] Shutting down: Master
+[2026-05-07 14:41:10 +0000] [147126] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:41:10 +0000] [147126] [INFO] Listening at: http://127.0.0.1:8001 (147126)
+[2026-05-07 14:41:10 +0000] [147126] [INFO] Using worker: sync
+[2026-05-07 14:41:10 +0000] [147131] [INFO] Booting worker with pid: 147131
+[2026-05-07 14:41:10 +0000] [147132] [INFO] Booting worker with pid: 147132
+[2026-05-07 14:41:10 +0000] [147133] [INFO] Booting worker with pid: 147133
+[2026-05-07 14:41:10 +0000] [147126] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 14:44:30 +0000] [147126] [INFO] Handling signal: term
+[2026-05-07 11:44:30 -0300] [147131] [INFO] Worker exiting (pid: 147131)
+[2026-05-07 11:44:30 -0300] [147132] [INFO] Worker exiting (pid: 147132)
+[2026-05-07 11:44:30 -0300] [147133] [INFO] Worker exiting (pid: 147133)
+[2026-05-07 14:44:30 +0000] [147126] [INFO] Worker (pid:147131) was sent SIGTERM!
+[2026-05-07 14:44:30 +0000] [147126] [INFO] Worker (pid:147132) was sent SIGTERM!
+[2026-05-07 14:44:30 +0000] [147126] [INFO] Worker (pid:147133) was sent SIGTERM!
+[2026-05-07 14:44:30 +0000] [147126] [INFO] Shutting down: Master
+[2026-05-07 14:44:31 +0000] [147438] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:44:31 +0000] [147438] [INFO] Listening at: http://127.0.0.1:8001 (147438)
+[2026-05-07 14:44:31 +0000] [147438] [INFO] Using worker: sync
+[2026-05-07 14:44:31 +0000] [147445] [INFO] Booting worker with pid: 147445
+[2026-05-07 14:44:31 +0000] [147446] [INFO] Booting worker with pid: 147446
+[2026-05-07 14:44:31 +0000] [147447] [INFO] Booting worker with pid: 147447
+[2026-05-07 14:44:31 +0000] [147438] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 14:57:35 +0000] [147438] [INFO] Handling signal: term
+[2026-05-07 11:57:35 -0300] [147445] [INFO] Worker exiting (pid: 147445)
+[2026-05-07 11:57:35 -0300] [147446] [INFO] Worker exiting (pid: 147446)
+[2026-05-07 11:57:35 -0300] [147447] [INFO] Worker exiting (pid: 147447)
+[2026-05-07 14:57:35 +0000] [147438] [INFO] Worker (pid:147445) was sent SIGTERM!
+[2026-05-07 14:57:35 +0000] [147438] [INFO] Worker (pid:147446) was sent SIGTERM!
+[2026-05-07 14:57:35 +0000] [147438] [INFO] Shutting down: Master
+[2026-05-07 14:57:35 +0000] [147775] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 14:57:35 +0000] [147775] [INFO] Listening at: http://127.0.0.1:8001 (147775)
+[2026-05-07 14:57:35 +0000] [147775] [INFO] Using worker: sync
+[2026-05-07 14:57:35 +0000] [147792] [INFO] Booting worker with pid: 147792
+[2026-05-07 14:57:35 +0000] [147793] [INFO] Booting worker with pid: 147793
+[2026-05-07 14:57:36 +0000] [147794] [INFO] Booting worker with pid: 147794
+[2026-05-07 14:57:36 +0000] [147775] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 12:37:00 -0300] [147794] [INFO] Worker exiting (pid: 147794)
+[2026-05-07 12:37:00 -0300] [147792] [INFO] Worker exiting (pid: 147792)
+[2026-05-07 15:37:00 +0000] [147775] [INFO] Handling signal: term
+[2026-05-07 12:37:00 -0300] [147793] [INFO] Worker exiting (pid: 147793)
+[2026-05-07 15:37:01 +0000] [147775] [INFO] Worker (pid:147792) was sent SIGTERM!
+[2026-05-07 15:37:01 +0000] [147775] [INFO] Worker (pid:147793) was sent SIGTERM!
+[2026-05-07 15:37:01 +0000] [147775] [INFO] Worker (pid:147794) was sent SIGTERM!
+[2026-05-07 15:37:01 +0000] [147775] [INFO] Shutting down: Master
+[2026-05-07 15:37:01 +0000] [148527] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 15:37:01 +0000] [148527] [INFO] Listening at: http://127.0.0.1:8001 (148527)
+[2026-05-07 15:37:01 +0000] [148527] [INFO] Using worker: sync
+[2026-05-07 15:37:01 +0000] [148534] [INFO] Booting worker with pid: 148534
+[2026-05-07 15:37:01 +0000] [148535] [INFO] Booting worker with pid: 148535
+[2026-05-07 15:37:01 +0000] [148536] [INFO] Booting worker with pid: 148536
+[2026-05-07 15:37:01 +0000] [148527] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 14:08:50 -0300] [148536] [INFO] Worker exiting (pid: 148536)
+[2026-05-07 14:08:50 -0300] [148534] [INFO] Worker exiting (pid: 148534)
+[2026-05-07 14:08:50 -0300] [148535] [INFO] Worker exiting (pid: 148535)
+[2026-05-07 17:08:50 +0000] [148527] [INFO] Handling signal: term
+[2026-05-07 17:08:50 +0000] [148527] [INFO] Worker (pid:148534) was sent SIGTERM!
+[2026-05-07 17:08:50 +0000] [148527] [INFO] Worker (pid:148535) was sent SIGTERM!
+[2026-05-07 17:08:50 +0000] [148527] [INFO] Worker (pid:148536) was sent SIGTERM!
+[2026-05-07 17:08:50 +0000] [148527] [INFO] Shutting down: Master
+[2026-05-07 17:08:50 +0000] [149892] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 17:08:50 +0000] [149892] [INFO] Listening at: http://127.0.0.1:8001 (149892)
+[2026-05-07 17:08:50 +0000] [149892] [INFO] Using worker: sync
+[2026-05-07 17:08:50 +0000] [149899] [INFO] Booting worker with pid: 149899
+[2026-05-07 17:08:50 +0000] [149900] [INFO] Booting worker with pid: 149900
+[2026-05-07 17:08:50 +0000] [149901] [INFO] Booting worker with pid: 149901
+[2026-05-07 17:08:51 +0000] [149892] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 17:16:22 +0000] [149892] [INFO] Handling signal: term
+[2026-05-07 14:16:22 -0300] [149899] [INFO] Worker exiting (pid: 149899)
+[2026-05-07 14:16:22 -0300] [149900] [INFO] Worker exiting (pid: 149900)
+[2026-05-07 14:16:22 -0300] [149901] [INFO] Worker exiting (pid: 149901)
+[2026-05-07 17:16:22 +0000] [149892] [INFO] Worker (pid:149899) was sent SIGTERM!
+[2026-05-07 17:16:22 +0000] [149892] [INFO] Worker (pid:149900) was sent SIGTERM!
+[2026-05-07 17:16:22 +0000] [149892] [INFO] Shutting down: Master
+[2026-05-07 17:16:22 +0000] [150264] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 17:16:22 +0000] [150264] [INFO] Listening at: http://127.0.0.1:8001 (150264)
+[2026-05-07 17:16:22 +0000] [150264] [INFO] Using worker: sync
+[2026-05-07 17:16:22 +0000] [150271] [INFO] Booting worker with pid: 150271
+[2026-05-07 17:16:22 +0000] [150272] [INFO] Booting worker with pid: 150272
+[2026-05-07 17:16:22 +0000] [150273] [INFO] Booting worker with pid: 150273
+[2026-05-07 17:16:22 +0000] [150264] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-07 17:46:02 +0000] [150264] [INFO] Handling signal: term
+[2026-05-07 14:46:02 -0300] [150272] [INFO] Worker exiting (pid: 150272)
+[2026-05-07 14:46:02 -0300] [150273] [INFO] Worker exiting (pid: 150273)
+[2026-05-07 14:46:02 -0300] [150271] [INFO] Worker exiting (pid: 150271)
+[2026-05-07 17:46:02 +0000] [150264] [INFO] Worker (pid:150271) was sent SIGTERM!
+[2026-05-07 17:46:02 +0000] [150264] [INFO] Worker (pid:150272) was sent SIGTERM!
+[2026-05-07 17:46:02 +0000] [150264] [INFO] Worker (pid:150273) was sent SIGTERM!
+[2026-05-07 17:46:02 +0000] [150264] [INFO] Shutting down: Master
+[2026-05-07 17:46:02 +0000] [150894] [INFO] Starting gunicorn 25.3.0
+[2026-05-07 17:46:02 +0000] [150894] [INFO] Listening at: http://127.0.0.1:8001 (150894)
+[2026-05-07 17:46:02 +0000] [150894] [INFO] Using worker: sync
+[2026-05-07 17:46:02 +0000] [150900] [INFO] Booting worker with pid: 150900
+[2026-05-07 17:46:02 +0000] [150901] [INFO] Booting worker with pid: 150901
+[2026-05-07 17:46:02 +0000] [150902] [INFO] Booting worker with pid: 150902
+[2026-05-07 17:46:02 +0000] [150894] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl

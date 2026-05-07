@@ -7,6 +7,98 @@ class ChamadoForm(forms.ModelForm):
     class Meta:
         model = Chamado
         fields = ["solicitante", "titulo", "descricao", "categoria", "prioridade"]
+        widgets = {
+            "solicitante": forms.Select(attrs={
+                "class": "tom-select tom-select-solicitante",
+                "autocomplete": "off",
+                "data-placeholder": "Digite para buscar o solicitante",
+            }),
+            "titulo": forms.TextInput(attrs={
+                "class": "form-input chamado-input-padrao",
+                "placeholder": "Informe um titulo objetivo do chamado",
+                "maxlength": "255",
+                "data-maxlength": "255",
+                "autocomplete": "off",
+            }),
+            "categoria": forms.Select(attrs={
+                "class": "tom-select tom-select-categoria",
+                "autocomplete": "off",
+                "data-placeholder": "Selecione a categoria",
+                "data-tooltip": "A categoria influencia o calculo do SLA.",
+            }),
+            "prioridade": forms.Select(attrs={
+                "class": "form-input chamado-input-padrao chamado-prioridade-select",
+                "data-prioridade": "1",
+            }),
+        }
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+        from django.contrib.auth import get_user_model
+        Usuario = get_user_model()
+
+        solicitante_id = None
+        if self.is_bound:
+            solicitante_id = self.data.get(self.add_prefix("solicitante"))
+        elif self.initial.get("solicitante"):
+            solicitante_id = self.initial.get("solicitante")
+        elif getattr(self.instance, "solicitante_id", None):
+            solicitante_id = self.instance.solicitante_id
+
+        if solicitante_id:
+            self.fields["solicitante"].queryset = (
+                Usuario.objects
+                .filter(pk=solicitante_id)
+                .select_related("setor")
+            )
+        else:
+            self.fields["solicitante"].queryset = Usuario.objects.none()
+
+        self.fields["solicitante"].label_from_instance = self._label_solicitante
+
+        self.fields["categoria"].queryset = CategoriaChamado.objects.filter(
+            ativo=True
+        ).order_by("nome")
+
+        for nome in ["solicitante", "titulo", "descricao", "categoria", "prioridade"]:
+            self.fields[nome].required = True
+
+        if user and not self._pode_escolher_solicitante(user):
+            self.fields["solicitante"].initial = user.pk
+            self.fields["solicitante"].queryset = Usuario.objects.filter(pk=user.pk)
+            self.fields["solicitante"].widget = forms.HiddenInput()
+
+    @staticmethod
+    def _label_solicitante(usuario):
+        setor = getattr(usuario, "setor", None)
+        if setor:
+            return f"{usuario.nome_completo} - {setor.nome}"
+        return usuario.nome_completo or usuario.get_username()
+
+    @staticmethod
+    def _pode_escolher_solicitante(user):
+        return (
+            user.is_superuser
+            or user.is_staff
+            or user.has_perm("chamados.can_manage_chamados")
+        )
+
+    def clean_titulo(self):
+        titulo = (self.cleaned_data.get("titulo") or "").strip()
+        if not titulo:
+            raise forms.ValidationError("Informe o titulo do chamado.")
+        return titulo
+
+    def clean_solicitante(self):
+        solicitante = self.cleaned_data.get("solicitante")
+        user = getattr(self, "user", None)
+
+        if user and not self._pode_escolher_solicitante(user):
+            return user
+
+        return solicitante
 
 
 class ChamadoFiltroForm(forms.Form):

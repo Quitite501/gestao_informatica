@@ -9,6 +9,7 @@ urlpatterns = [
     path("chamados/", views.chamado_lista, name="chamado_lista"),
     path("chamados/dashboard/", views.chamado_dashboard, name="chamado_dashboard"),
     path("chamados/novo/", views.chamado_novo, name="chamado_novo"),
+    path("chamados/sla/previsao/", views.chamado_sla_previsao, name="chamado_sla_previsao"),
     path("chamados/excluir/", views.chamado_excluir_multiplos, name="chamado_excluir_multiplos"),
     path("chamados/novos/", views.chamado_check_novos, name="chamado_check_novos"),
     path("chamados/pdf/", views.chamado_pdf_lista, name="chamado_pdf_lista"),

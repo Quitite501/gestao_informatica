@@ -2,6 +2,10 @@
    TOKENS SEMANTICOS - Tema claro/escuro
    ============================================ */
 
+html, body {
+  overflow-x: hidden;
+}
+
 :root {
   /* ── Borboleta ao Sol — tema claro ── */
   --bg: #fdf7f0;
@@ -1065,6 +1069,10 @@ input::placeholder,
   transform: rotate(90deg);
 }
 
+.nav-accordion.\!open .nav-accordion-chevron {
+  transform: rotate(90deg) !important;
+}
+
 .nav-accordion-panel {
   max-height: 0;
   overflow: hidden;
@@ -1073,6 +1081,10 @@ input::placeholder,
 
 .nav-accordion.open .nav-accordion-panel {
   max-height: 200px;
+}
+
+.nav-accordion.\!open .nav-accordion-panel {
+  max-height: 200px !important;
 }
 
 .nav-subitem {
@@ -1128,6 +1140,7 @@ input::placeholder,
 .page-body {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--shell-gap);
 }
 
@@ -1486,6 +1499,235 @@ input::placeholder,
   word-break: break-word;
 }
 
+.chamado-form-shell {
+  width: 100%;
+  max-width: none;
+}
+
+.chamado-form-card {
+  width: 100%;
+  overflow: visible;
+}
+
+.chamado-form-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(420px, 1.25fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.chamado-form-col {
+  min-width: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.chamado-campo {
+  min-width: 0;
+}
+
+.chamado-field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .375rem;
+}
+
+.chamado-required::after {
+  content: " *";
+  color: var(--danger-text);
+  font-weight: 700;
+}
+
+.chamado-contador {
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+
+.chamado-help {
+  margin-top: .375rem;
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+
+.chamado-msg {
+  margin-top: .375rem;
+  font-size: .75rem;
+}
+
+.chamado-msg[data-type="erro"] {
+  color: var(--danger-text);
+}
+
+.chamado-msg[data-type="sucesso"] {
+  color: var(--success-text);
+}
+
+.chamado-input-padrao,
+  .tom-select + .ts-wrapper {
+  width: 100%;
+}
+
+.tom-select + .ts-wrapper.focus .ts-control {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent) !important;
+}
+
+.tom-select + .ts-wrapper .option.active {
+  background: var(--surface-alt);
+  color: var(--text-primary);
+}
+
+.chamado-prioridade-row {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+}
+
+.chamado-prioridade-row select {
+  flex: 1 1 auto;
+}
+
+.chamado-prioridade-badge {
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: .375rem .75rem;
+  font-size: .75rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--badge-gray-bg);
+  color: var(--badge-gray-text);
+}
+
+.chamado-prioridade-badge[data-prioridade="baixa"] {
+  background: var(--badge-gray-bg);
+  color: var(--badge-gray-text);
+}
+
+.chamado-prioridade-badge[data-prioridade="media"] {
+  background: var(--badge-blue-bg);
+  color: var(--badge-blue-text);
+}
+
+.chamado-prioridade-badge[data-prioridade="alta"] {
+  background: var(--badge-amber-bg);
+  color: var(--badge-amber-text);
+}
+
+.chamado-prioridade-badge[data-prioridade="critica"] {
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+}
+
+.chamado-sla-box {
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+  padding: .75rem;
+  font-size: .875rem;
+}
+
+.chamado-sla-box[data-status="ok"] {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.chamado-sla-box[data-status="erro"] {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.quill-container {
+  min-height: 210px;
+  background: var(--input-bg);
+  border-radius: .5rem;
+}
+
+.ql-toolbar {
+  border-radius: .5rem .5rem 0 0 !important;
+  border-color: var(--input-border) !important;
+  background: var(--surface-alt);
+}
+
+.ql-container {
+  min-height: 210px;
+  border-radius: 0 0 .5rem .5rem !important;
+  border-color: var(--input-border) !important;
+  color: var(--input-text);
+  font-size: .875rem;
+}
+
+.ql-editor.ql-blank::before {
+  color: var(--input-placeholder);
+  opacity: 1;
+}
+
+.dark .ql-toolbar .ql-stroke {
+  stroke: var(--text-secondary);
+}
+
+.dark .ql-toolbar .ql-fill {
+  fill: var(--text-secondary);
+}
+
+.dark .ql-toolbar .ql-picker {
+  color: var(--text-secondary);
+}
+
+.chamado-drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: .75rem;
+  padding: 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  background: var(--surface);
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.chamado-drop-zone:hover,
+  .chamado-drop-zone.is-dragover {
+  border-color: var(--accent);
+  background: var(--info-bg);
+}
+
+.chamado-anexos-lista {
+  margin-top: .75rem;
+  display: grid;
+  gap: .5rem;
+}
+
+.chamado-form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin: 1.25rem -1.5rem -1.5rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 1024px) {
+  .chamado-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chamado-form-actions {
+    position: static;
+    margin: 1.25rem 0 0;
+    padding: 1rem 0 0;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
 .collapse {
   visibility: collapse;
 }
@@ -1498,8 +1740,12 @@ input::placeholder,
   position: fixed;
 }
 
-.inset-0 {
-  inset: 0px;
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
 }
 
 .right-4 {
@@ -1572,10 +1818,6 @@ input::placeholder,
   margin-left: 1rem;
 }
 
-.ml-auto {
-  margin-left: auto;
-}
-
 .mr-1 {
   margin-right: 0.25rem;
 }
@@ -1602,10 +1844,6 @@ input::placeholder,
 
 .mt-4 {
   margin-top: 1rem;
-}
-
-.mt-5 {
-  margin-top: 1.25rem;
 }
 
 .mt-6 {
@@ -1776,20 +2014,12 @@ input::placeholder,
   max-width: 42rem;
 }
 
-.max-w-3xl {
-  max-width: 48rem;
-}
-
 .max-w-4xl {
   max-width: 56rem;
 }
 
 .max-w-7xl {
   max-width: 80rem;
-}
-
-.max-w-\[120px\] {
-  max-width: 120px;
 }
 
 .max-w-lg {
@@ -1816,6 +2046,10 @@ input::placeholder,
   flex: 1 1 0%;
 }
 
+.flex-shrink {
+  flex-shrink: 1;
+}
+
 .flex-shrink-0 {
   flex-shrink: 0;
 }
@@ -1826,6 +2060,14 @@ input::placeholder,
 
 .border-collapse {
   border-collapse: collapse;
+}
+
+.transform {
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.cursor-help {
+  cursor: help;
 }
 
 .cursor-pointer {
@@ -1953,12 +2195,6 @@ input::placeholder,
   --tw-space-y-reverse: 0;
   margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
-}
-
-.divide-y > :not([hidden]) ~ :not([hidden]) {
-  --tw-divide-y-reverse: 0;
-  border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
-  border-bottom-width: calc(1px * var(--tw-divide-y-reverse));
 }
 
 .self-center {
@@ -2220,10 +2456,6 @@ input::placeholder,
   padding: 1.25rem;
 }
 
-.p-6 {
-  padding: 1.5rem;
-}
-
 .p-8 {
   padding: 2rem;
 }
@@ -2286,11 +2518,6 @@ input::placeholder,
 .py-4 {
   padding-top: 1rem;
   padding-bottom: 1rem;
-}
-
-.py-6 {
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
 }
 
 .py-8 {
@@ -2469,20 +2696,12 @@ input::placeholder,
   color: var(--warning-text);
 }
 
-.text-current {
-  color: currentColor;
-}
-
 .underline {
   text-decoration-line: underline;
 }
 
 .underline-offset-2 {
   text-underline-offset: 2px;
-}
-
-.opacity-50 {
-  opacity: 0.5;
 }
 
 .shadow-lg {
@@ -2519,6 +2738,14 @@ input::placeholder,
   --tw-ring-color: var(--border);
 }
 
+.transition {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
 .transition-colors {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -2547,10 +2774,6 @@ input::placeholder,
 
 .hover\:underline:hover {
   text-decoration-line: underline;
-}
-
-.hover\:opacity-100:hover {
-  opacity: 1;
 }
 
 .focus\:ring-\[var\(--input-focus\)\]:focus {
