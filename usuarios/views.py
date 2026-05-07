@@ -168,7 +168,9 @@ def usuario_editar(request, pk):
         update_session_auth_hash(request, usuario)
         registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Usuario",
             usuario.pk, f"Usuário {usuario.nome_completo} editado.")
-        return redirect("usuario_lista")
+        from django.contrib import messages
+        messages.success(request, f"Usuário {usuario.nome_completo} salvo com sucesso.")
+        return redirect("usuario_editar", pk=usuario.pk)
     from .models import Plataforma
     credenciais = usuario.credenciais.select_related('plataforma').all()
     plataformas = Plataforma.objects.filter(ativo=True).order_by('nome')

@@ -243,42 +243,6 @@
 <!-- ══ CONTEÚDO PRINCIPAL ═══════════════════════════════════ -->
 <div class="main-wrap">
   <div class="page-body">
-
-    {% if messages %}
-    <div id="msgs-container" style="position:fixed;top:76px;left:50%;transform:translateX(-50%);z-index:8000;display:flex;flex-direction:column;gap:.5rem;min-width:360px;max-width:480px;width:90%">
-      {% for message in messages %}
-      <div class="msg-toast" style="display:flex;align-items:center;gap:.75rem;padding:.875rem 1rem;border-radius:10px;font-size:.875rem;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.25);animation:slideIn .25s ease;
-        {% if message.tags == 'success' %}background:var(--success-bg);color:var(--success-text);border:1px solid var(--success)
-        {% elif message.tags == 'error' %}background:var(--danger-bg);color:var(--danger-text);border:1px solid var(--danger)
-        {% elif message.tags == 'warning' %}background:var(--warning-bg);color:var(--warning-text);border:1px solid var(--warning)
-        {% else %}background:var(--info-bg);color:var(--info-text);border:1px solid var(--accent){% endif %}">
-        {% if message.tags == 'success' %}
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        {% elif message.tags == 'error' %}
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        {% else %}
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        {% endif %}
-        <span style="flex:1">{{ message }}</span>
-        <button onclick="this.closest('.msg-toast').remove()" style="background:none;border:none;cursor:pointer;opacity:.6;font-size:18px;line-height:1;color:currentColor">&times;</button>
-      </div>
-      {% endfor %}
-    </div>
-    <style>
-    @keyframes slideIn { from { opacity:0; transform:translateX(2rem); } to { opacity:1; transform:translateX(0); } }
-    </style>
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      setTimeout(function() {
-        var c = document.getElementById("msgs-container");
-        if (c) c.style.transition = "opacity .5s";
-        if (c) c.style.opacity = "0";
-        setTimeout(function() { if (c) c.remove(); }, 500);
-      }, 8000);
-    });
-    </script>
-    {% endif %}
-
     {% block content %}{% endblock %}
 
   </div>
@@ -302,5 +266,36 @@
   });
 </script>
 
+
+{% if messages %}
+<div id="msgs-container" style="position:fixed;top:76px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:.5rem;min-width:360px;max-width:480px;width:90%">
+  {% for message in messages %}
+  <div class="msg-toast" style="display:flex;align-items:center;gap:.75rem;padding:.875rem 1rem;border-radius:10px;font-size:.875rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.35);
+    {% if message.tags == 'success' %}background:var(--success-bg);color:var(--success-text);border:1px solid var(--success)
+    {% elif message.tags == 'error' %}background:var(--danger-bg);color:var(--danger-text);border:1px solid var(--danger)
+    {% elif message.tags == 'warning' %}background:var(--warning-bg);color:var(--warning-text);border:1px solid var(--warning)
+    {% else %}background:var(--info-bg);color:var(--info-text);border:1px solid var(--accent){% endif %}">
+    {% if message.tags == 'success' %}
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    {% else %}
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    {% endif %}
+    <span style="flex:1">{{ message }}</span>
+    <button onclick="this.closest('.msg-toast').remove()" style="background:none;border:none;cursor:pointer;opacity:.6;font-size:18px;line-height:1;color:currentColor">&times;</button>
+  </div>
+  {% endfor %}
+</div>
+<style>@keyframes slideIn{from{opacity:0;transform:translate(-50%,-1rem)}to{opacity:1;transform:translate(-50%,0)}}</style>
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  var c=document.getElementById("msgs-container");
+  if(c){c.style.animation="slideIn .3s ease";}
+  setTimeout(function(){
+    if(c){c.style.transition="opacity .5s";c.style.opacity="0";}
+    setTimeout(function(){if(c)c.remove();},500);
+  },8000);
+});
+</script>
+{% endif %}
 </body>
 </html>
