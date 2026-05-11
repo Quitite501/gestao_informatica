@@ -13,6 +13,7 @@ urlpatterns = [
     path("", include("core.urls")),
     path("", include("notas_fiscais.urls")),
     path("", include("licencas.urls")),
+    path("", include("servidores.urls")),
 ]
 
 handler403 = pagina_403

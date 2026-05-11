@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% if servidor %}{% url 'servidor_detalhe' servidor.pk %}{% else %}{% url 'servidor_lista' %}{% endif %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Voltar
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <div class="card">
+    {% if form.non_field_errors %}
+    <div class="mb-4 rounded-lg border border-[var(--danger)] bg-[var(--danger-bg)] p-3 text-sm text-[var(--danger-text)]">
+      {{ form.non_field_errors|join:", " }}
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">Nome do servidor *</label>
+          {{ form.nome }}
+          {% if form.nome.errors %}<p class="text-xs text-[var(--danger-text)] mt-1">{{ form.nome.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">Hostname</label>
+          {{ form.hostname }}
+        </div>
+        <div>
+          <label class="form-label">Endereço IP</label>
+          {{ form.ip }}
+          {% if form.ip.errors %}<p class="text-xs text-[var(--danger-text)] mt-1">{{ form.ip.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">Sistema operacional</label>
+          {{ form.sistema_operacional }}
+        </div>
+        <div>
+          <label class="form-label">Tipo</label>
+          {{ form.tipo }}
+        </div>
+        <div>
+          <label class="form-label">Status</label>
+          {{ form.status }}
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label">Função / descrição</label>
+        {{ form.funcao }}
+      </div>
+
+      <div>
+        <label class="form-label">Localização</label>
+        {{ form.localizacao }}
+      </div>
+
+      <div>
+        <label class="form-label">Observações</label>
+        {{ form.observacoes }}
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <button type="submit" class="btn-primary">
+          {% if servidor %}Salvar alterações{% else %}Cadastrar servidor{% endif %}
+        </button>
+        <a href="{% if servidor %}{% url 'servidor_detalhe' servidor.pk %}{% else %}{% url 'servidor_lista' %}{% endif %}" class="btn-secondary">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

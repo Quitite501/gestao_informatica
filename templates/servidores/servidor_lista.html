@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Servidores — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Servidores{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'servidor_novo' %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+    </svg>
+    Novo servidor
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card text-center">
+      <p class="text-2xl font-semibold text-[var(--text-primary)]">{{ servidores.count }}</p>
+      <p class="text-xs text-[var(--text-muted)] mt-1">Total de servidores</p>
+    </div>
+    <div class="card text-center">
+      <p class="text-2xl font-semibold text-[var(--success-text)]">{{ total_ativos }}</p>
+      <p class="text-xs text-[var(--text-muted)] mt-1">Ativos</p>
+    </div>
+    <div class="card text-center">
+      <p class="text-2xl font-semibold text-[var(--warning-text)]">{{ total_manutencao }}</p>
+      <p class="text-xs text-[var(--text-muted)] mt-1">Em manutenção</p>
+    </div>
+    <div class="card text-center">
+      <p class="text-2xl font-semibold text-[var(--text-muted)]">{{ total_inativos }}</p>
+      <p class="text-xs text-[var(--text-muted)] mt-1">Inativos</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Servidores cadastrados</h2>
+
+    {% if servidores %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-[var(--border)]">
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Nome</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">IP</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Sistema</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Função</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Tipo</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Status</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Chamados</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for servidor in servidores %}
+          <tr class="border-b border-[var(--border)] hover:bg-[var(--surface-alt)] transition-colors">
+            <td class="py-3 px-3">
+              <a href="{% url 'servidor_detalhe' servidor.pk %}" class="font-medium text-[var(--accent)] hover:underline">
+                {{ servidor.nome }}
+              </a>
+              {% if servidor.hostname %}
+              <p class="text-xs text-[var(--text-muted)]">{{ servidor.hostname }}</p>
+              {% endif %}
+            </td>
+            <td class="py-3 px-3 text-[var(--text-secondary)] font-mono text-xs">{{ servidor.ip|default:"—" }}</td>
+            <td class="py-3 px-3 text-[var(--text-secondary)]">{{ servidor.sistema_operacional|default:"—" }}</td>
+            <td class="py-3 px-3 text-[var(--text-secondary)]">{{ servidor.funcao|default:"—" }}</td>
+            <td class="py-3 px-3">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-[var(--surface-alt)] text-[var(--text-secondary)]">
+                {{ servidor.get_tipo_display }}
+              </span>
+            </td>
+            <td class="py-3 px-3">
+              {% if servidor.status == 'ativo' %}
+                <span class="badge-aberto text-xs">Ativo</span>
+              {% elif servidor.status == 'manutencao' %}
+                <span class="badge-aguardando text-xs">Manutenção</span>
+              {% else %}
+                <span class="badge-encerrado text-xs">Inativo</span>
+              {% endif %}
+            </td>
+            <td class="py-3 px-3">
+              {% with abertos=servidor.chamados_abertos %}
+              {% if abertos > 0 %}
+                <span class="badge-alta text-xs">{{ abertos }} aberto{{ abertos|pluralize }}</span>
+              {% else %}
+                <span class="text-xs text-[var(--text-muted)]">{{ servidor.total_chamados }} total</span>
+              {% endif %}
+              {% endwith %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+      <p class="text-[var(--text-muted)] text-sm mb-4">Nenhum servidor cadastrado ainda.</p>
+      <a href="{% url 'servidor_novo' %}" class="btn-primary">Cadastrar primeiro servidor</a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

@@ -199,6 +199,7 @@
           Dashboard
         </a>
         <a href="{% url 'chamado_lista' %}" class="nav-item nav-subitem {% if is_chamados == 'chamado-lista' or is_chamados == 'chamado-detalhe' or is_chamados == 'chamado-novo' %}active{% endif %}">
+        <a href="{% url 'servidor_lista' %}" class="nav-item nav-subitem {% if is_chamados == 'chamado-lista' or is_chamados == 'chamado-detalhe' or is_chamados == 'chamado-novo' %}active{% endif %}">
           <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
             <rect x="9" y="3" width="6" height="4" rx="1"/>

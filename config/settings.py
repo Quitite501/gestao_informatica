@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'usuarios',
     'patrimonio',
     'chamados',
+    'servidores',
     'notas_fiscais',
     'licencas',
     'auditoria',
