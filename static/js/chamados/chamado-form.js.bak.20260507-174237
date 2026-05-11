@@ -39,62 +39,27 @@
   function initTomSelects() {
     if (!window.TomSelect) return;
 
-    const form = qs('#' + FORM_ID);
-    const usuariosUrl = form ? form.dataset.usuariosUrl : '';
-
     qsa('select.tom-select').forEach((select) => {
       if (select.tomselect) return;
 
       const placeholder = select.dataset.placeholder || 'Digite para buscar';
-      const isSolicitante = select.classList.contains('tom-select-solicitante');
 
-      const config = {
+      new TomSelect(select, {
         create: false,
         allowEmptyOption: true,
-        maxOptions: isSolicitante ? 50 : 1000,
+        maxOptions: 1000,
         placeholder: placeholder,
         plugins: ['dropdown_input'],
-        sortField: isSolicitante ? [] : { field: 'text', direction: 'asc' },
+        sortField: { field: 'text', direction: 'asc' },
         render: {
           option: function (data, escape) {
             return '<div class="ts-option">' + escape(data.text) + '</div>';
           },
           item: function (data, escape) {
             return '<div>' + escape(data.text) + '</div>';
-          },
-          no_results: function () {
-            return '<div class="no-results">Nenhum resultado encontrado</div>';
-          },
-          loading: function () {
-            return '<div class="spinner">Buscando...</div>';
           }
         }
-      };
-
-      if (isSolicitante && usuariosUrl) {
-        config.valueField = 'value';
-        config.labelField = 'text';
-        config.searchField = ['text'];
-        config.shouldLoad = function (query) {
-          return query.length >= 2;
-        };
-        config.load = function (query, callback) {
-          const url = new URL(usuariosUrl, window.location.origin);
-          url.searchParams.set('q', query);
-
-          fetch(url.toString(), {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-          })
-            .then((response) => {
-              if (!response.ok) throw new Error('Falha na busca de usuarios');
-              return response.json();
-            })
-            .then((data) => callback(data.results || []))
-            .catch(() => callback());
-        };
-      }
-
-      new TomSelect(select, config);
+      });
     });
   }
 
@@ -104,13 +69,25 @@
 
     if (!editor || !hidden || !window.Quill) return;
 
-    quillDescricao = initQuillWithTable(
-      'editor-descricao',
-      'hidden-descricao',
-      'Descreva o problema ou solicitação em detalhes...'
-    );
+    quillDescricao = new Quill(editor, {
+      theme: 'snow',
+      placeholder: 'Descreva o problema ou solicitacao em detalhes...',
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ color: [] }, { background: [] }],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['blockquote', 'code-block'],
+          ['link'],
+          ['clean']
+        ]
+      }
+    });
 
-    if (!quillDescricao) return;
+    if (hidden.value) {
+      quillDescricao.root.innerHTML = hidden.value;
+    }
 
     editor.addEventListener('click', () => quillDescricao.focus());
 

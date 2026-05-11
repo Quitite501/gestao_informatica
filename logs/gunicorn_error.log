@@ -2038,3 +2038,29 @@ ModuleNotFoundError: No module named 'core.wsgi'
 [2026-05-07 17:46:02 +0000] [150901] [INFO] Booting worker with pid: 150901
 [2026-05-07 17:46:02 +0000] [150902] [INFO] Booting worker with pid: 150902
 [2026-05-07 17:46:02 +0000] [150894] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-08 06:50:13 +0000] [150894] [INFO] Handling signal: term
+[2026-05-08 03:50:13 -0300] [150900] [INFO] Worker exiting (pid: 150900)
+[2026-05-08 03:50:13 -0300] [150902] [INFO] Worker exiting (pid: 150902)
+[2026-05-08 03:50:13 -0300] [150901] [INFO] Worker exiting (pid: 150901)
+[2026-05-08 06:50:13 +0000] [150894] [INFO] Shutting down: Master
+[2026-05-08 06:50:13 +0000] [155282] [INFO] Starting gunicorn 25.3.0
+[2026-05-08 06:50:13 +0000] [155282] [INFO] Listening at: http://127.0.0.1:8001 (155282)
+[2026-05-08 06:50:13 +0000] [155282] [INFO] Using worker: sync
+[2026-05-08 06:50:13 +0000] [155300] [INFO] Booting worker with pid: 155300
+[2026-05-08 06:50:13 +0000] [155301] [INFO] Booting worker with pid: 155301
+[2026-05-08 06:50:13 +0000] [155304] [INFO] Booting worker with pid: 155304
+[2026-05-08 06:50:14 +0000] [155282] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-11 17:31:43 +0000] [155282] [INFO] Handling signal: term
+[2026-05-11 14:31:43 -0300] [155301] [INFO] Worker exiting (pid: 155301)
+[2026-05-11 14:31:43 -0300] [155300] [INFO] Worker exiting (pid: 155300)
+[2026-05-11 14:31:43 -0300] [155304] [INFO] Worker exiting (pid: 155304)
+[2026-05-11 17:31:43 +0000] [155282] [INFO] Worker (pid:155300) was sent SIGTERM!
+[2026-05-11 17:31:43 +0000] [155282] [INFO] Worker (pid:155301) was sent SIGTERM!
+[2026-05-11 17:31:44 +0000] [155282] [INFO] Shutting down: Master
+[2026-05-11 17:31:44 +0000] [175510] [INFO] Starting gunicorn 25.3.0
+[2026-05-11 17:31:44 +0000] [175510] [INFO] Listening at: http://127.0.0.1:8001 (175510)
+[2026-05-11 17:31:44 +0000] [175510] [INFO] Using worker: sync
+[2026-05-11 17:31:44 +0000] [175532] [INFO] Booting worker with pid: 175532
+[2026-05-11 17:31:44 +0000] [175533] [INFO] Booting worker with pid: 175533
+[2026-05-11 17:31:44 +0000] [175534] [INFO] Booting worker with pid: 175534
+[2026-05-11 17:31:44 +0000] [175510] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl

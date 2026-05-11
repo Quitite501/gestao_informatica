@@ -42,3 +42,4 @@ Traceback (most recent call last):
   File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/request.py", line 206, in get_host
     raise DisallowedHost(msg)
 django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '127.0.0.1:8001'. You may need to add '127.0.0.1' to ALLOWED_HOSTS.
+WARNING 2026-05-11 09:29:32,059 log 155301 125210670780544 Forbidden (CSRF token from POST incorrect.): /login/

@@ -1,0 +1,58 @@
+/* Tabelas renderizadas pelo quill-better-table */
+.quill-content table,
+.ql-editor table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.75rem 0;
+  font-size: 0.875rem;
+}
+
+.quill-content table td,
+.ql-editor table td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  color: var(--text-primary);
+  background: var(--input-bg);
+  min-width: 80px;
+}
+
+.quill-content table tr:nth-child(odd) td {
+  background: var(--surface-alt);
+}
+
+.quill-content table tr:hover td {
+  background: var(--info-bg);
+}
+
+/* Toolbar — ícone de tabela */
+.ql-toolbar .ql-table::before {
+  content: "⊞";
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-secondary);
+}
+
+/* Menu de operações da tabela */
+.quill-better-table-wrapper .ql-table-selection-line {
+  border-color: var(--accent);
+}
+
+.ql-table-operation-menu {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  z-index: 9999 !important;
+}
+
+.ql-table-operation-menu .ql-table-operation-menu-item {
+  padding: 0.4rem 0.75rem !important;
+  font-size: 0.8rem !important;
+  color: var(--text-primary) !important;
+  cursor: pointer;
+}
+
+.ql-table-operation-menu .ql-table-operation-menu-item:hover {
+  background: var(--info-bg) !important;
+}
