@@ -233,6 +233,12 @@
       </svg>
       Servidores
     </a>
+    <a href="{% url 'servidor_relatorio' %}" class="nav-item nav-subitem {% if request.resolver_match.url_name == 'servidor_relatorio' %}active{% endif %}">
+      <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M9 17v-2m3 2v-4m3 4v-6M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
+      </svg>
+      Auditoria de servidores
+    </a>
 
     <p class="nav-group-label">Gestão</p>
     <a href="{% url 'relatorio_chamados' %}" class="nav-item {% if 'relatorio' in request.resolver_match.url_name %}active{% endif %}">

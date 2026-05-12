@@ -2403,3 +2403,25 @@ ModuleNotFoundError: No module named 'core.wsgi'
 [2026-05-12 17:54:23 +0000] [187537] [INFO] Worker (pid:187544) was sent SIGTERM!
 [2026-05-12 17:54:23 +0000] [187537] [INFO] Worker (pid:187545) was sent SIGTERM!
 [2026-05-12 17:54:23 +0000] [187537] [INFO] Shutting down: Master
+[2026-05-12 17:54:23 +0000] [187957] [INFO] Starting gunicorn 25.3.0
+[2026-05-12 17:54:23 +0000] [187957] [INFO] Listening at: http://127.0.0.1:8001 (187957)
+[2026-05-12 17:54:23 +0000] [187957] [INFO] Using worker: sync
+[2026-05-12 17:54:23 +0000] [187963] [INFO] Booting worker with pid: 187963
+[2026-05-12 17:54:23 +0000] [187964] [INFO] Booting worker with pid: 187964
+[2026-05-12 17:54:23 +0000] [187965] [INFO] Booting worker with pid: 187965
+[2026-05-12 17:54:23 +0000] [187957] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-12 14:56:37 -0300] [187964] [INFO] Worker exiting (pid: 187964)
+[2026-05-12 14:56:37 -0300] [187965] [INFO] Worker exiting (pid: 187965)
+[2026-05-12 14:56:37 -0300] [187963] [INFO] Worker exiting (pid: 187963)
+[2026-05-12 17:56:37 +0000] [187957] [INFO] Handling signal: term
+[2026-05-12 17:56:37 +0000] [187957] [INFO] Worker (pid:187963) was sent SIGTERM!
+[2026-05-12 17:56:37 +0000] [187957] [INFO] Worker (pid:187964) was sent SIGTERM!
+[2026-05-12 17:56:37 +0000] [187957] [INFO] Worker (pid:187965) was sent SIGTERM!
+[2026-05-12 17:56:38 +0000] [187957] [INFO] Shutting down: Master
+[2026-05-12 17:56:38 +0000] [188152] [INFO] Starting gunicorn 25.3.0
+[2026-05-12 17:56:38 +0000] [188152] [INFO] Listening at: http://127.0.0.1:8001 (188152)
+[2026-05-12 17:56:38 +0000] [188152] [INFO] Using worker: sync
+[2026-05-12 17:56:38 +0000] [188155] [INFO] Booting worker with pid: 188155
+[2026-05-12 17:56:38 +0000] [188156] [INFO] Booting worker with pid: 188156
+[2026-05-12 17:56:38 +0000] [188157] [INFO] Booting worker with pid: 188157
+[2026-05-12 17:56:38 +0000] [188152] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
