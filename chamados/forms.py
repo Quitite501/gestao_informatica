@@ -6,7 +6,7 @@ from .models import Chamado, FeriadoDiaAtipico, CategoriaChamado, AcaoChamado
 class ChamadoForm(forms.ModelForm):
     class Meta:
         model = Chamado
-        fields = ["solicitante", "titulo", "descricao", "categoria", "prioridade"]
+        fields = ["solicitante", "titulo", "descricao", "categoria", "prioridade", "servidor"]
         widgets = {
             "solicitante": forms.Select(attrs={
                 "class": "tom-select tom-select-solicitante",
@@ -25,6 +25,9 @@ class ChamadoForm(forms.ModelForm):
                 "autocomplete": "off",
                 "data-placeholder": "Selecione a categoria",
                 "data-tooltip": "A categoria influencia o calculo do SLA.",
+            }),
+            "servidor": forms.Select(attrs={
+                "class": "form-input",
             }),
             "prioridade": forms.Select(attrs={
                 "class": "form-input chamado-input-padrao chamado-prioridade-select",
@@ -62,6 +65,10 @@ class ChamadoForm(forms.ModelForm):
             ativo=True
         ).order_by("nome")
 
+        self.fields["servidor"].required = False
+        self.fields["servidor"].empty_label = "— nenhum —"
+        from servidores.models import Servidor
+        self.fields["servidor"].queryset = Servidor.objects.filter(status="ativo").order_by("nome")
         for nome in ["solicitante", "titulo", "descricao", "categoria", "prioridade"]:
             self.fields[nome].required = True
 

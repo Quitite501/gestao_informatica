@@ -51,6 +51,14 @@ class Chamado(models.Model):
         related_name="chamados",
     )
     prioridade = models.CharField(max_length=20, choices=PRIORIDADE_CHOICES, default="media")
+    servidor = models.ForeignKey(
+        'servidores.Servidor',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='chamados',
+        verbose_name='Servidor afetado',
+    )
     tecnico = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

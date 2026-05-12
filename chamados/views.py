@@ -328,6 +328,22 @@ def chamado_registrar_acao(request, pk):
                     nome_original=arquivo.name
                 )
             
+
+            # Hook: registrar mudanca no servidor vinculado ao chamado
+            if chamado.servidor:
+                try:
+                    from servidores.models import MudancaServidor
+                    MudancaServidor.objects.create(
+                        servidor=chamado.servidor,
+                        titulo=f'Acao no chamado #{chamado.pk}: {chamado.titulo[:80]}',
+                        tipo='outro',
+                        descricao=acao.descricao,
+                        origem='chamado',
+                        chamado=chamado,
+                        autor=request.user,
+                    )
+                except Exception:
+                    pass
             return redirect("chamado_detalhe", pk=chamado.pk)
     
     return redirect("chamado_detalhe", pk=chamado.pk)

@@ -118,6 +118,19 @@
             {% endif %}
           </div>
 
+          <div class="chamado-campo">
+            <div class="chamado-field-header">
+              <label class="form-label" for="{{ form.servidor.id_for_label }}">
+                Servidor afetado
+              </label>
+              <span class="text-xs text-[var(--text-muted)]">opcional</span>
+            </div>
+            {{ form.servidor }}
+            <p class="chamado-help">Vincule este chamado a um servidor para registrar automaticamente no histórico.</p>
+            {% if form.servidor.errors %}
+              <p class="chamado-msg" data-type="erro">{{ form.servidor.errors|join:", " }}</p>
+            {% endif %}
+          </div>
           <div id="sla-previsao" class="chamado-sla-box" data-status="neutro">
             Selecione categoria e prioridade para calcular o SLA previsto.
           </div>
