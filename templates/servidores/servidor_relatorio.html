@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Relatório de Auditoria — Servidores{% endblock %}
+{% block page_title %}Auditoria de Servidores{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'servidor_relatorio_csv' %}?servidor={{ filtros.servidor_id|default:'' }}&data_inicio={{ filtros.data_inicio|default:'' }}&data_fim={{ filtros.data_fim|default:'' }}&tipo={{ filtros.tipo|default:'' }}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0-3-3m3 3 3-3M3 17V7a2 2 0 0 1 2-2h6l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    Exportar CSV
+  </a>
+  <a href="{% url 'servidor_relatorio_pdf' %}?servidor={{ filtros.servidor_id|default:'' }}&data_inicio={{ filtros.data_inicio|default:'' }}&data_fim={{ filtros.data_fim|default:'' }}&tipo={{ filtros.tipo|default:'' }}" class="btn-secondary" target="_blank">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Exportar PDF
+  </a>
+  <a href="{% url 'servidor_lista' %}" class="btn-secondary">Voltar</a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <div class="card">
+    <h2 class="section-title">Filtros</h2>
+    <form method="get" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div>
+        <label class="form-label">Servidor</label>
+        <select name="servidor" class="form-input">
+          <option value="">Todos</option>
+          {% for s in servidores %}
+          <option value="{{ s.pk }}" {% if filtros.servidor_id == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Data início</label>
+        <input type="date" name="data_inicio" class="form-input" value="{{ filtros.data_inicio|default:'' }}">
+      </div>
+      <div>
+        <label class="form-label">Data fim</label>
+        <input type="date" name="data_fim" class="form-input" value="{{ filtros.data_fim|default:'' }}">
+      </div>
+      <div>
+        <label class="form-label">Tipo</label>
+        <select name="tipo" class="form-input">
+          <option value="">Todos</option>
+          {% for value, label in tipos %}
+          <option value="{{ value }}" {% if filtros.tipo == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="lg:col-span-4 flex gap-3">
+        <button type="submit" class="btn-primary">Filtrar</button>
+        <a href="{% url 'servidor_relatorio' %}" class="btn-secondary">Limpar</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="section-title mb-0">
+        {{ mudancas.count }} registro{{ mudancas.count|pluralize }}
+        {% if servidor_selecionado %}— {{ servidor_selecionado.nome }}{% endif %}
+      </h2>
+    </div>
+
+    {% if mudancas %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-[var(--border)]">
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Data</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Servidor</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Tipo</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Título</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Origem</th>
+            <th class="text-left py-2 px-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Autor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in mudancas %}
+          <tr class="border-b border-[var(--border)] hover:bg-[var(--surface-alt)]">
+            <td class="py-3 px-3 text-xs text-[var(--text-muted)] whitespace-nowrap">{{ m.criado_em|date:"d/m/Y H:i" }}</td>
+            <td class="py-3 px-3">
+              <a href="{% url 'servidor_detalhe' m.servidor.pk %}" class="font-medium text-[var(--accent)] hover:underline">
+                {{ m.servidor.nome }}
+              </a>
+            </td>
+            <td class="py-3 px-3">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-[var(--surface-alt)] text-[var(--text-secondary)]">
+                {{ m.get_tipo_display }}
+              </span>
+            </td>
+            <td class="py-3 px-3">
+              <p class="font-medium text-[var(--text-primary)]">{{ m.titulo }}</p>
+              <p class="text-xs text-[var(--text-muted)] mt-0.5 line-clamp-2">{{ m.descricao|truncatewords:15 }}</p>
+            </td>
+            <td class="py-3 px-3">
+              {% if m.origem == 'chamado' %}
+                <span class="badge-info text-xs">
+                  via chamado {% if m.chamado %}#{{ m.chamado.pk }}{% endif %}
+                </span>
+              {% else %}
+                <span class="text-xs text-[var(--text-muted)]">Manual</span>
+              {% endif %}
+            </td>
+            <td class="py-3 px-3 text-xs text-[var(--text-secondary)]">{{ m.autor.nome_completo|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-sm text-[var(--text-muted)] text-center py-8">Nenhum registro encontrado para os filtros selecionados.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

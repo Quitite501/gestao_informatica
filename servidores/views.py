@@ -81,3 +81,115 @@ def mudanca_registrar(request, pk):
             messages.success(request, 'Mudança registrada com sucesso.')
             return redirect('servidor_detalhe', pk=servidor.pk)
     return redirect('servidor_detalhe', pk=servidor.pk)
+
+
+@login_required
+def servidor_relatorio(request):
+    from chamados.models import Chamado
+    servidores = Servidor.objects.all()
+    servidor_id = request.GET.get('servidor')
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    tipo = request.GET.get('tipo')
+
+    mudancas = MudancaServidor.objects.select_related('servidor', 'autor', 'chamado').all()
+
+    if servidor_id:
+        mudancas = mudancas.filter(servidor_id=servidor_id)
+    if data_inicio:
+        mudancas = mudancas.filter(criado_em__date__gte=data_inicio)
+    if data_fim:
+        mudancas = mudancas.filter(criado_em__date__lte=data_fim)
+    if tipo:
+        mudancas = mudancas.filter(tipo=tipo)
+
+    return render(request, 'servidores/servidor_relatorio.html', {
+        'mudancas': mudancas,
+        'servidores': servidores,
+        'tipos': MudancaServidor.TIPO_CHOICES,
+        'filtros': {
+            'servidor_id': servidor_id,
+            'data_inicio': data_inicio,
+            'data_fim': data_fim,
+            'tipo': tipo,
+        },
+        'servidor_selecionado': Servidor.objects.filter(pk=servidor_id).first() if servidor_id else None,
+    })
+
+
+@login_required
+def servidor_relatorio_csv(request):
+    import csv
+    from django.http import HttpResponse
+
+    servidor_id = request.GET.get('servidor')
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    tipo = request.GET.get('tipo')
+
+    mudancas = MudancaServidor.objects.select_related('servidor', 'autor', 'chamado').all()
+    if servidor_id:
+        mudancas = mudancas.filter(servidor_id=servidor_id)
+    if data_inicio:
+        mudancas = mudancas.filter(criado_em__date__gte=data_inicio)
+    if data_fim:
+        mudancas = mudancas.filter(criado_em__date__lte=data_fim)
+    if tipo:
+        mudancas = mudancas.filter(tipo=tipo)
+
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="auditoria_servidores.csv"'
+    response.write('\ufeff')
+
+    writer = csv.writer(response)
+    writer.writerow(['Data', 'Servidor', 'Tipo', 'Título', 'Descrição', 'Origem', 'Chamado', 'Autor'])
+    for m in mudancas:
+        writer.writerow([
+            m.criado_em.strftime('%d/%m/%Y %H:%M'),
+            m.servidor.nome,
+            m.get_tipo_display(),
+            m.titulo,
+            m.descricao,
+            m.get_origem_display(),
+            f'#{m.chamado.pk}' if m.chamado else '',
+            m.autor.nome_completo if m.autor else '',
+        ])
+    return response
+
+
+@login_required
+def servidor_relatorio_pdf(request):
+    from weasyprint import HTML
+
+    servidor_id = request.GET.get('servidor')
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    tipo = request.GET.get('tipo')
+
+    mudancas = MudancaServidor.objects.select_related('servidor', 'autor', 'chamado').all()
+    if servidor_id:
+        mudancas = mudancas.filter(servidor_id=servidor_id)
+    if data_inicio:
+        mudancas = mudancas.filter(criado_em__date__gte=data_inicio)
+    if data_fim:
+        mudancas = mudancas.filter(criado_em__date__lte=data_fim)
+    if tipo:
+        mudancas = mudancas.filter(tipo=tipo)
+
+    servidor_obj = Servidor.objects.filter(pk=servidor_id).first() if servidor_id else None
+
+    from django.utils import timezone
+    html_string = render(request, 'servidores/servidor_relatorio_pdf.html', {
+        'mudancas': mudancas,
+        'servidor': servidor_obj,
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
+        'now': timezone.localtime().strftime('%d/%m/%Y %H:%M'),
+    }).content.decode('utf-8')
+
+    from django.http import HttpResponse
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+    response = HttpResponse(pdf, content_type='application/pdf')
+    nome = f'auditoria_servidores.pdf'
+    response['Content-Disposition'] = f'inline; filename="{nome}"'
+    return response

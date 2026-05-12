@@ -2381,3 +2381,10 @@ ModuleNotFoundError: No module named 'core.wsgi'
 [2026-05-12 17:34:41 +0000] [187064] [INFO] Booting worker with pid: 187064
 [2026-05-12 17:34:41 +0000] [187065] [INFO] Booting worker with pid: 187065
 [2026-05-12 17:34:41 +0000] [187060] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-12 17:44:59 +0000] [187060] [INFO] Handling signal: term
+[2026-05-12 14:44:59 -0300] [187064] [INFO] Worker exiting (pid: 187064)
+[2026-05-12 14:44:59 -0300] [187063] [INFO] Worker exiting (pid: 187063)
+[2026-05-12 14:44:59 -0300] [187065] [INFO] Worker exiting (pid: 187065)
+[2026-05-12 17:44:59 +0000] [187060] [INFO] Worker (pid:187063) was sent SIGTERM!
+[2026-05-12 17:44:59 +0000] [187060] [INFO] Worker (pid:187064) was sent SIGTERM!
+[2026-05-12 17:44:59 +0000] [187060] [INFO] Shutting down: Master

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11px; color: #333; margin: 0; padding: 20px; }
+  h1 { font-size: 16px; color: #d46010; margin-bottom: 4px; }
+  .subtitulo { font-size: 11px; color: #666; margin-bottom: 16px; }
+  .filtros { background: #f5f5f5; padding: 8px 12px; border-radius: 4px; margin-bottom: 16px; font-size: 10px; color: #555; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  thead tr { background: #d46010; color: white; }
+  th { padding: 7px 8px; text-align: left; font-size: 10px; font-weight: 600; }
+  td { padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 10px; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+  .badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; }
+  .badge-chamado { background: #dbeafe; color: #1e40af; }
+  .badge-manual { background: #f3f4f6; color: #6b7280; }
+  .rodape { margin-top: 20px; font-size: 9px; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
+  .titulo-desc { font-weight: 600; color: #333; }
+  .desc { color: #666; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <h1>Relatório de Auditoria — Servidores</h1>
+  <p class="subtitulo">
+    {% if servidor %}Servidor: <strong>{{ servidor.nome }}</strong> · {% endif %}
+    Gerado em {{ request.user.nome_completo }} · {{ now }}
+  </p>
+
+  {% if data_inicio or data_fim %}
+  <div class="filtros">
+    Período:
+    {% if data_inicio %}de {{ data_inicio }}{% endif %}
+    {% if data_fim %}até {{ data_fim }}{% endif %}
+    · {{ mudancas.count }} registro{{ mudancas.count|pluralize }}
+  </div>
+  {% endif %}
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:90px">Data</th>
+        <th style="width:100px">Servidor</th>
+        <th style="width:90px">Tipo</th>
+        <th>Título / Descrição</th>
+        <th style="width:70px">Origem</th>
+        <th style="width:90px">Autor</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in mudancas %}
+      <tr>
+        <td>{{ m.criado_em|date:"d/m/Y H:i" }}</td>
+        <td>{{ m.servidor.nome }}</td>
+        <td>{{ m.get_tipo_display }}</td>
+        <td>
+          <div class="titulo-desc">{{ m.titulo }}</div>
+          <div class="desc">{{ m.descricao|truncatewords:20 }}</div>
+        </td>
+        <td>
+          {% if m.origem == 'chamado' %}
+            <span class="badge badge-chamado">Chamado {% if m.chamado %}#{{ m.chamado.pk }}{% endif %}</span>
+          {% else %}
+            <span class="badge badge-manual">Manual</span>
+          {% endif %}
+        </td>
+        <td>{{ m.autor.nome_completo|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="rodape">
+    Sistema de Gestão de TI · {{ mudancas.count }} registro{{ mudancas.count|pluralize }} exportado{{ mudancas.count|pluralize }}
+  </div>
+</body>
+</html>
