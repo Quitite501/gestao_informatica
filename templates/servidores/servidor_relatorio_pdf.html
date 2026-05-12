@@ -5,6 +5,8 @@
 <style>
   body { font-family: Arial, sans-serif; font-size: 11px; color: #333; margin: 0; padding: 20px; }
   h1 { font-size: 16px; color: #d46010; margin-bottom: 4px; }
+  h2 { font-size: 13px; color: #d46010; margin: 16px 0 6px; border-bottom: 1px solid #f0c090; padding-bottom: 4px; }
+  h3 { font-size: 11px; color: #555; margin: 10px 0 4px; }
   .subtitulo { font-size: 11px; color: #666; margin-bottom: 16px; }
   .filtros { background: #f5f5f5; padding: 8px 12px; border-radius: 4px; margin-bottom: 16px; font-size: 10px; color: #555; }
   table { width: 100%; border-collapse: collapse; margin-top: 8px; }
@@ -15,63 +17,139 @@
   .badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; }
   .badge-chamado { background: #dbeafe; color: #1e40af; }
   .badge-manual { background: #f3f4f6; color: #6b7280; }
+  .chamado-box { border: 1px solid #e5c9b0; border-radius: 6px; padding: 12px; margin-bottom: 16px; page-break-inside: avoid; }
+  .chamado-header { background: #fff7f0; padding: 8px 10px; border-radius: 4px; margin-bottom: 10px; }
+  .chamado-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; }
+  .meta-item { font-size: 10px; }
+  .meta-label { color: #888; }
+  .meta-value { color: #333; font-weight: 600; }
+  .acao-item { border-left: 3px solid #d46010; padding: 6px 8px; margin-bottom: 6px; background: #fffaf7; }
+  .acao-meta { font-size: 9px; color: #888; margin-bottom: 3px; }
+  .acao-desc { font-size: 10px; color: #333; }
+  .solucao-box { background: #f0fdf4; border: 1px solid #86efac; padding: 8px 10px; border-radius: 4px; margin-top: 8px; }
+  .anexos-list { margin: 4px 0; padding-left: 14px; }
+  .anexos-list li { font-size: 10px; color: #555; margin-bottom: 2px; }
+  .page-break { page-break-before: always; }
   .rodape { margin-top: 20px; font-size: 9px; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
   .titulo-desc { font-weight: 600; color: #333; }
   .desc { color: #666; margin-top: 2px; }
+  .sem-dados { color: #999; font-style: italic; font-size: 10px; }
 </style>
 </head>
 <body>
-  <h1>Relatório de Auditoria — Servidores</h1>
-  <p class="subtitulo">
-    {% if servidor %}Servidor: <strong>{{ servidor.nome }}</strong> · {% endif %}
-    Gerado em {{ request.user.nome_completo }} · {{ now }}
-  </p>
 
-  {% if data_inicio or data_fim %}
-  <div class="filtros">
-    Período:
-    {% if data_inicio %}de {{ data_inicio }}{% endif %}
-    {% if data_fim %}até {{ data_fim }}{% endif %}
-    · {{ mudancas.count }} registro{{ mudancas.count|pluralize }}
+<h1>Relatório de Auditoria — Servidores</h1>
+<p class="subtitulo">
+  {% if servidor %}Servidor: <strong>{{ servidor.nome }}</strong> · {% endif %}
+  Gerado por {{ request.user.nome_completo }} em {{ now }}
+</p>
+
+{% if data_inicio or data_fim %}
+<div class="filtros">
+  Período:
+  {% if data_inicio %}de {{ data_inicio }}{% endif %}
+  {% if data_fim %}até {{ data_fim }}{% endif %}
+  · {{ mudancas.count }} registro{{ mudancas.count|pluralize }}
+</div>
+{% endif %}
+
+<!-- Resumo de mudancas -->
+<h2>Resumo de mudanças</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:80px">Data</th>
+      <th style="width:90px">Servidor</th>
+      <th style="width:80px">Tipo</th>
+      <th>Título</th>
+      <th style="width:65px">Origem</th>
+      <th style="width:80px">Autor</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in mudancas %}
+    <tr>
+      <td>{{ m.criado_em|date:"d/m/Y H:i" }}</td>
+      <td>{{ m.servidor.nome }}</td>
+      <td>{{ m.get_tipo_display }}</td>
+      <td>
+        <div class="titulo-desc">{{ m.titulo }}</div>
+        <div class="desc">{{ m.descricao|truncatewords:12 }}</div>
+      </td>
+      <td>
+        {% if m.origem == 'chamado' %}
+          <span class="badge badge-chamado">Chamado {% if m.chamado %}#{{ m.chamado.pk }}{% endif %}</span>
+        {% else %}
+          <span class="badge badge-manual">Manual</span>
+        {% endif %}
+      </td>
+      <td>{{ m.autor.nome_completo|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Detalhamento dos chamados vinculados -->
+{% if chamados_detalhes %}
+<h2 class="page-break">Detalhamento dos chamados vinculados</h2>
+
+{% for item in chamados_detalhes %}
+<div class="chamado-box">
+  <div class="chamado-header">
+    <strong>Chamado #{{ item.chamado.pk }} — {{ item.chamado.titulo }}</strong>
+  </div>
+
+  <div class="chamado-meta">
+    <div class="meta-item"><span class="meta-label">Solicitante: </span><span class="meta-value">{{ item.chamado.solicitante.nome_completo }}</span></div>
+    <div class="meta-item"><span class="meta-label">Técnico: </span><span class="meta-value">{{ item.chamado.tecnico.nome_completo|default:"Não atribuído" }}</span></div>
+    <div class="meta-item"><span class="meta-label">Categoria: </span><span class="meta-value">{{ item.chamado.categoria.nome }}</span></div>
+    <div class="meta-item"><span class="meta-label">Prioridade: </span><span class="meta-value">{{ item.chamado.get_prioridade_display }}</span></div>
+    <div class="meta-item"><span class="meta-label">Status: </span><span class="meta-value">{{ item.chamado.get_status_display }}</span></div>
+    <div class="meta-item"><span class="meta-label">Aberto em: </span><span class="meta-value">{{ item.chamado.criado_em|date:"d/m/Y H:i" }}</span></div>
+    {% if item.chamado.encerrado_em %}<div class="meta-item"><span class="meta-label">Encerrado em: </span><span class="meta-value">{{ item.chamado.encerrado_em|date:"d/m/Y H:i" }}</span></div>{% endif %}
+    {% if item.chamado.encerrado_por %}<div class="meta-item"><span class="meta-label">Encerrado por: </span><span class="meta-value">{{ item.chamado.encerrado_por.nome_completo }}</span></div>{% endif %}
+  </div>
+
+  <h3>Descrição inicial</h3>
+  <div class="acao-desc">{{ item.chamado.descricao|safe }}</div>
+
+  {% if item.acoes %}
+  <h3>Ações registradas ({{ item.acoes.count }})</h3>
+  {% for acao in item.acoes %}
+  <div class="acao-item">
+    <div class="acao-meta">{{ acao.autor.nome_completo|default:"Sistema" }} · {{ acao.criado_em|date:"d/m/Y H:i" }}</div>
+    <div class="acao-desc">{{ acao.descricao|safe }}</div>
+    {% if acao.anexos.all %}
+    <ul class="anexos-list">
+      {% for anx in acao.anexos.all %}<li>📎 {{ anx.nome_original }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="sem-dados">Nenhuma ação registrada.</p>
+  {% endif %}
+
+  {% if item.chamado.solucao_tecnica %}
+  <div class="solucao-box">
+    <strong>Solução técnica:</strong><br>
+    {{ item.chamado.solucao_tecnica|safe }}
   </div>
   {% endif %}
 
-  <table>
-    <thead>
-      <tr>
-        <th style="width:90px">Data</th>
-        <th style="width:100px">Servidor</th>
-        <th style="width:90px">Tipo</th>
-        <th>Título / Descrição</th>
-        <th style="width:70px">Origem</th>
-        <th style="width:90px">Autor</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for m in mudancas %}
-      <tr>
-        <td>{{ m.criado_em|date:"d/m/Y H:i" }}</td>
-        <td>{{ m.servidor.nome }}</td>
-        <td>{{ m.get_tipo_display }}</td>
-        <td>
-          <div class="titulo-desc">{{ m.titulo }}</div>
-          <div class="desc">{{ m.descricao|truncatewords:20 }}</div>
-        </td>
-        <td>
-          {% if m.origem == 'chamado' %}
-            <span class="badge badge-chamado">Chamado {% if m.chamado %}#{{ m.chamado.pk }}{% endif %}</span>
-          {% else %}
-            <span class="badge badge-manual">Manual</span>
-          {% endif %}
-        </td>
-        <td>{{ m.autor.nome_completo|default:"—" }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% if item.anexos %}
+  <h3>Documentos anexados ao chamado</h3>
+  <ul class="anexos-list">
+    {% for anx in item.anexos %}<li>📎 {{ anx.nome_original|default:anx.arquivo.name }}</li>{% endfor %}
+  </ul>
+  {% endif %}
 
-  <div class="rodape">
-    Sistema de Gestão de TI · {{ mudancas.count }} registro{{ mudancas.count|pluralize }} exportado{{ mudancas.count|pluralize }}
-  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="rodape">
+  Sistema de Gestão de TI · {{ mudancas.count }} registro{{ mudancas.count|pluralize }} · gerado em {{ now }}
+</div>
 </body>
 </html>

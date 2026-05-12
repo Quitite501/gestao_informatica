@@ -177,6 +177,18 @@ def servidor_relatorio_pdf(request):
         mudancas = mudancas.filter(tipo=tipo)
 
     servidor_obj = Servidor.objects.filter(pk=servidor_id).first() if servidor_id else None
+    # Coletar chamados vinculados com dados completos
+    chamados_ids = mudancas.exclude(chamado=None).values_list('chamado_id', flat=True).distinct()
+    from chamados.models import Chamado, AcaoChamado, AnexoChamado
+    chamados_detalhes = []
+    for cid in chamados_ids:
+        try:
+            c = Chamado.objects.select_related('solicitante','tecnico','categoria','encerrado_por').get(pk=cid)
+            acoes = AcaoChamado.objects.filter(chamado=c).order_by('criado_em')
+            anexos = AnexoChamado.objects.filter(chamado=c)
+            chamados_detalhes.append({'chamado': c, 'acoes': acoes, 'anexos': anexos})
+        except Exception:
+            pass
 
     from django.utils import timezone
     html_string = render(request, 'servidores/servidor_relatorio_pdf.html', {
@@ -185,6 +197,7 @@ def servidor_relatorio_pdf(request):
         'data_inicio': data_inicio,
         'data_fim': data_fim,
         'now': timezone.localtime().strftime('%d/%m/%Y %H:%M'),
+        'chamados_detalhes': chamados_detalhes,
     }).content.decode('utf-8')
 
     from django.http import HttpResponse
