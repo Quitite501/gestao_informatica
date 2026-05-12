@@ -20,7 +20,10 @@ def servidor_lista(request):
 def servidor_detalhe(request, pk):
     servidor = get_object_or_404(Servidor, pk=pk)
     mudancas = servidor.mudancas.all()
-    chamados = servidor.chamados.order_by('-criado_em')
+    try:
+        chamados = servidor.chamados.order_by('-criado_em')
+    except Exception:
+        chamados = []
     form_mudanca = MudancaServidorForm()
     return render(request, 'servidores/servidor_detalhe.html', {
         'servidor': servidor,

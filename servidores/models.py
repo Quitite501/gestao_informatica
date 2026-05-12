@@ -35,10 +35,16 @@ class Servidor(models.Model):
         return self.nome
 
     def total_chamados(self):
-        return self.chamados.count()
+        try:
+            return self.chamados.count()
+        except Exception:
+            return 0
 
     def chamados_abertos(self):
-        return self.chamados.exclude(status='encerrado').count()
+        try:
+            return self.chamados.exclude(status='encerrado').count()
+        except Exception:
+            return 0
 
 
 class MudancaServidor(models.Model):

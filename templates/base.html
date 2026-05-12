@@ -199,7 +199,6 @@
           Dashboard
         </a>
         <a href="{% url 'chamado_lista' %}" class="nav-item nav-subitem {% if is_chamados == 'chamado-lista' or is_chamados == 'chamado-detalhe' or is_chamados == 'chamado-novo' %}active{% endif %}">
-        <a href="{% url 'servidor_lista' %}" class="nav-item nav-subitem {% if is_chamados == 'chamado-lista' or is_chamados == 'chamado-detalhe' or is_chamados == 'chamado-novo' %}active{% endif %}">
           <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
             <rect x="9" y="3" width="6" height="4" rx="1"/>
@@ -227,6 +226,12 @@
         <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h4M15 8h2M15 12h2"/>
       </svg>
       Licenças
+    </a>
+    <a href="{% url 'servidor_lista' %}" class="nav-item {% if request.resolver_match.url_name and 'servidor' in request.resolver_match.url_name %}active{% endif %}">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+      </svg>
+      Servidores
     </a>
 
     <p class="nav-group-label">Gestão</p>
