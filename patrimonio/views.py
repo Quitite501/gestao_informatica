@@ -220,33 +220,151 @@ def computador_editar(request, pk):
     })
 
 
+def normalizar_so(so_name):
+    """Normaliza nome do S.O. para agrupar variações"""
+    import re
+    if not so_name:
+        return "Desconhecido"
+    
+    # Windows
+    if 'Windows' in so_name or 'windows' in so_name.lower():
+        # Extrair versão principal (Windows 11, Windows 10, etc)
+        match = re.search(r'Windows (\d+)', so_name)
+        if match:
+            versao = match.group(1)
+            # Extrair edição (Pro, Home, Enterprise, etc)
+            if 'Pro' in so_name:
+                return f"Windows {versao} Pro"
+            elif 'Enterprise' in so_name:
+                return f"Windows {versao} Enterprise"
+            elif 'Home' in so_name:
+                return f"Windows {versao} Home"
+            else:
+                return f"Windows {versao}"
+        return "Windows"
+    
+    # Linux
+    if 'Linux' in so_name or 'linux' in so_name.lower():
+        if 'Ubuntu' in so_name:
+            match = re.search(r'Ubuntu (\d+\.\d+)', so_name)
+            if match:
+                return f"Ubuntu {match.group(1)}"
+            return "Ubuntu"
+        elif 'Mint' in so_name:
+            match = re.search(r'Mint (\d+\.\d+)', so_name)
+            if match:
+                return f"Linux Mint {match.group(1)}"
+            return "Linux Mint"
+        elif 'CentOS' in so_name or 'RedHat' in so_name:
+            return "RedHat/CentOS"
+        else:
+            return "Linux"
+    
+    # macOS
+    if 'macOS' in so_name or 'Mac' in so_name or 'Darwin' in so_name:
+        match = re.search(r'(\d+\.\d+)', so_name)
+        if match:
+            return f"macOS {match.group(1)}"
+        return "macOS"
+    
+    return so_name
+
+
 @login_required
 def relatorio_computadores(request):
     """Relatório de auditoria de computadores cadastrados."""
     from .models import ComputadorEspecificacao
+    from django.core.paginator import Paginator
+    from datetime import datetime
+    from django.db.models import Q, Count
+    
     computadores = ComputadorEspecificacao.objects.select_related(
         "patrimonio", "patrimonio__tipo", "patrimonio__setor", "patrimonio__usuario_atual"
     ).order_by("patrimonio__etiqueta")
     
-    # Filtros opcionais
-    so = request.GET.get("so", "").strip()
-    ip = request.GET.get("ip", "").strip()
-    mac = request.GET.get("mac", "").strip()
+    # Filtros
+    hostname = request.GET.get("hostname", "").strip()
+    usuario = request.GET.get("usuario", "").strip()
     
-    if so:
-        computadores = computadores.filter(sistema_operacional__icontains=so)
-    if ip:
-        computadores = computadores.filter(endereco_ip=ip)
-    if mac:
-        computadores = computadores.filter(endereco_mac__icontains=mac)
+    if hostname:
+        computadores = computadores.filter(
+            Q(hostname__icontains=hostname) | 
+            Q(patrimonio__hostname__icontains=hostname)
+        )
+    if usuario:
+        computadores = computadores.filter(patrimonio__usuario_atual__username__icontains=usuario)
+    
+    # Estatísticas
+    total = computadores.count()
+    
+    # Contar por S.O normalizado
+    so_stats_raw = computadores.values('sistema_operacional').annotate(
+        count=Count('id')
+    ).order_by('sistema_operacional')
+    
+    # Normalizar e agrupar
+    so_normalized = {}
+    so_grouped = {}
+    
+    for so in so_stats_raw:
+        so_original = so['sistema_operacional'] or 'Desconhecido'
+        so_normalizado = normalizar_so(so_original)
+        
+        # Agrupar por nome normalizado
+        if so_normalizado not in so_normalized:
+            so_normalized[so_normalizado] = {'count': 0, 'original': so_original}
+        so_normalized[so_normalizado]['count'] += so['count']
+    
+    # Categorizar por tipo
+    for so_nome, so_data in so_normalized.items():
+        if 'Windows' in so_nome:
+            tipo = 'Windows'
+        elif 'Linux' in so_nome or 'Ubuntu' in so_nome:
+            tipo = 'Linux'
+        elif 'macOS' in so_nome:
+            tipo = 'macOS'
+        else:
+            tipo = 'Outro'
+        
+        if tipo not in so_grouped:
+            so_grouped[tipo] = []
+        so_grouped[tipo].append({'sistema_operacional': so_nome, 'count': so_data['count']})
+    
+    # Ordenar grupos e itens dentro deles (itens por quantidade decrescente)
+    so_stats = []
+    ordem = ['Windows', 'Linux', 'macOS', 'Outro']
+    for tipo in ordem:
+        if tipo in so_grouped:
+            items_ordenados = sorted(so_grouped[tipo], key=lambda x: x['count'], reverse=True)
+            so_stats.append({'tipo': tipo, 'items': items_ordenados})
+    
+    # Verificação
+    total_so = sum(so['count'] for so in so_stats_raw)
+    so_valido = total_so == total
+    
+    # Usuários
+    usuarios_stats = computadores.filter(
+        patrimonio__usuario_atual__isnull=False
+    ).values('patrimonio__usuario_atual__username').annotate(
+        count=Count('id')
+    ).order_by('-count')[:10]
+    
+    # Paginação
+    paginator = Paginator(computadores, 15)
+    page_num = request.GET.get('page', 1)
+    page = paginator.get_page(page_num)
     
     return render(request, "patrimonio/relatorio_computadores.html", {
-        "computadores": computadores,
-        "total": computadores.count(),
-        "filtros": {"so": so, "ip": ip, "mac": mac},
+        "page": page,
+        "computadores": page.object_list,
+        "paginator": paginator,
+        "total": total,
+        "so_stats": so_stats,
+        "so_valido": so_valido,
+        "total_so": total_so,
+        "usuarios_stats": usuarios_stats,
+        "filtros": {"hostname": hostname, "usuario": usuario},
     })
-
-
 @login_required
 def relatorio_computadores_csv(request):
     """Export de auditoria de computadores em CSV."""
@@ -297,44 +415,107 @@ def relatorio_computadores_csv(request):
 
 @login_required
 def relatorio_computadores_pdf(request):
-    """Export de auditoria de computadores em PDF."""
+    """Export de auditoria de computadores em PDF (paisagem com cards)."""
     from django.template.loader import render_to_string
     from weasyprint import HTML
     from django.http import HttpResponse
-    from .models import ComputadorEspecificacao
+    from .models import ComputadorEspecificacao, ConfigCartorio
+    from datetime import datetime
+    from django.db.models import Q, Count
     
     computadores = ComputadorEspecificacao.objects.select_related(
         "patrimonio", "patrimonio__tipo", "patrimonio__setor", "patrimonio__usuario_atual"
     ).order_by("patrimonio__etiqueta")
     
-    # Filtros
-    so = request.GET.get("so", "").strip()
-    ip = request.GET.get("ip", "").strip()
-    mac = request.GET.get("mac", "").strip()
+    # Filtros novos
+    hostname = request.GET.get("hostname", "").strip()
+    usuario = request.GET.get("usuario", "").strip()
     
-    if so:
-        computadores = computadores.filter(sistema_operacional__icontains=so)
-    if ip:
-        computadores = computadores.filter(endereco_ip=ip)
-    if mac:
-        computadores = computadores.filter(endereco_mac__icontains=mac)
+    if hostname:
+        computadores = computadores.filter(
+            Q(hostname__icontains=hostname) | 
+            Q(patrimonio__hostname__icontains=hostname)
+        )
+    if usuario:
+        computadores = computadores.filter(patrimonio__usuario_atual__username__icontains=usuario)
+    
+    # Estatísticas
+    total = computadores.count()
+    # Mesmo agrupamento da view web
+    so_stats_raw = computadores.values('sistema_operacional').annotate(
+        count=Count('id')
+    ).order_by('sistema_operacional')
+    
+    so_normalized = {}
+    so_grouped = {}
+    
+    for so in so_stats_raw:
+        so_original = so['sistema_operacional'] or 'Desconhecido'
+        so_normalizado = normalizar_so(so_original)
+        if so_normalizado not in so_normalized:
+            so_normalized[so_normalizado] = {'count': 0}
+        so_normalized[so_normalizado]['count'] += so['count']
+    
+    for so_nome, so_data in so_normalized.items():
+        if 'Windows' in so_nome:
+            tipo = 'Windows'
+        elif 'Linux' in so_nome or 'Ubuntu' in so_nome:
+            tipo = 'Linux'
+        elif 'macOS' in so_nome:
+            tipo = 'macOS'
+        else:
+            tipo = 'Outro'
+        if tipo not in so_grouped:
+            so_grouped[tipo] = []
+        so_grouped[tipo].append({'sistema_operacional': so_nome, 'count': so_data['count']})
+    
+    so_stats = []
+    for tipo in ['Windows', 'Linux', 'macOS', 'Outro']:
+        if tipo in so_grouped:
+            so_stats.append({'tipo': tipo, 'items': sorted(so_grouped[tipo], key=lambda x: x['count'], reverse=True)})
+    
+    total_so = sum(so['count'] for so in so_stats_raw)
+    so_valido = total_so == total
+    
+    usuarios_stats = computadores.filter(
+        patrimonio__usuario_atual__isnull=False
+    ).values('patrimonio__usuario_atual__username').annotate(
+        count=Count('id')
+    ).order_by('-count')[:10]
+    
+    # Carregar configuração do cartório
+    config_cartorio = ConfigCartorio.objects.first() or ConfigCartorio()
+    
+    # Caminho absoluto para weasyprint carregar a imagem
+    logo_path = None
+    if config_cartorio.logo:
+        import os
+        logo_path = f"file://{config_cartorio.logo.path}"
     
     html_string = render_to_string(
         "patrimonio/relatorio_computadores_pdf.html",
         {
             "computadores": computadores,
-            "total": computadores.count(),
+            "total": total,
+            "so_stats": so_stats,
+            "so_valido": so_valido,
+            "total_so": total_so,
+            "usuarios_stats": usuarios_stats,
             "usuario": request.user,
+            "config_cartorio": config_cartorio,
+            "logo_path": logo_path,
+            "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"),
         },
         request=request,
     )
     
-    pdf = HTML(string=html_string, base_url=request.build_absolute_uri("/")).write_pdf()
+    # PDF em paisagem
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri("/")).write_pdf(
+        page_size=('A4', 'landscape')
+    )
     response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = 'inline; filename="auditoria_computadores.pdf"'
+    response["Content-Disposition"] = 'attachment; filename="auditoria_computadores_%s.pdf"' % datetime.now().strftime("%d_%m_%Y")
     return response
-
-
 @login_required
 def computador_deletar(request, pk):
     """Deletar ComputadorEspecificacao."""

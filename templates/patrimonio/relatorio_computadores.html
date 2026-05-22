@@ -6,32 +6,95 @@
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Novo Computador
   </a>
-  <a href="{% url 'relatorio_computadores_csv' %}{% if filtros.so %}?so={{ filtros.so }}{% endif %}{% if filtros.ip %}&ip={{ filtros.ip }}{% endif %}{% if filtros.mac %}&mac={{ filtros.mac }}{% endif %}" class="btn-secondary" title="Exportar CSV">
+  <a href="{% url 'relatorio_computadores_csv' %}{% if filtros.hostname %}?hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}" class="btn-secondary" title="Exportar CSV">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     CSV
   </a>
-  <a href="{% url 'relatorio_computadores_pdf' %}{% if filtros.so %}?so={{ filtros.so }}{% endif %}{% if filtros.ip %}&ip={{ filtros.ip }}{% endif %}{% if filtros.mac %}&mac={{ filtros.mac }}{% endif %}" class="btn-secondary" title="Exportar PDF">
+  <a href="{% url 'relatorio_computadores_pdf' %}{% if filtros.hostname %}?hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}" class="btn-secondary" title="Exportar PDF">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     PDF
   </a>
 {% endblock %}
 {% block content %}
 <div class="max-w-full">
+  <!-- Cards de Estatísticas -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <!-- Total de Computadores -->
+    <div class="card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 border-l-4 border-l-blue-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase">Total de Computadores</p>
+          <p class="text-3xl font-bold text-blue-900 dark:text-blue-100">{{ total }}</p>
+        </div>
+        <svg class="w-12 h-12 text-blue-300 dark:text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"/><path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Sistemas Operacionais -->
+    <div class="card bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 border-l-4 border-l-purple-500 relative">
+      <div class="flex justify-between items-start mb-3">
+        <div>
+          <p class="text-xs font-semibold text-purple-600 dark:text-purple-300 uppercase">Sistemas Operacionais</p>
+          <p class="text-xs text-purple-500 dark:text-purple-400 mt-1">Total: {{ total_so }}/{{ total }}</p>
+        </div>
+        <div class="group cursor-help">
+          {% if so_valido %}
+          <span class="text-2xl font-bold text-green-600 dark:text-green-400" title="Verificação OK">✓</span>
+          <span class="hidden group-hover:block absolute -right-32 top-8 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+            ✓ Verificação OK: Todo computador possui S.O. registrado
+          </span>
+          {% else %}
+          <span class="text-2xl font-bold text-red-600 dark:text-red-400" title="Verificação Falhou">✗</span>
+          <span class="hidden group-hover:block absolute -right-32 top-8 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+            ✗ Aviso: {{ total|add:"-total_so" }} computador(es) sem S.O. registrado
+          </span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="space-y-3 max-h-40 overflow-y-auto">
+        {% for grupo in so_stats %}
+        <div>
+          <div class="text-xs font-bold text-purple-700 dark:text-purple-200 uppercase border-b border-purple-300 dark:border-purple-600 pb-1 mb-1">{{ grupo.tipo }}</div>
+          {% for so in grupo.items %}
+          <div class="flex justify-between items-center text-xs ml-2 mb-1">
+            <span class="text-purple-900 dark:text-purple-100 truncate">{{ so.sistema_operacional|default:"Desconhecido" }}</span>
+            <span class="font-bold text-purple-600 dark:text-purple-300">{{ so.count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Usuários Vinculados -->
+    <div class="card bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 border-l-4 border-l-green-500">
+      <p class="text-xs font-semibold text-green-600 dark:text-green-300 uppercase mb-3">Top Usuários</p>
+      <div class="space-y-2">
+        {% for usuario in usuarios_stats %}
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-green-900 dark:text-green-100 truncate">{{ usuario.patrimonio__usuario_atual__username }}</span>
+          <span class="font-bold text-green-600 dark:text-green-300">{{ usuario.count }}</span>
+        </div>
+        {% empty %}
+        <p class="text-xs text-green-600 dark:text-green-400">Nenhum usuário vinculado</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
   <!-- Filtros -->
   <div class="card mb-6">
     <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Filtros</h2>
     <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <label class="form-label text-xs">Sistema Operacional</label>
-        <input type="text" name="so" placeholder="Ex: Windows 11" value="{{ filtros.so }}" class="form-input">
+        <label class="form-label text-xs">Nome do Host</label>
+        <input type="text" name="hostname" placeholder="Ex: OFFICE-PC" value="{{ filtros.hostname }}" class="form-input">
       </div>
       <div>
-        <label class="form-label text-xs">Endereço IP</label>
-        <input type="text" name="ip" placeholder="Ex: 192.168.1.100" value="{{ filtros.ip }}" class="form-input">
-      </div>
-      <div>
-        <label class="form-label text-xs">Endereço MAC</label>
-        <input type="text" name="mac" placeholder="Ex: AA:BB:CC" value="{{ filtros.mac }}" class="form-input">
+        <label class="form-label text-xs">Usuário Vinculado</label>
+        <input type="text" name="usuario" placeholder="Ex: usuario123" value="{{ filtros.usuario }}" class="form-input">
       </div>
       <div class="flex items-end gap-2">
         <button type="submit" class="btn-primary flex-1">Filtrar</button>
@@ -43,38 +106,38 @@
   <!-- Resumo -->
   <div class="card mb-6">
     <p class="text-sm text-[var(--secondary-text)]">
-      <strong>{{ total }}</strong> computador{{ total|pluralize }} encontrado{{ total|pluralize }}
+      <strong>{{ page.paginator.count }}</strong> computador{{ page.paginator.count|pluralize }} encontrado{{ page.paginator.count|pluralize }}
     </p>
   </div>
 
   <!-- Tabela -->
   <div class="card overflow-x-auto">
-    {% if computadores %}
-    <table class="w-full text-sm">
+    {% if page.object_list %}
+    <table class="w-full text-sm cursor-pointer" id="tabelaComputadores">
       <thead class="bg-[var(--surface-secondary)]">
         <tr>
           <th class="px-4 py-2 text-left font-semibold">Etiqueta</th>
-          <th class="px-4 py-2 text-left font-semibold">Hostname (Patr.)</th>
-          <th class="px-4 py-2 text-left font-semibold">Hostname (Comp.)</th>
+          <th class="px-4 py-2 text-left font-semibold">Hostname</th>
           <th class="px-4 py-2 text-left font-semibold">Tipo</th>
           <th class="px-4 py-2 text-left font-semibold">S.O.</th>
           <th class="px-4 py-2 text-left font-semibold">RAM</th>
           <th class="px-4 py-2 text-left font-semibold">IP</th>
           <th class="px-4 py-2 text-left font-semibold">MAC</th>
+          <th class="px-4 py-2 text-left font-semibold">Usuário</th>
           <th class="px-4 py-2 text-center font-semibold">Ações</th>
         </tr>
       </thead>
-      <tbody>
-        {% for c in computadores %}
-        <tr class="border-t border-[var(--surface-secondary)]">
+      <tbody id="corpoTabela">
+        {% for c in page.object_list %}
+        <tr class="border-t border-[var(--surface-secondary)] hover:bg-[var(--surface-secondary)] transition-colors" data-url="{% url 'computador_detalhe' c.pk %}">
           <td class="px-4 py-3"><strong>{{ c.patrimonio.etiqueta }}</strong></td>
-          <td class="px-4 py-3">{{ c.patrimonio.hostname|default:"—" }}</td>
           <td class="px-4 py-3">{{ c.hostname|default:"—" }}</td>
           <td class="px-4 py-3">{{ c.patrimonio.tipo|default:"—" }}</td>
           <td class="px-4 py-3">{{ c.sistema_operacional|default:"—" }}</td>
           <td class="px-4 py-3">{{ c.ram_gb|default:"—" }} {% if c.ram_gb %}GB{% endif %}</td>
           <td class="px-4 py-3 font-mono text-xs">{{ c.endereco_ip|default:"—" }}</td>
           <td class="px-4 py-3 font-mono text-xs">{{ c.endereco_mac|default:"—" }}</td>
+          <td class="px-4 py-3">{{ c.patrimonio.usuario_atual.username|default:"—" }}</td>
           <td class="px-4 py-3 text-center">
             <div class="flex justify-center gap-2 flex-wrap">
               <a href="{% url 'computador_detalhe' c.pk %}" class="text-blue-600 hover:text-blue-800 text-xs font-medium" title="Visualizar">Ver</a>
@@ -89,8 +152,54 @@
       </tbody>
     </table>
     {% else %}
-    <p class="text-center py-8 text-[var(--secondary-text)]">Nenhum computador cadastrado.</p>
+    <p class="text-center py-8 text-[var(--secondary-text)]">Nenhum computador encontrado.</p>
     {% endif %}
   </div>
+
+  <!-- Paginação -->
+  {% if paginator.num_pages > 1 %}
+  <div class="flex justify-center items-center gap-2 mt-6">
+    {% if page.has_previous %}
+      <a href="?page=1{% if filtros.hostname %}&hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}" class="btn-secondary px-3 py-2">«</a>
+      <a href="?page={{ page.previous_page_number }}{% if filtros.hostname %}&hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}" class="btn-secondary px-3 py-2">‹</a>
+    {% endif %}
+    
+    {% for num in paginator.page_range %}
+      {% if page.number == num %}
+        <span class="btn-primary px-3 py-2">{{ num }}</span>
+      {% elif num > page.number|add:'-3' and num < page.number|add:'3' %}
+        <a href="?page={{ num }}{% if filtros.hostname %}&hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}" class="btn-secondary px-3 py-2">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+    
+    {% if page.has_next %}
+      <a href="?page={{ page.next_page_number }}{% if filtros.hostname %}&hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}" class="btn-secondary px-3 py-2">›</a>
+      <a href="?page={{ paginator.num_pages }}{% if filtros.hostname %}&hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}" class="btn-secondary px-3 py-2">»</a>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tabela = document.getElementById('tabelaComputadores');
+  if (!tabela) return;
+  
+  const linhas = tabela.querySelectorAll('tbody tr');
+  linhas.forEach(linha => {
+    let clickTimer = null;
+    
+    linha.addEventListener('click', function(e) {
+      if (e.target.tagName === 'A') return;
+      clickTimer = setTimeout(() => {}, 300);
+    });
+    
+    linha.addEventListener('dblclick', function(e) {
+      if (e.target.tagName === 'A') return;
+      const url = this.getAttribute('data-url');
+      if (url) window.location.href = url;
+    });
+  });
+});
+</script>
 {% endblock %}

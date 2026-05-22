@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .models import ConfigCartorio
 from .models import Patrimonio, TipoEquipamento, MovimentacaoPatrimonio, ComputadorEspecificacao
 
 
@@ -60,3 +61,21 @@ class ComputadorEspecificacaoAdmin(admin.ModelAdmin):
             "classes": ("collapse",),
         }),
     )
+
+
+@admin.register(ConfigCartorio)
+class ConfigCartorioAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'tabeliao', 'responsavel_tecnico', 'atualizado_em')
+    fieldsets = (
+        ('Informações do Cartório', {
+            'fields': ('nome', 'endereco', 'telefone', 'email')
+        }),
+        ('Responsáveis', {
+            'fields': ('tabeliao', 'responsavel_tecnico')
+        }),
+        ('Logo', {
+            'fields': ('logo',),
+            'description': 'Upload da logo do cartório (PNG/JPG, recomendado: 200x100px)'
+        }),
+    )
+    readonly_fields = ('criado_em', 'atualizado_em')

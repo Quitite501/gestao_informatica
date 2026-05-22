@@ -171,3 +171,28 @@ class ComputadorEspecificacao(models.Model):
 
     def __str__(self):
         return f"Especificação — {self.patrimonio.etiqueta}"
+
+
+class ConfigCartorio(models.Model):
+    """Configurações do cartório para relatórios"""
+    nome = models.CharField(max_length=200, default="Cartório do 9º Ofício de Notas")
+    endereco = models.CharField(max_length=300, default="R. São Paulo, 1115 - Centro, Belo Horizonte - MG, 30170-131")
+    tabeliao = models.CharField(max_length=200, default="Walquíria Mara Graciano Machado Rabelo")
+    responsavel_tecnico = models.CharField(max_length=200, default="Flávio Quitite Ferreira")
+    logo = models.ImageField(upload_to='cartorio/', null=True, blank=True, help_text="Logo do cartório (recomendado: 200x100px)")
+    telefone = models.CharField(max_length=20, blank=True, default="")
+    email = models.EmailField(blank=True, default="")
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Configuração do Cartório"
+        verbose_name_plural = "Configurações do Cartório"
+    
+    def __str__(self):
+        return self.nome
+    
+    def save(self, *args, **kwargs):
+        if ConfigCartorio.objects.exists() and not self.pk:
+            raise ValueError("Já existe uma configuração cadastrada")
+        super().save(*args, **kwargs)
