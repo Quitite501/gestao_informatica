@@ -130,7 +130,7 @@ class ComputadorCompletoForm(forms.ModelForm):
         
         from usuarios.models import Setor, Usuario
         self.fields['patrimonio_setor'].queryset = Setor.objects.filter(ativo=True).order_by("nome")
-        self.fields['patrimonio_usuario'].queryset = Usuario.objects.filter(ativo=True).order_by("nome_completo")
+        self.fields['patrimonio_usuario'].queryset = Usuario.objects.all().order_by("nome_completo")
         self.fields['patrimonio_usuario'].label_from_instance = lambda u: f"{u.nome_completo} ({u.username})"
         
         # Preencher com dados do patrimônio se existir
