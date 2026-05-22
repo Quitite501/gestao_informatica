@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ComputadorEspecificacao, Patrimonio
+from patrimonio.models import ComputadorEspecificacao, Patrimonio
 
 
 class PatrimonioSerializer(serializers.ModelSerializer):
@@ -10,12 +10,12 @@ class PatrimonioSerializer(serializers.ModelSerializer):
 
 class ComputadorEspecificacaoSerializer(serializers.ModelSerializer):
     patrimonio = PatrimonioSerializer(read_only=True)
-    patrimonio_id = serializers.PrimaryKeyRelatedField(
-        queryset=Patrimonio.objects.all(),
+    patrimonio_id = serializers.IntegerField(
         write_only=True,
-        source='patrimonio'
+        required=False,
+        allow_null=True
     )
-
+    
     class Meta:
         model = ComputadorEspecificacao
         fields = [
@@ -32,3 +32,10 @@ class ComputadorEspecificacaoSerializer(serializers.ModelSerializer):
             'atualizado_em',
         ]
         read_only_fields = ['id', 'criado_em', 'atualizado_em']
+    
+    def create(self, validated_data):
+        """
+        Criar ComputadorEspecificacao.
+        O signal auto_criar_patrimonio_se_nao_existir cuidara de vincular o patrimonio.
+        """
+        return ComputadorEspecificacao.objects.create(**validated_data)
