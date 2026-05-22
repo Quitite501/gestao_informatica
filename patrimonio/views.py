@@ -333,3 +333,22 @@ def relatorio_computadores_pdf(request):
     response = HttpResponse(pdf, content_type="application/pdf")
     response["Content-Disposition"] = 'inline; filename="auditoria_computadores.pdf"'
     return response
+
+
+@login_required
+def computador_deletar(request, pk):
+    """Deletar ComputadorEspecificacao."""
+    from .models import ComputadorEspecificacao
+    computador = get_object_or_404(ComputadorEspecificacao, pk=pk)
+    
+    if request.method == "POST":
+        etiqueta = computador.patrimonio.etiqueta
+        patrimonio_id = computador.patrimonio.pk
+        computador.delete()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_DELECAO, "ComputadorEspecificacao", patrimonio_id,
+            f"Computador {etiqueta} deletado do sistema.")
+        return redirect("relatorio_computadores")
+    
+    return render(request, "patrimonio/computador_confirmar_delecao.html", {
+        "computador": computador,
+    })

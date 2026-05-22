@@ -76,9 +76,13 @@
           <td class="px-4 py-3 font-mono text-xs">{{ c.endereco_ip|default:"—" }}</td>
           <td class="px-4 py-3 font-mono text-xs">{{ c.endereco_mac|default:"—" }}</td>
           <td class="px-4 py-3 text-center">
-            <a href="{% url 'computador_detalhe' c.pk %}" class="text-[var(--primary)] hover:underline">Ver</a>
-            <span class="text-[var(--surface-secondary)]">•</span>
-            <a href="{% url 'computador_editar' c.pk %}" class="text-[var(--primary)] hover:underline">Editar</a>
+            <div class="flex justify-center gap-2 flex-wrap">
+              <a href="{% url 'computador_detalhe' c.pk %}" class="text-blue-600 hover:text-blue-800 text-xs font-medium" title="Visualizar">Ver</a>
+              <span class="text-gray-300">•</span>
+              <a href="{% url 'computador_editar' c.pk %}" class="text-blue-600 hover:text-blue-800 text-xs font-medium" title="Editar">Editar</a>
+              <span class="text-gray-300">•</span>
+              <a href="{% url 'computador_deletar' c.pk %}" class="text-red-600 hover:text-red-800 text-xs font-medium" title="Deletar">Deletar</a>
+            </div>
           </td>
         </tr>
         {% endfor %}

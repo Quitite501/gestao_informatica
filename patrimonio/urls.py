@@ -9,6 +9,7 @@ urlpatterns = [
     path("computadores/novo/", views.computador_novo, name="computador_novo"),
     path("computadores/<int:pk>/", views.computador_detalhe, name="computador_detalhe"),
     path("computadores/<int:pk>/editar/", views.computador_editar, name="computador_editar"),
+    path("computadores/<int:pk>/deletar/", views.computador_deletar, name="computador_deletar"),
     path("relatorio/computadores/", views.relatorio_computadores, name="relatorio_computadores"),
     path("relatorio/computadores/csv/", views.relatorio_computadores_csv, name="relatorio_computadores_csv"),
     path("relatorio/computadores/pdf/", views.relatorio_computadores_pdf, name="relatorio_computadores_pdf"),
