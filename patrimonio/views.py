@@ -285,6 +285,7 @@ def relatorio_computadores(request):
     # Filtros
     hostname = request.GET.get("hostname", "").strip()
     usuario = request.GET.get("usuario", "").strip()
+    setor = request.GET.get("setor", "").strip()
     
     if hostname:
         computadores = computadores.filter(
@@ -293,6 +294,8 @@ def relatorio_computadores(request):
         )
     if usuario:
         computadores = computadores.filter(patrimonio__usuario_atual__username__icontains=usuario)
+    if setor:
+        computadores = computadores.filter(patrimonio__setor__id=setor)
     
     # Estatísticas
     total = computadores.count()
@@ -354,6 +357,9 @@ def relatorio_computadores(request):
     page_num = request.GET.get('page', 1)
     page = paginator.get_page(page_num)
     
+    from usuarios.models import Setor
+    setores = Setor.objects.filter(ativo=True).order_by("nome")
+    
     return render(request, "patrimonio/relatorio_computadores.html", {
         "page": page,
         "computadores": page.object_list,
@@ -363,7 +369,8 @@ def relatorio_computadores(request):
         "so_valido": so_valido,
         "total_so": total_so,
         "usuarios_stats": usuarios_stats,
-        "filtros": {"hostname": hostname, "usuario": usuario},
+        "setores": setores,
+        "filtros": {"hostname": hostname, "usuario": usuario, "setor": setor},
     })
 @login_required
 def relatorio_computadores_csv(request):

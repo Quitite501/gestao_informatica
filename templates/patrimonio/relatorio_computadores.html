@@ -87,7 +87,7 @@
   <!-- Filtros -->
   <div class="card mb-6">
     <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Filtros</h2>
-    <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div>
         <label class="form-label text-xs">Nome do Host</label>
         <input type="text" name="hostname" placeholder="Ex: OFFICE-PC" value="{{ filtros.hostname }}" class="form-input">
@@ -95,6 +95,15 @@
       <div>
         <label class="form-label text-xs">Usuário Vinculado</label>
         <input type="text" name="usuario" placeholder="Ex: usuario123" value="{{ filtros.usuario }}" class="form-input">
+      </div>
+      <div>
+        <label class="form-label text-xs">Setor</label>
+        <select name="setor" class="form-input">
+          <option value="">Todos os setores</option>
+          {% for s in setores %}
+          <option value="{{ s.pk }}" {% if filtros.setor == s.pk|stringformat:"s" %}selected{% endif %}>{{ s.nome }}</option>
+          {% endfor %}
+        </select>
       </div>
       <div class="flex items-end gap-2">
         <button type="submit" class="btn-primary flex-1">Filtrar</button>
@@ -124,6 +133,7 @@
           <th class="px-4 py-2 text-left font-semibold">IP</th>
           <th class="px-4 py-2 text-left font-semibold">MAC</th>
           <th class="px-4 py-2 text-left font-semibold">Usuário</th>
+          <th class="px-4 py-2 text-left font-semibold">Setor</th>
           <th class="px-4 py-2 text-center font-semibold">Ações</th>
         </tr>
       </thead>
@@ -138,6 +148,7 @@
           <td class="px-4 py-3 font-mono text-xs">{{ c.endereco_ip|default:"—" }}</td>
           <td class="px-4 py-3 font-mono text-xs">{{ c.endereco_mac|default:"—" }}</td>
           <td class="px-4 py-3">{{ c.patrimonio.usuario_atual.username|default:"—" }}</td>
+          <td class="px-4 py-3">{{ c.patrimonio.setor.nome|default:"—" }}</td>
           <td class="px-4 py-3 text-center">
             <div class="flex justify-center gap-2 flex-wrap">
               <a href="{% url 'computador_detalhe' c.pk %}" class="text-blue-600 hover:text-blue-800 text-xs font-medium" title="Visualizar">Ver</a>
@@ -160,7 +171,7 @@
   {% if paginator.num_pages > 1 %}
   <div class="flex justify-center items-center gap-2 mt-6">
     {% if page.has_previous %}
-      <a href="?page=1{% if filtros.hostname %}&hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}" class="btn-secondary px-3 py-2">«</a>
+      <a href="?page=1{% if filtros.hostname %}&hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}{% if filtros.setor %}&setor={{ filtros.setor }}{% endif %}" class="btn-secondary px-3 py-2">«</a>
       <a href="?page={{ page.previous_page_number }}{% if filtros.hostname %}&hostname={{ filtros.hostname }}{% endif %}{% if filtros.usuario %}&usuario={{ filtros.usuario }}{% endif %}" class="btn-secondary px-3 py-2">‹</a>
     {% endif %}
     

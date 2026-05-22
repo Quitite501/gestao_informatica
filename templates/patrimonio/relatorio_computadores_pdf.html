@@ -250,6 +250,7 @@
                 <th>IP</th>
                 <th>MAC</th>
                 <th>Usuário</th>
+                <th>Setor</th>
             </tr>
         </thead>
         <tbody>
@@ -263,6 +264,7 @@
                 <td class="mac">{{ c.endereco_ip|default:"—" }}</td>
                 <td class="mac">{{ c.endereco_mac|default:"—" }}</td>
                 <td>{{ c.patrimonio.usuario_atual.username|default:"—" }}</td>
+                <td>{{ c.patrimonio.setor.nome|default:"—" }}</td>
             </tr>
             {% empty %}
             <tr>
