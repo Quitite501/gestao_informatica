@@ -22,6 +22,7 @@ class ComputadorEspecificacaoSerializer(serializers.ModelSerializer):
             'id',
             'patrimonio',
             'patrimonio_id',
+            'hostname',
             'ram_gb',
             'sistema_operacional',
             'endereco_ip',

@@ -58,6 +58,7 @@ class ComputadorEspecificacaoForm(forms.ModelForm):
         model = ComputadorEspecificacao
         fields = [
             "patrimonio",
+            "hostname",
             "ram_gb",
             "sistema_operacional",
             "endereco_ip",
@@ -66,6 +67,7 @@ class ComputadorEspecificacaoForm(forms.ModelForm):
         ]
         widgets = {
             "patrimonio": forms.Select(attrs={"class": "form-control"}),
+            "hostname": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: WORKSTATION-01"}),
             "ram_gb": forms.NumberInput(attrs={"class": "form-control"}),
             "sistema_operacional": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: Windows 11 Pro"}),
             "endereco_ip": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: 192.168.1.100"}),

@@ -113,6 +113,7 @@ class MovimentacaoPatrimonio(models.Model):
         return f"{self.patrimonio.etiqueta} - {self.get_tipo_display()}"
 
 
+
 class ComputadorEspecificacao(models.Model):
     """Especificações técnicas de computadores (workstations/desktops)."""
     patrimonio = models.OneToOneField(
@@ -120,6 +121,13 @@ class ComputadorEspecificacao(models.Model):
         on_delete=models.CASCADE,
         related_name="especificacao_computador",
         verbose_name="Patrimônio",
+    )
+    hostname = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Hostname",
+        help_text="Nome da máquina na rede",
     )
     ram_gb = models.PositiveIntegerField(
         verbose_name="RAM (GB)",

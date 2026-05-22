@@ -28,7 +28,8 @@
         <thead>
             <tr>
                 <th style="width: 8%;">Etiqueta</th>
-                <th style="width: 10%;">Hostname</th>
+                <th style="width: 8%;">Hostname (Patr.)</th>
+                <th style="width: 8%;">Hostname (Comp.)</th>
                 <th style="width: 8%;">Tipo</th>
                 <th style="width: 12%;">S.O.</th>
                 <th style="width: 6%;">RAM</th>
@@ -42,6 +43,7 @@
             <tr>
                 <td><strong>{{ c.patrimonio.etiqueta }}</strong></td>
                 <td>{{ c.patrimonio.hostname|default:"—" }}</td>
+                <td>{{ c.hostname|default:"—" }}</td>
                 <td>{{ c.patrimonio.tipo|default:"—" }}</td>
                 <td>{{ c.sistema_operacional|default:"—" }}</td>
                 <td>{{ c.ram_gb|default:"—" }}{% if c.ram_gb %} GB{% endif %}</td>

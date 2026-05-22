@@ -23,8 +23,12 @@
           <p>{{ computador.patrimonio.etiqueta }}</p>
         </div>
         <div>
-          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Hostname</p>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Hostname (Patrimônio)</p>
           <p>{{ computador.patrimonio.hostname|default:"—" }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Hostname (Computador)</p>
+          <p>{{ computador.hostname|default:"—" }}</p>
         </div>
         <div>
           <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Tipo</p>

@@ -54,7 +54,8 @@
       <thead class="bg-[var(--surface-secondary)]">
         <tr>
           <th class="px-4 py-2 text-left font-semibold">Etiqueta</th>
-          <th class="px-4 py-2 text-left font-semibold">Hostname</th>
+          <th class="px-4 py-2 text-left font-semibold">Hostname (Patr.)</th>
+          <th class="px-4 py-2 text-left font-semibold">Hostname (Comp.)</th>
           <th class="px-4 py-2 text-left font-semibold">Tipo</th>
           <th class="px-4 py-2 text-left font-semibold">S.O.</th>
           <th class="px-4 py-2 text-left font-semibold">RAM</th>
@@ -68,6 +69,7 @@
         <tr class="border-t border-[var(--surface-secondary)]">
           <td class="px-4 py-3"><strong>{{ c.patrimonio.etiqueta }}</strong></td>
           <td class="px-4 py-3">{{ c.patrimonio.hostname|default:"—" }}</td>
+          <td class="px-4 py-3">{{ c.hostname|default:"—" }}</td>
           <td class="px-4 py-3">{{ c.patrimonio.tipo|default:"—" }}</td>
           <td class="px-4 py-3">{{ c.sistema_operacional|default:"—" }}</td>
           <td class="px-4 py-3">{{ c.ram_gb|default:"—" }} {% if c.ram_gb %}GB{% endif %}</td>
