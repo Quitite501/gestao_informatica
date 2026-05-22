@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet"/>
+{% endblock %}
 {% block title %}{{ titulo }} — Sistema de Gestão de TI{% endblock %}
 {% block page_title %}{{ titulo }}{% endblock %}
 {% block topbar_actions %}
@@ -106,4 +109,48 @@
 
   </form>
 </div>
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/i18n/pt-BR.js"></script>
+<script>
+$(document).ready(function() {
+    $('#id_patrimonio_usuario').select2({
+        language: 'pt-BR',
+        placeholder: 'Digite para pesquisar usuário...',
+        allowClear: true,
+        width: '100%',
+    });
+    $('#id_patrimonio_setor').select2({
+        language: 'pt-BR',
+        placeholder: 'Selecione o setor...',
+        allowClear: true,
+        width: '100%',
+    });
+});
+</script>
+<style>
+.select2-container .select2-selection--single {
+    height: 38px;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 6px;
+    background: var(--surface-primary, #fff);
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 36px;
+    color: var(--primary-text, #333);
+    padding-left: 12px;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 36px;
+}
+.select2-dropdown {
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #c7602b;
+}
+</style>
+{% endblock %}
 {% endblock %}
