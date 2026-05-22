@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 
-from .forms import PatrimonioForm, PatrimonioFiltroForm, ComputadorEspecificacaoForm
+from .forms import PatrimonioForm, PatrimonioFiltroForm, ComputadorEspecificacaoForm, ComputadorCompletoForm
 from auditoria.utils import registrar_auditoria
 from auditoria.models import RegistroAuditoria
 from .models import Patrimonio, MovimentacaoPatrimonio, ComputadorEspecificacao
@@ -207,11 +207,12 @@ def computador_detalhe(request, pk):
 def computador_editar(request, pk):
     from .models import ComputadorEspecificacao
     computador = get_object_or_404(ComputadorEspecificacao, pk=pk)
-    form = ComputadorEspecificacaoForm(request.POST or None, instance=computador)
+    form = ComputadorCompletoForm(request.POST or None, instance=computador)
     if form.is_valid():
         computador = form.save()
+        form.salvar_patrimonio(computador)
         registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "ComputadorEspecificacao", computador.pk,
-            f"Especificação do computador {computador.patrimonio.etiqueta} editada.")
+            f"Computador {computador.patrimonio.etiqueta} editado (dados técnicos e patrimônio).")
         return redirect("computador_detalhe", pk=computador.pk)
     return render(request, "patrimonio/computador_form.html", {
         "form": form,

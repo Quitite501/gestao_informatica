@@ -8,24 +8,102 @@
   </a>
 {% endblock %}
 {% block content %}
-<div class="max-w-2xl">
-  <div class="card">
-    <form method="post" class="space-y-5">
-      {% csrf_token %}
-      {% for field in form %}
-      <div>
-        <label class="form-label">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}
-        <p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>
-        {% endif %}
+<div class="max-w-3xl">
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- Informações do Patrimônio -->
+    {% if form.patrimonio_setor %}
+    <div class="card">
+      <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Informações do Patrimônio</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">{{ form.patrimonio_setor.label }}</label>
+          {{ form.patrimonio_setor }}
+          {% if form.patrimonio_setor.errors %}
+          <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.patrimonio_setor.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="form-label">{{ form.patrimonio_usuario.label }}</label>
+          {{ form.patrimonio_usuario }}
+          {% if form.patrimonio_usuario.errors %}
+          <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.patrimonio_usuario.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="form-label">{{ form.patrimonio_status.label }}</label>
+          {{ form.patrimonio_status }}
+          {% if form.patrimonio_status.errors %}
+          <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.patrimonio_status.errors|join:", " }}</p>
+          {% endif %}
+        </div>
       </div>
-      {% endfor %}
-      <div class="flex items-center gap-3 pt-2">
-        <button type="submit" class="btn-primary">Salvar</button>
-        <a href="{% url 'relatorio_computadores' %}" class="btn-secondary">Cancelar</a>
+    </div>
+    {% endif %}
+
+    <!-- Especificações Técnicas -->
+    <div class="card">
+      <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Especificações Técnicas</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">{{ form.hostname.label }}</label>
+          {{ form.hostname }}
+          {% if form.hostname.errors %}
+          <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.hostname.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="form-label">{{ form.ram_gb.label }}</label>
+          {{ form.ram_gb }}
+          {% if form.ram_gb.errors %}
+          <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.ram_gb.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        <div class="md:col-span-2">
+          <label class="form-label">{{ form.sistema_operacional.label }}</label>
+          {{ form.sistema_operacional }}
+          {% if form.sistema_operacional.errors %}
+          <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.sistema_operacional.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        <div class="md:col-span-2">
+          <label class="form-label">{{ form.processador.label }}</label>
+          {{ form.processador }}
+          {% if form.processador.errors %}
+          <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.processador.errors|join:", " }}</p>
+          {% endif %}
+        </div>
       </div>
-    </form>
-  </div>
+    </div>
+
+    <!-- Conectividade -->
+    <div class="card">
+      <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Conectividade</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">{{ form.endereco_ip.label }}</label>
+          {{ form.endereco_ip }}
+          {% if form.endereco_ip.errors %}
+          <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.endereco_ip.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="form-label">{{ form.endereco_mac.label }}</label>
+          {{ form.endereco_mac }}
+          {% if form.endereco_mac.errors %}
+          <p class="mt-1 text-xs text-[var(--danger-text)]">{{ form.endereco_mac.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Ações -->
+    <div class="flex gap-3">
+      <button type="submit" class="btn-primary">Salvar</button>
+      <a href="{% url 'relatorio_computadores' %}" class="btn-secondary">Cancelar</a>
+    </div>
+
+  </form>
 </div>
 {% endblock %}
