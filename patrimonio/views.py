@@ -345,7 +345,7 @@ def computador_deletar(request, pk):
         etiqueta = computador.patrimonio.etiqueta
         patrimonio_id = computador.patrimonio.pk
         computador.delete()
-        registrar_auditoria(request, RegistroAuditoria.ACAO_DELECAO, "ComputadorEspecificacao", patrimonio_id,
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EXCLUSAO, "ComputadorEspecificacao", patrimonio_id,
             f"Computador {etiqueta} deletado do sistema.")
         return redirect("relatorio_computadores")
     
