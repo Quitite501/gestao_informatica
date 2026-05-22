@@ -2,65 +2,301 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Computadores</title>
     <style>
-        * { margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; font-size: 11px; line-height: 1.4; color: #333; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .header h1 { font-size: 16px; margin-bottom: 5px; }
-        .header p { font-size: 10px; color: #666; }
-        .footer { text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #999; font-size: 9px; color: #666; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background-color: #f5f5f5; padding: 8px; text-align: left; font-weight: bold; border-bottom: 2px solid #333; font-size: 10px; }
-        td { padding: 6px 8px; border-bottom: 1px solid #ddd; }
-        tr:nth-child(even) { background-color: #fafafa; }
-        .mono { font-family: 'Courier New', monospace; font-size: 10px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 9pt;
+            color: #333;
+            background: white;
+        }
+        
+        @page {
+            size: A4 landscape;
+            margin: 12mm;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 15pt;
+            border-bottom: 3px solid #c7602b;
+            padding-bottom: 10pt;
+        }
+        
+        .header h2 {
+            font-size: 14pt;
+            color: #333;
+            margin-bottom: 3pt;
+        }
+        
+        .header p {
+            font-size: 8pt;
+            color: #666;
+            margin: 1pt 0;
+        }
+        
+        .header hr {
+            border: none;
+            border-top: 2px solid #c7602b;
+            margin: 8pt 0;
+        }
+        
+        .header h1 {
+            font-size: 16pt;
+            color: #c7602b;
+            margin: 5pt 0;
+        }
+        
+        .info-box {
+            font-size: 7pt;
+            color: #666;
+            margin-bottom: 10pt;
+            border: 1px solid #ddd;
+            padding: 6pt;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .info-box span {
+            display: inline-block;
+        }
+        
+        .cards {
+            display: flex;
+            gap: 10pt;
+            margin-bottom: 12pt;
+            page-break-inside: avoid;
+        }
+        
+        .card {
+            flex: 1;
+            border: 2px solid #c7602b;
+            padding: 8pt;
+            background: #fff9f5;
+        }
+        
+        .card-title {
+            font-size: 8pt;
+            font-weight: bold;
+            color: #c7602b;
+            margin-bottom: 6pt;
+            border-bottom: 1px solid #c7602b;
+            padding-bottom: 3pt;
+        }
+        
+        .card-value {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #c7602b;
+            text-align: center;
+            margin: 10pt 0;
+        }
+        
+        .card-items {
+            font-size: 7pt;
+            max-height: 100pt;
+            overflow: hidden;
+        }
+        
+        .card-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2pt;
+            padding-bottom: 2pt;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .card-item-name {
+            flex: 1;
+            color: #333;
+        }
+        
+        .card-item-count {
+            font-weight: bold;
+            color: #c7602b;
+            text-align: right;
+            margin-left: 6pt;
+        }
+        
+        .tipo-header {
+            font-weight: bold;
+            color: #c7602b;
+            font-size: 7pt;
+            border-bottom: 1px solid #c7602b;
+            margin-top: 4pt;
+            margin-bottom: 2pt;
+            padding-bottom: 2pt;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5pt;
+            font-size: 7pt;
+        }
+        
+        thead {
+            background: #c7602b;
+            color: white;
+        }
+        
+        th {
+            padding: 4pt 3pt;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #999;
+        }
+        
+        td {
+            padding: 3pt 3pt;
+            border: 1px solid #ddd;
+        }
+        
+        tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .etiqueta {
+            font-weight: bold;
+            color: #c7602b;
+        }
+        
+        .mac {
+            font-family: monospace;
+            font-size: 6pt;
+        }
+        
+        .footer {
+            margin-top: 15pt;
+            font-size: 7pt;
+            color: #999;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 8pt;
+        }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <div class="header">
-        <h1>Relatório de Auditoria de Computadores</h1>
-        <p>Gerado em {{ now }}</p>
+        {% if config_cartorio.logo %}
+        <div style="margin-bottom: 5pt;">
+            <img src="{{ logo_path }}" style="max-width: 150px; max-height: 60px;">
+        </div>
+        {% endif %}
+        <h2>{{ config_cartorio.nome }}</h2>
+        <p>{{ config_cartorio.endereco }}</p>
+        {% if config_cartorio.telefone %}
+        <p>Telefone: {{ config_cartorio.telefone }}</p>
+        {% endif %}
+        <hr>
+        <h1>📋 Relatório de Auditoria de Computadores</h1>
+        <p>Gerado em <strong>{{ data_geracao }}</strong></p>
     </div>
-
+    
+    <!-- Info -->
+    <div class="info-box">
+        <span><strong>Tabelião:</strong> {{ config_cartorio.tabeliao }}</span>
+        <span><strong>Resp. Técnico:</strong> {{ config_cartorio.responsavel_tecnico }}</span>
+        <span><strong>Usuário:</strong> {{ user.username }} | <strong>Total:</strong> {{ total }} registros</span>
+    </div>
+    
+    <!-- Cards -->
+    <div class="cards">
+        <!-- Total -->
+        <div class="card">
+            <div class="card-title">📱 TOTAL</div>
+            <div class="card-value">{{ total }}</div>
+        </div>
+        
+        <!-- S.O -->
+        <div class="card">
+            <div class="card-title">🖥️ SISTEMAS OPERACIONAIS</div>
+            <div class="card-items">
+                {% if so_stats %}
+                    {% for grupo in so_stats %}
+                    <div class="tipo-header">{{ grupo.tipo }}</div>
+                    {% if grupo.items %}
+                        {% for so in grupo.items %}
+                        <div class="card-item">
+                            <div class="card-item-name" style="font-size: 6pt;">{{ so.sistema_operacional|truncatewords:3 }}</div>
+                            <div class="card-item-count">{{ so.count }}</div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div style="font-size: 7pt; color: #999;">Nenhum S.O. registrado</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabela -->
     <table>
         <thead>
             <tr>
-                <th style="width: 8%;">Etiqueta</th>
-                <th style="width: 8%;">Hostname (Patr.)</th>
-                <th style="width: 8%;">Hostname (Comp.)</th>
-                <th style="width: 8%;">Tipo</th>
-                <th style="width: 12%;">S.O.</th>
-                <th style="width: 6%;">RAM</th>
-                <th style="width: 12%;">IP</th>
-                <th style="width: 14%;">MAC</th>
-                <th style="width: 20%;">Processador</th>
+                <th>Etiqueta</th>
+                <th>Hostname</th>
+                <th>Tipo</th>
+                <th>S.O.</th>
+                <th>RAM</th>
+                <th>IP</th>
+                <th>MAC</th>
+                <th>Usuário</th>
             </tr>
         </thead>
         <tbody>
             {% for c in computadores %}
             <tr>
-                <td><strong>{{ c.patrimonio.etiqueta }}</strong></td>
-                <td>{{ c.patrimonio.hostname|default:"—" }}</td>
+                <td class="etiqueta">{{ c.patrimonio.etiqueta }}</td>
                 <td>{{ c.hostname|default:"—" }}</td>
                 <td>{{ c.patrimonio.tipo|default:"—" }}</td>
                 <td>{{ c.sistema_operacional|default:"—" }}</td>
                 <td>{{ c.ram_gb|default:"—" }}{% if c.ram_gb %} GB{% endif %}</td>
-                <td class="mono">{{ c.endereco_ip|default:"—" }}</td>
-                <td class="mono">{{ c.endereco_mac|default:"—" }}</td>
-                <td>{{ c.processador|default:"—" }}</td>
+                <td class="mac">{{ c.endereco_ip|default:"—" }}</td>
+                <td class="mac">{{ c.endereco_mac|default:"—" }}</td>
+                <td>{{ c.patrimonio.usuario_atual.username|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align: center; font-style: italic;">Nenhum computador encontrado</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    <p style="text-align: center; margin-top: 10px; font-size: 10px; color: #666;">
-        <strong>Total de computadores:</strong> {{ total }}
-    </p>
-
+    
+    <!-- Assinaturas -->
+    <div style="margin-top: 30pt; page-break-inside: avoid;">
+        <div style="display: flex; gap: 40pt; justify-content: center;">
+            <!-- Tabelião -->
+            <div style="text-align: center; flex: 1; max-width: 220pt;">
+                <div style="border-top: 2px solid #333; padding-top: 8pt; margin-top: 40pt;">
+                    <p style="font-size: 9pt; font-weight: bold; color: #333;">{{ config_cartorio.tabeliao }}</p>
+                    <p style="font-size: 8pt; color: #666;">Tabelião</p>
+                    <p style="font-size: 7pt; color: #999;">{{ config_cartorio.nome }}</p>
+                </div>
+            </div>
+            <!-- Responsável Técnico -->
+            <div style="text-align: center; flex: 1; max-width: 220pt;">
+                <div style="border-top: 2px solid #333; padding-top: 8pt; margin-top: 40pt;">
+                    <p style="font-size: 9pt; font-weight: bold; color: #333;">{{ config_cartorio.responsavel_tecnico }}</p>
+                    <p style="font-size: 8pt; color: #666;">Responsável Técnico</p>
+                    <p style="font-size: 7pt; color: #999;">Sistema de Gestão de TI</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
     <div class="footer">
-        <p>Sistema de Gestão de TI</p>
+        <p>Relatório confidencial — Sistema de Gestão de TI | {{ data_geracao }}</p>
     </div>
 </body>
 </html>
