@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'notas_fiscais',
     'licencas',
     'auditoria',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

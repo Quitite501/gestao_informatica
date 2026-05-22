@@ -3,6 +3,7 @@ from core.views import pagina_403
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework.authentication import TokenAuthentication
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -14,6 +15,7 @@ urlpatterns = [
     path("", include("notas_fiscais.urls")),
     path("", include("licencas.urls")),
     path("", include("servidores.urls")),
+    path("", include("patrimonio.api_urls")),
 ]
 
 handler403 = pagina_403
