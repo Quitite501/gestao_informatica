@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo }} — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="card">
+    {% if erro %}
+    <div class="mb-4 p-3 rounded bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 text-sm">
+      {{ erro }}
+    </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="space-y-4">
+        <div>
+          <label class="form-label">Nome <span class="text-red-500">*</span></label>
+          <input type="text" name="nome" value="{{ setor.nome|default:'' }}"
+            class="form-input" placeholder="Ex: Tecnologia da Informação" required autofocus>
+        </div>
+        <div>
+          <label class="form-label">Descrição</label>
+          <textarea name="descricao" rows="3" class="form-input"
+            placeholder="Descrição do setor...">{{ setor.descricao|default:'' }}</textarea>
+        </div>
+        {% if setor %}
+        <div class="flex items-center gap-2">
+          <input type="checkbox" name="ativo" id="ativo" {% if setor.ativo %}checked{% endif %}>
+          <label for="ativo" class="text-sm">Setor ativo</label>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="btn-primary flex-1">Salvar</button>
+        <a href="{% url 'setor_lista' %}" class="btn-secondary flex-1 text-center">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

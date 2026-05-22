@@ -391,3 +391,95 @@ def plataforma_salvar(request):
         p = Plataforma.objects.create(nome=nome, url=url or None)
         return JsonResponse({'pk': p.pk, 'nome': p.nome})
     return JsonResponse({'erro': 'Método não permitido.'}, status=405)
+
+
+# ============================================================================
+# SETOR - CRUD
+# ============================================================================
+
+@login_required
+def setor_lista(request):
+    """Lista de setores com busca."""
+    from .models import Setor
+    setores = Setor.objects.all().order_by("nome")
+    q = request.GET.get("q", "").strip()
+    if q:
+        setores = setores.filter(nome__icontains=q)
+    return render(request, "usuarios/setor_lista.html", {
+        "setores": setores,
+        "total": setores.count(),
+        "q": q,
+    })
+
+
+@login_required
+def setor_novo(request):
+    """Criar novo setor."""
+    from .models import Setor
+    if request.method == "POST":
+        nome = request.POST.get("nome", "").strip()
+        descricao = request.POST.get("descricao", "").strip()
+        if not nome:
+            return render(request, "usuarios/setor_form.html", {
+                "erro": "Nome é obrigatório",
+                "titulo": "Novo Setor",
+            })
+        if Setor.objects.filter(nome__iexact=nome).exists():
+            return render(request, "usuarios/setor_form.html", {
+                "erro": f'Setor "{nome}" já existe',
+                "titulo": "Novo Setor",
+                "nome": nome,
+                "descricao": descricao,
+            })
+        setor = Setor.objects.create(nome=nome, descricao=descricao)
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "Setor", setor.pk, f"Setor {setor.nome} criado.")
+        return redirect("setor_lista")
+    return render(request, "usuarios/setor_form.html", {"titulo": "Novo Setor"})
+
+
+@login_required
+def setor_editar(request, pk):
+    """Editar setor existente."""
+    from .models import Setor
+    from django.shortcuts import get_object_or_404
+    setor = get_object_or_404(Setor, pk=pk)
+    if request.method == "POST":
+        nome = request.POST.get("nome", "").strip()
+        descricao = request.POST.get("descricao", "").strip()
+        ativo = request.POST.get("ativo") == "on"
+        if not nome:
+            return render(request, "usuarios/setor_form.html", {
+                "erro": "Nome é obrigatório",
+                "titulo": f"Editar Setor: {setor.nome}",
+                "setor": setor,
+            })
+        if Setor.objects.filter(nome__iexact=nome).exclude(pk=pk).exists():
+            return render(request, "usuarios/setor_form.html", {
+                "erro": f'Setor "{nome}" já existe',
+                "titulo": f"Editar Setor: {setor.nome}",
+                "setor": setor,
+            })
+        setor.nome = nome
+        setor.descricao = descricao
+        setor.ativo = ativo
+        setor.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Setor", setor.pk, f"Setor {setor.nome} editado.")
+        return redirect("setor_lista")
+    return render(request, "usuarios/setor_form.html", {
+        "titulo": f"Editar Setor: {setor.nome}",
+        "setor": setor,
+    })
+
+
+@login_required
+def setor_toggle(request, pk):
+    """Ativar/desativar setor."""
+    from .models import Setor
+    from django.shortcuts import get_object_or_404
+    setor = get_object_or_404(Setor, pk=pk)
+    if request.method == "POST":
+        setor.ativo = not setor.ativo
+        setor.save()
+        acao = "ativado" if setor.ativo else "desativado"
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Setor", setor.pk, f"Setor {setor.nome} {acao}.")
+    return redirect("setor_lista")
