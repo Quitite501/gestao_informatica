@@ -43,3 +43,57 @@ Traceback (most recent call last):
     raise DisallowedHost(msg)
 django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '127.0.0.1:8001'. You may need to add '127.0.0.1' to ALLOWED_HOSTS.
 WARNING 2026-05-11 09:29:32,059 log 155301 125210670780544 Forbidden (CSRF token from POST incorrect.): /login/
+ERROR 2026-05-19 11:15:57,148 log 1060 134947117281408 Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.
+Traceback (most recent call last):
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 186, in _get_response
+    response = middleware_method(
+               ^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/middleware/csrf.py", line 466, in process_view
+    self._check_token(request)
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/middleware/csrf.py", line 368, in _check_token
+    request_csrf_token = request.POST.get("csrfmiddlewaretoken", "")
+                         ^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/core/handlers/wsgi.py", line 93, in _get_post
+    self._load_post_and_files()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/request.py", line 444, in _load_post_and_files
+    self._post, self._files = self.parse_file_upload(self.META, data)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/request.py", line 378, in parse_file_upload
+    return parser.parse()
+           ^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/multipartparser.py", line 125, in parse
+    return self._parse()
+           ^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/multipartparser.py", line 248, in _parse
+    raise RequestDataTooBig(
+django.core.exceptions.RequestDataTooBig: Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.
+ERROR 2026-05-19 11:16:08,220 log 1060 134947117281408 Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.
+Traceback (most recent call last):
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 186, in _get_response
+    response = middleware_method(
+               ^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/middleware/csrf.py", line 466, in process_view
+    self._check_token(request)
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/middleware/csrf.py", line 368, in _check_token
+    request_csrf_token = request.POST.get("csrfmiddlewaretoken", "")
+                         ^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/core/handlers/wsgi.py", line 93, in _get_post
+    self._load_post_and_files()
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/request.py", line 444, in _load_post_and_files
+    self._post, self._files = self.parse_file_upload(self.META, data)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/request.py", line 378, in parse_file_upload
+    return parser.parse()
+           ^^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/multipartparser.py", line 125, in parse
+    return self._parse()
+           ^^^^^^^^^^^^^
+  File "/opt/sistema_ti/venv/lib/python3.12/site-packages/django/http/multipartparser.py", line 248, in _parse
+    raise RequestDataTooBig(
+django.core.exceptions.RequestDataTooBig: Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.

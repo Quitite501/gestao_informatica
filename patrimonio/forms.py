@@ -1,5 +1,5 @@
 from django import forms
-from .models import Patrimonio, TipoEquipamento
+from .models import Patrimonio, TipoEquipamento, ComputadorEspecificacao
 
 
 class PatrimonioForm(forms.ModelForm):
@@ -51,3 +51,32 @@ class PatrimonioFiltroForm(forms.Form):
         required=False,
         label="Status",
     )
+
+
+class ComputadorEspecificacaoForm(forms.ModelForm):
+    class Meta:
+        model = ComputadorEspecificacao
+        fields = [
+            "patrimonio",
+            "ram_gb",
+            "sistema_operacional",
+            "endereco_ip",
+            "endereco_mac",
+            "processador",
+        ]
+        widgets = {
+            "patrimonio": forms.Select(attrs={"class": "form-control"}),
+            "ram_gb": forms.NumberInput(attrs={"class": "form-control"}),
+            "sistema_operacional": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: Windows 11 Pro"}),
+            "endereco_ip": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: 192.168.1.100"}),
+            "endereco_mac": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: AA:BB:CC:DD:EE:FF"}),
+            "processador": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: Intel Core i7-12700K"}),
+        }
+
+    def clean_endereco_mac(self):
+        mac = self.cleaned_data.get("endereco_mac", "").strip()
+        if mac:
+            # Validação simples de MAC
+            if not all(c in "0123456789ABCDEFabcdef:-" for c in mac):
+                raise forms.ValidationError("MAC inválido. Use formato: XX:XX:XX:XX:XX:XX")
+        return mac

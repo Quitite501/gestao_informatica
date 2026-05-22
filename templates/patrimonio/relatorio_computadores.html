@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Relatório de Computadores — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Relatório de Auditoria de Computadores{% endblock %}
+{% block topbar_actions %}
+  <a href="{% url 'computador_novo' %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo Computador
+  </a>
+  <a href="{% url 'relatorio_computadores_csv' %}{% if filtros.so %}?so={{ filtros.so }}{% endif %}{% if filtros.ip %}&ip={{ filtros.ip }}{% endif %}{% if filtros.mac %}&mac={{ filtros.mac }}{% endif %}" class="btn-secondary" title="Exportar CSV">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    CSV
+  </a>
+  <a href="{% url 'relatorio_computadores_pdf' %}{% if filtros.so %}?so={{ filtros.so }}{% endif %}{% if filtros.ip %}&ip={{ filtros.ip }}{% endif %}{% if filtros.mac %}&mac={{ filtros.mac }}{% endif %}" class="btn-secondary" title="Exportar PDF">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    PDF
+  </a>
+{% endblock %}
+{% block content %}
+<div class="max-w-full">
+  <!-- Filtros -->
+  <div class="card mb-6">
+    <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Filtros</h2>
+    <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="form-label text-xs">Sistema Operacional</label>
+        <input type="text" name="so" placeholder="Ex: Windows 11" value="{{ filtros.so }}" class="form-input">
+      </div>
+      <div>
+        <label class="form-label text-xs">Endereço IP</label>
+        <input type="text" name="ip" placeholder="Ex: 192.168.1.100" value="{{ filtros.ip }}" class="form-input">
+      </div>
+      <div>
+        <label class="form-label text-xs">Endereço MAC</label>
+        <input type="text" name="mac" placeholder="Ex: AA:BB:CC" value="{{ filtros.mac }}" class="form-input">
+      </div>
+      <div class="flex items-end gap-2">
+        <button type="submit" class="btn-primary flex-1">Filtrar</button>
+        <a href="{% url 'relatorio_computadores' %}" class="btn-secondary flex-1">Limpar</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Resumo -->
+  <div class="card mb-6">
+    <p class="text-sm text-[var(--secondary-text)]">
+      <strong>{{ total }}</strong> computador{{ total|pluralize }} encontrado{{ total|pluralize }}
+    </p>
+  </div>
+
+  <!-- Tabela -->
+  <div class="card overflow-x-auto">
+    {% if computadores %}
+    <table class="w-full text-sm">
+      <thead class="bg-[var(--surface-secondary)]">
+        <tr>
+          <th class="px-4 py-2 text-left font-semibold">Etiqueta</th>
+          <th class="px-4 py-2 text-left font-semibold">Hostname</th>
+          <th class="px-4 py-2 text-left font-semibold">Tipo</th>
+          <th class="px-4 py-2 text-left font-semibold">S.O.</th>
+          <th class="px-4 py-2 text-left font-semibold">RAM</th>
+          <th class="px-4 py-2 text-left font-semibold">IP</th>
+          <th class="px-4 py-2 text-left font-semibold">MAC</th>
+          <th class="px-4 py-2 text-center font-semibold">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in computadores %}
+        <tr class="border-t border-[var(--surface-secondary)]">
+          <td class="px-4 py-3"><strong>{{ c.patrimonio.etiqueta }}</strong></td>
+          <td class="px-4 py-3">{{ c.patrimonio.hostname|default:"—" }}</td>
+          <td class="px-4 py-3">{{ c.patrimonio.tipo|default:"—" }}</td>
+          <td class="px-4 py-3">{{ c.sistema_operacional|default:"—" }}</td>
+          <td class="px-4 py-3">{{ c.ram_gb|default:"—" }} {% if c.ram_gb %}GB{% endif %}</td>
+          <td class="px-4 py-3 font-mono text-xs">{{ c.endereco_ip|default:"—" }}</td>
+          <td class="px-4 py-3 font-mono text-xs">{{ c.endereco_mac|default:"—" }}</td>
+          <td class="px-4 py-3 text-center">
+            <a href="{% url 'computador_detalhe' c.pk %}" class="text-[var(--primary)] hover:underline">Ver</a>
+            <span class="text-[var(--surface-secondary)]">•</span>
+            <a href="{% url 'computador_editar' c.pk %}" class="text-[var(--primary)] hover:underline">Editar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-center py-8 text-[var(--secondary-text)]">Nenhum computador cadastrado.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

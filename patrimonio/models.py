@@ -111,3 +111,55 @@ class MovimentacaoPatrimonio(models.Model):
 
     def __str__(self):
         return f"{self.patrimonio.etiqueta} - {self.get_tipo_display()}"
+
+
+class ComputadorEspecificacao(models.Model):
+    """Especificações técnicas de computadores (workstations/desktops)."""
+    patrimonio = models.OneToOneField(
+        Patrimonio,
+        on_delete=models.CASCADE,
+        related_name="especificacao_computador",
+        verbose_name="Patrimônio",
+    )
+    ram_gb = models.PositiveIntegerField(
+        verbose_name="RAM (GB)",
+        null=True,
+        blank=True,
+    )
+    sistema_operacional = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Sistema Operacional",
+        help_text="Ex: Windows 11 Pro, Ubuntu 22.04",
+    )
+    endereco_ip = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+        verbose_name="Endereço IP",
+    )
+    endereco_mac = models.CharField(
+        max_length=17,
+        null=True,
+        blank=True,
+        verbose_name="Endereço MAC",
+        unique=True,
+        help_text="Formato: XX:XX:XX:XX:XX:XX",
+    )
+    processador = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Processador",
+        help_text="Ex: Intel Core i7-12700K, AMD Ryzen 7 5800X",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Especificação de Computador"
+        verbose_name_plural = "Especificações de Computador"
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"Especificação — {self.patrimonio.etiqueta}"

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Computador {{ computador.patrimonio.etiqueta }} — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Computador {{ computador.patrimonio.etiqueta }}{% endblock %}
+{% block topbar_actions %}
+  <a href="{% url 'computador_editar' computador.pk %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Editar
+  </a>
+  <a href="{% url 'relatorio_computadores' %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+{% endblock %}
+{% block content %}
+<div class="max-w-4xl">
+  <div class="grid grid-cols-1 gap-6">
+    <!-- Patrimônio -->
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4">Informações do Patrimônio</h2>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Etiqueta</p>
+          <p>{{ computador.patrimonio.etiqueta }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Hostname</p>
+          <p>{{ computador.patrimonio.hostname|default:"—" }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Tipo</p>
+          <p>{{ computador.patrimonio.tipo|default:"—" }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Setor</p>
+          <p>{{ computador.patrimonio.setor|default:"—" }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Usuário</p>
+          <p>{{ computador.patrimonio.usuario_atual.nome_completo|default:"—" }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Status</p>
+          <p>{{ computador.patrimonio.get_status_display }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Especificações -->
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4">Especificações Técnicas</h2>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">RAM</p>
+          <p>{{ computador.ram_gb|default:"—" }} GB</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Sistema Operacional</p>
+          <p>{{ computador.sistema_operacional|default:"—" }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Processador</p>
+          <p>{{ computador.processador|default:"—" }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conectividade -->
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4">Conectividade</h2>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Endereço IP</p>
+          <p class="font-mono">{{ computador.endereco_ip|default:"—" }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Endereço MAC</p>
+          <p class="font-mono">{{ computador.endereco_mac|default:"—" }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auditoria -->
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4">Auditoria</h2>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Cadastrado em</p>
+          <p>{{ computador.criado_em|date:"d/m/Y H:i" }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Atualizado em</p>
+          <p>{{ computador.atualizado_em|date:"d/m/Y H:i" }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

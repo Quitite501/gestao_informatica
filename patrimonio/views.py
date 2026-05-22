@@ -2,10 +2,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 
-from .forms import PatrimonioForm, PatrimonioFiltroForm
+from .forms import PatrimonioForm, PatrimonioFiltroForm, ComputadorEspecificacaoForm
 from auditoria.utils import registrar_auditoria
 from auditoria.models import RegistroAuditoria
-from .models import Patrimonio, MovimentacaoPatrimonio
+from .models import Patrimonio, MovimentacaoPatrimonio, ComputadorEspecificacao
 
 
 def _registrar_movimentacao(patrimonio_antes, patrimonio_depois, usuario_logado):
@@ -171,3 +171,165 @@ def patrimonio_editar(request, pk):
         "titulo": f"Editar patrimonio: {patrimonio.etiqueta}",
         "patrimonio": patrimonio,
     })
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# COMPUTADOR ESPECIFICAÇÃO (CRUD + Relatório de Auditoria)
+# ────────────────────────────────────────────────────────────────────────────
+
+@login_required
+@permission_required("patrimonio.can_manage_patrimonio", raise_exception=True)
+def computador_novo(request):
+    form = ComputadorEspecificacaoForm(request.POST or None)
+    if form.is_valid():
+        computador = form.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "ComputadorEspecificacao", computador.pk,
+            f"Especificação do computador {computador.patrimonio.etiqueta} cadastrada.")
+        return redirect("computador_detalhe", pk=computador.pk)
+    return render(request, "patrimonio/computador_form.html", {
+        "form": form,
+        "titulo": "Novo Computador",
+    })
+
+
+@login_required
+def computador_detalhe(request, pk):
+    from .models import ComputadorEspecificacao
+    computador = get_object_or_404(ComputadorEspecificacao, pk=pk)
+    return render(request, "patrimonio/computador_detalhe.html", {
+        "computador": computador,
+        "patrimonio": computador.patrimonio,
+    })
+
+
+@login_required
+@permission_required("patrimonio.can_manage_patrimonio", raise_exception=True)
+def computador_editar(request, pk):
+    from .models import ComputadorEspecificacao
+    computador = get_object_or_404(ComputadorEspecificacao, pk=pk)
+    form = ComputadorEspecificacaoForm(request.POST or None, instance=computador)
+    if form.is_valid():
+        computador = form.save()
+        registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "ComputadorEspecificacao", computador.pk,
+            f"Especificação do computador {computador.patrimonio.etiqueta} editada.")
+        return redirect("computador_detalhe", pk=computador.pk)
+    return render(request, "patrimonio/computador_form.html", {
+        "form": form,
+        "titulo": f"Editar Computador: {computador.patrimonio.etiqueta}",
+        "computador": computador,
+    })
+
+
+@login_required
+def relatorio_computadores(request):
+    """Relatório de auditoria de computadores cadastrados."""
+    from .models import ComputadorEspecificacao
+    computadores = ComputadorEspecificacao.objects.select_related(
+        "patrimonio", "patrimonio__tipo", "patrimonio__setor", "patrimonio__usuario_atual"
+    ).order_by("patrimonio__etiqueta")
+    
+    # Filtros opcionais
+    so = request.GET.get("so", "").strip()
+    ip = request.GET.get("ip", "").strip()
+    mac = request.GET.get("mac", "").strip()
+    
+    if so:
+        computadores = computadores.filter(sistema_operacional__icontains=so)
+    if ip:
+        computadores = computadores.filter(endereco_ip=ip)
+    if mac:
+        computadores = computadores.filter(endereco_mac__icontains=mac)
+    
+    return render(request, "patrimonio/relatorio_computadores.html", {
+        "computadores": computadores,
+        "total": computadores.count(),
+        "filtros": {"so": so, "ip": ip, "mac": mac},
+    })
+
+
+@login_required
+def relatorio_computadores_csv(request):
+    """Export de auditoria de computadores em CSV."""
+    import csv
+    from django.http import HttpResponse
+    from .models import ComputadorEspecificacao
+    
+    computadores = ComputadorEspecificacao.objects.select_related(
+        "patrimonio", "patrimonio__tipo", "patrimonio__setor", "patrimonio__usuario_atual"
+    ).order_by("patrimonio__etiqueta")
+    
+    # Filtros
+    so = request.GET.get("so", "").strip()
+    ip = request.GET.get("ip", "").strip()
+    mac = request.GET.get("mac", "").strip()
+    
+    if so:
+        computadores = computadores.filter(sistema_operacional__icontains=so)
+    if ip:
+        computadores = computadores.filter(endereco_ip=ip)
+    if mac:
+        computadores = computadores.filter(endereco_mac__icontains=mac)
+    
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = 'attachment; filename="auditoria_computadores.csv"'
+    response.write("\ufeff")  # BOM para UTF-8
+    
+    writer = csv.writer(response)
+    writer.writerow(["Etiqueta", "Hostname", "Tipo", "Setor", "Usuário", "RAM (GB)", "S.O.", "IP", "MAC", "Processador", "Data"])
+    
+    for c in computadores:
+        writer.writerow([
+            c.patrimonio.etiqueta,
+            c.patrimonio.hostname or "",
+            c.patrimonio.tipo.nome if c.patrimonio.tipo else "",
+            c.patrimonio.setor.nome if c.patrimonio.setor else "",
+            c.patrimonio.usuario_atual.nome_completo if c.patrimonio.usuario_atual else "",
+            c.ram_gb or "",
+            c.sistema_operacional or "",
+            c.endereco_ip or "",
+            c.endereco_mac or "",
+            c.processador or "",
+            c.atualizado_em.strftime("%d/%m/%Y %H:%M"),
+        ])
+    
+    return response
+
+
+@login_required
+def relatorio_computadores_pdf(request):
+    """Export de auditoria de computadores em PDF."""
+    from django.template.loader import render_to_string
+    from weasyprint import HTML
+    from django.http import HttpResponse
+    from .models import ComputadorEspecificacao
+    
+    computadores = ComputadorEspecificacao.objects.select_related(
+        "patrimonio", "patrimonio__tipo", "patrimonio__setor", "patrimonio__usuario_atual"
+    ).order_by("patrimonio__etiqueta")
+    
+    # Filtros
+    so = request.GET.get("so", "").strip()
+    ip = request.GET.get("ip", "").strip()
+    mac = request.GET.get("mac", "").strip()
+    
+    if so:
+        computadores = computadores.filter(sistema_operacional__icontains=so)
+    if ip:
+        computadores = computadores.filter(endereco_ip=ip)
+    if mac:
+        computadores = computadores.filter(endereco_mac__icontains=mac)
+    
+    html_string = render_to_string(
+        "patrimonio/relatorio_computadores_pdf.html",
+        {
+            "computadores": computadores,
+            "total": computadores.count(),
+            "usuario": request.user,
+        },
+        request=request,
+    )
+    
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri("/")).write_pdf()
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = 'inline; filename="auditoria_computadores.pdf"'
+    return response

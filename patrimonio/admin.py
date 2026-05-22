@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Patrimonio, TipoEquipamento, MovimentacaoPatrimonio
+from .models import Patrimonio, TipoEquipamento, MovimentacaoPatrimonio, ComputadorEspecificacao
 
 
 @admin.register(TipoEquipamento)
@@ -37,3 +37,26 @@ class MovimentacaoPatrimonioAdmin(admin.ModelAdmin):
     list_filter = ("tipo",)
     search_fields = ("patrimonio__etiqueta",)
     readonly_fields = ("data",)
+
+
+@admin.register(ComputadorEspecificacao)
+class ComputadorEspecificacaoAdmin(admin.ModelAdmin):
+    list_display = ("patrimonio", "ram_gb", "sistema_operacional", "endereco_ip", "endereco_mac", "atualizado_em")
+    list_filter = ("sistema_operacional", "atualizado_em")
+    search_fields = ("patrimonio__etiqueta", "endereco_mac", "endereco_ip")
+    readonly_fields = ("criado_em", "atualizado_em")
+    fieldsets = (
+        ("Patrimônio", {
+            "fields": ("patrimonio",),
+        }),
+        ("Especificações", {
+            "fields": ("ram_gb", "sistema_operacional", "processador"),
+        }),
+        ("Conectividade", {
+            "fields": ("endereco_ip", "endereco_mac"),
+        }),
+        ("Auditoria", {
+            "fields": ("criado_em", "atualizado_em"),
+            "classes": ("collapse",),
+        }),
+    )

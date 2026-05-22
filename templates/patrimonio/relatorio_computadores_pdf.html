@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Computadores</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; font-size: 11px; line-height: 1.4; color: #333; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .header h1 { font-size: 16px; margin-bottom: 5px; }
+        .header p { font-size: 10px; color: #666; }
+        .footer { text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #999; font-size: 9px; color: #666; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background-color: #f5f5f5; padding: 8px; text-align: left; font-weight: bold; border-bottom: 2px solid #333; font-size: 10px; }
+        td { padding: 6px 8px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background-color: #fafafa; }
+        .mono { font-family: 'Courier New', monospace; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Relatório de Auditoria de Computadores</h1>
+        <p>Gerado em {{ now }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 8%;">Etiqueta</th>
+                <th style="width: 10%;">Hostname</th>
+                <th style="width: 8%;">Tipo</th>
+                <th style="width: 12%;">S.O.</th>
+                <th style="width: 6%;">RAM</th>
+                <th style="width: 12%;">IP</th>
+                <th style="width: 14%;">MAC</th>
+                <th style="width: 20%;">Processador</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in computadores %}
+            <tr>
+                <td><strong>{{ c.patrimonio.etiqueta }}</strong></td>
+                <td>{{ c.patrimonio.hostname|default:"—" }}</td>
+                <td>{{ c.patrimonio.tipo|default:"—" }}</td>
+                <td>{{ c.sistema_operacional|default:"—" }}</td>
+                <td>{{ c.ram_gb|default:"—" }}{% if c.ram_gb %} GB{% endif %}</td>
+                <td class="mono">{{ c.endereco_ip|default:"—" }}</td>
+                <td class="mono">{{ c.endereco_mac|default:"—" }}</td>
+                <td>{{ c.processador|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="text-align: center; margin-top: 10px; font-size: 10px; color: #666;">
+        <strong>Total de computadores:</strong> {{ total }}
+    </p>
+
+    <div class="footer">
+        <p>Sistema de Gestão de TI</p>
+    </div>
+</body>
+</html>

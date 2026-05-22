@@ -2425,3 +2425,10 @@ ModuleNotFoundError: No module named 'core.wsgi'
 [2026-05-12 17:56:38 +0000] [188156] [INFO] Booting worker with pid: 188156
 [2026-05-12 17:56:38 +0000] [188157] [INFO] Booting worker with pid: 188157
 [2026-05-12 17:56:38 +0000] [188152] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
+[2026-05-19 04:02:09 +0000] [1056] [INFO] Starting gunicorn 25.3.0
+[2026-05-19 04:02:09 +0000] [1056] [INFO] Listening at: http://127.0.0.1:8001 (1056)
+[2026-05-19 04:02:09 +0000] [1056] [INFO] Using worker: sync
+[2026-05-19 04:02:09 +0000] [1060] [INFO] Booting worker with pid: 1060
+[2026-05-19 04:02:09 +0000] [1061] [INFO] Booting worker with pid: 1061
+[2026-05-19 04:02:09 +0000] [1062] [INFO] Booting worker with pid: 1062
+[2026-05-19 04:02:09 +0000] [1056] [INFO] Control socket listening at /home/cartorio/.gunicorn/gunicorn.ctl
