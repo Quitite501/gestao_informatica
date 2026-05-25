@@ -8,22 +8,108 @@
   </a>
 {% endblock %}
 {% block content %}
-<div class="max-w-2xl">
+<div class="max-w-3xl">
+  <form method="post">
+    {% csrf_token %}
+
+    <!-- Informações do Software -->
+    <div class="card mb-6">
+      <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Informações do Software</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="form-label">Nome <span class="text-red-500">*</span></label>
+          {{ form.nome }}
+          {% if form.nome.errors %}<p class="mt-1 text-xs text-red-500">{{ form.nome.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">Fabricante</label>
+          {{ form.fabricante }}
+          {% if form.fabricante.errors %}<p class="mt-1 text-xs text-red-500">{{ form.fabricante.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">Versão</label>
+          {{ form.versao }}
+          {% if form.versao.errors %}<p class="mt-1 text-xs text-red-500">{{ form.versao.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">Tipo de Licença</label>
+          {{ form.tipo_licenca }}
+        </div>
+        <div class="flex gap-6 items-center mt-2">
+          <div class="flex items-center gap-2">
+            {{ form.controlado }}
+            <label class="text-sm">{{ form.controlado.label }}</label>
+          </div>
+          <div class="flex items-center gap-2">
+            {{ form.ativo }}
+            <label class="text-sm">{{ form.ativo.label }}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mb-6">
+      <button type="submit" class="btn-primary">Salvar</button>
+      <a href="{% url 'software_lista' %}" class="btn-secondary">Cancelar</a>
+    </div>
+  </form>
+
+  <!-- Contratos de Licença -->
+  {% if contratos is not None %}
   <div class="card">
-    <form method="post" class="space-y-5">
-      {% csrf_token %}
-      {% for field in form %}
-      <div>
-        <label class="form-label">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}<p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>{% endif %}
-      </div>
-      {% endfor %}
-      <div class="flex items-center gap-3 pt-2">
-        <button type="submit" class="btn-primary">Salvar</button>
-        <a href="{% url 'software_lista' %}" class="btn-secondary">Cancelar</a>
-      </div>
-    </form>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-sm font-semibold uppercase text-[var(--secondary-text)]">
+        Contratos de Licença
+        {% if contratos %}<span class="ml-2 text-xs bg-[var(--primary)] text-white px-2 py-0.5 rounded-full">{{ contratos.count }}</span>{% endif %}
+      </h2>
+      <a href="{% url 'licenca_contrato_novo' %}?software={{ software.pk }}" class="btn-primary text-xs px-3 py-1">
+        + Novo Contrato
+      </a>
+    </div>
+
+    {% if contratos %}
+    <table class="w-full text-sm">
+      <thead class="bg-[var(--surface-secondary)]">
+        <tr>
+          <th class="px-3 py-2 text-left font-semibold">Quantidade</th>
+          <th class="px-3 py-2 text-left font-semibold">Aquisição</th>
+          <th class="px-3 py-2 text-left font-semibold">Vencimento</th>
+          <th class="px-3 py-2 text-left font-semibold">Nota Fiscal</th>
+          <th class="px-3 py-2 text-left font-semibold">Chave</th>
+          <th class="px-3 py-2 text-center font-semibold">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in contratos %}
+        <tr class="border-t border-[var(--surface-secondary)] hover:bg-[var(--surface-secondary)]">
+          <td class="px-3 py-3">
+            <span class="font-bold text-[var(--primary)]">{{ c.quantidade_adquirida }}</span>
+          </td>
+          <td class="px-3 py-3">{{ c.data_aquisicao|date:"d/m/Y" }}</td>
+          <td class="px-3 py-3">
+            {% if c.data_vencimento %}
+              {% if c.status_vencimento == 'vencida' %}
+                <span class="text-red-600 font-semibold">{{ c.data_vencimento|date:"d/m/Y" }} ⚠️</span>
+              {% elif c.status_vencimento == 'vence_em_breve' %}
+                <span class="text-yellow-600 font-semibold">{{ c.data_vencimento|date:"d/m/Y" }} ⏰</span>
+              {% else %}
+                {{ c.data_vencimento|date:"d/m/Y" }}
+              {% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td class="px-3 py-3 text-xs">{{ c.nota_fiscal.numero|default:"—" }}</td>
+          <td class="px-3 py-3 text-xs font-mono">{{ c.chave_licenca|default:"—"|truncatechars:20 }}</td>
+          <td class="px-3 py-3 text-center">
+            <a href="{% url 'licenca_contrato_editar' c.pk %}" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Editar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-sm text-center py-6 text-[var(--secondary-text)]">Nenhum contrato cadastrado.</p>
+    {% endif %}
   </div>
+  {% endif %}
 </div>
 {% endblock %}

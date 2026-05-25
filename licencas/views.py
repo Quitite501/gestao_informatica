@@ -86,12 +86,18 @@ def software_novo(request):
 def software_editar(request, pk):
     software = get_object_or_404(Software, pk=pk)
     form = SoftwareForm(request.POST or None, instance=software)
+    
     if form.is_valid():
         software = form.save()
         registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Software", software.pk, f"Software {software.nome} editado.")
         return redirect("software_detalhe", pk=software.pk)
+    
+    contratos = software.contratos.select_related("nota_fiscal").order_by("-data_aquisicao")
+    
     return render(request, "licencas/software_form.html", {
         "form": form,
+        "software": software,
+        "contratos": contratos,
         "titulo": f"Editar Software: {software}",
     })
 
