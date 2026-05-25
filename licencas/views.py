@@ -199,3 +199,66 @@ def relatorio_conformidade(request):
         "relatorio": relatorio,
         "hoje": hoje,
     })
+
+
+@login_required
+@permission_required("licencas.add_software", raise_exception=True)
+def software_criar_lote(request):
+    """Cria múltiplos softwares + contratos de licença a partir de JSON"""
+    from django.http import JsonResponse
+    import json
+    from datetime import date
+
+    if request.method != "POST":
+        return JsonResponse({"erro": "Método não permitido"}, status=405)
+
+    try:
+        licencas = json.loads(request.POST.get("licencas", "[]"))
+    except Exception:
+        return JsonResponse({"erro": "Dados inválidos"}, status=400)
+
+    if not licencas:
+        return JsonResponse({"erro": "Nenhuma licença enviada"}, status=400)
+
+    criados = []
+    for lic in licencas:
+        nome = lic.get("nome", "").strip()
+        qtd  = int(lic.get("qtd", 1) or 1)
+        tipo = lic.get("tipo", "perpétua")
+
+        if not nome:
+            continue
+
+        software, criado = Software.objects.get_or_create(
+            nome=nome,
+            defaults={
+                "tipo_licenca": tipo,
+                "controlado": True,
+                "ativo": True,
+            }
+        )
+
+        # Criar contrato de licença
+        LicencaContrato.objects.create(
+            software=software,
+            quantidade_adquirida=qtd,
+            data_aquisicao=date.today(),
+            criado_por=request.user,
+        )
+
+        registrar_auditoria(
+            request, RegistroAuditoria.ACAO_CRIACAO,
+            "Software", software.pk,
+            f"Software {'criado' if criado else 'atualizado'} em lote: {software.nome} ({qtd} licenças)"
+        )
+        criados.append(software.nome)
+
+    if not criados:
+        return JsonResponse({"erro": "Nenhum software válido encontrado"}, status=400)
+
+    from django.urls import reverse
+    return JsonResponse({
+        "sucesso": True,
+        "criados": criados,
+        "redirect": reverse("software_lista"),
+    })

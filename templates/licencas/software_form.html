@@ -9,10 +9,25 @@
 {% endblock %}
 {% block content %}
 <div class="max-w-3xl">
-  <form method="post">
-    {% csrf_token %}
 
-    <!-- Informações do Software -->
+  <!-- Importar de PDF -->
+  {% if not software %}
+  <div class="card mb-6 border-l-4 border-l-blue-500">
+    <p class="text-sm font-semibold text-blue-600 mb-2">📎 Identificar licenças de um PDF ou XML</p>
+    <p class="text-xs text-[var(--secondary-text)] mb-3">
+      Envie a nota fiscal e as licenças serão detectadas automaticamente para cadastro.
+    </p>
+    <div class="flex gap-2 items-center">
+      <input type="file" id="arquivo_sw" accept=".xml,.pdf"
+        class="block text-sm text-[var(--secondary-text)] file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:opacity-90 cursor-pointer flex-1">
+    </div>
+    <p id="msg_sw" class="mt-2 text-sm hidden"></p>
+  </div>
+  {% endif %}
+
+  <!-- Formulário manual -->
+  <form method="post" id="form_software">
+    {% csrf_token %}
     <div class="card mb-6">
       <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Informações do Software</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -24,37 +39,28 @@
         <div>
           <label class="form-label">Fabricante</label>
           {{ form.fabricante }}
-          {% if form.fabricante.errors %}<p class="mt-1 text-xs text-red-500">{{ form.fabricante.errors|join:", " }}</p>{% endif %}
         </div>
         <div>
           <label class="form-label">Versão</label>
           {{ form.versao }}
-          {% if form.versao.errors %}<p class="mt-1 text-xs text-red-500">{{ form.versao.errors|join:", " }}</p>{% endif %}
         </div>
         <div>
           <label class="form-label">Tipo de Licença</label>
           {{ form.tipo_licenca }}
         </div>
         <div class="flex gap-6 items-center mt-2">
-          <div class="flex items-center gap-2">
-            {{ form.controlado }}
-            <label class="text-sm">{{ form.controlado.label }}</label>
-          </div>
-          <div class="flex items-center gap-2">
-            {{ form.ativo }}
-            <label class="text-sm">{{ form.ativo.label }}</label>
-          </div>
+          <div class="flex items-center gap-2">{{ form.controlado }}<label class="text-sm">{{ form.controlado.label }}</label></div>
+          <div class="flex items-center gap-2">{{ form.ativo }}<label class="text-sm">{{ form.ativo.label }}</label></div>
         </div>
       </div>
     </div>
-
     <div class="flex gap-3 mb-6">
       <button type="submit" class="btn-primary">Salvar</button>
       <a href="{% url 'software_lista' %}" class="btn-secondary">Cancelar</a>
     </div>
   </form>
 
-  <!-- Contratos de Licença -->
+  <!-- Contratos existentes -->
   {% if contratos is not None %}
   <div class="card">
     <div class="flex justify-between items-center mb-4">
@@ -62,11 +68,8 @@
         Contratos de Licença
         {% if contratos %}<span class="ml-2 text-xs bg-[var(--primary)] text-white px-2 py-0.5 rounded-full">{{ contratos.count }}</span>{% endif %}
       </h2>
-      <a href="{% url 'licenca_contrato_novo' %}?software={{ software.pk }}" class="btn-primary text-xs px-3 py-1">
-        + Novo Contrato
-      </a>
+      <a href="{% url 'licenca_contrato_novo' %}?software={{ software.pk }}" class="btn-primary text-xs px-3 py-1">+ Novo Contrato</a>
     </div>
-
     {% if contratos %}
     <table class="w-full text-sm">
       <thead class="bg-[var(--surface-secondary)]">
@@ -82,21 +85,9 @@
       <tbody>
         {% for c in contratos %}
         <tr class="border-t border-[var(--surface-secondary)] hover:bg-[var(--surface-secondary)]">
-          <td class="px-3 py-3">
-            <span class="font-bold text-[var(--primary)]">{{ c.quantidade_adquirida }}</span>
-          </td>
+          <td class="px-3 py-3 font-bold text-[var(--primary)]">{{ c.quantidade_adquirida }}</td>
           <td class="px-3 py-3">{{ c.data_aquisicao|date:"d/m/Y" }}</td>
-          <td class="px-3 py-3">
-            {% if c.data_vencimento %}
-              {% if c.status_vencimento == 'vencida' %}
-                <span class="text-red-600 font-semibold">{{ c.data_vencimento|date:"d/m/Y" }} ⚠️</span>
-              {% elif c.status_vencimento == 'vence_em_breve' %}
-                <span class="text-yellow-600 font-semibold">{{ c.data_vencimento|date:"d/m/Y" }} ⏰</span>
-              {% else %}
-                {{ c.data_vencimento|date:"d/m/Y" }}
-              {% endif %}
-            {% else %}—{% endif %}
-          </td>
+          <td class="px-3 py-3">{% if c.data_vencimento %}{{ c.data_vencimento|date:"d/m/Y" }}{% else %}—{% endif %}</td>
           <td class="px-3 py-3 text-xs">{{ c.nota_fiscal.numero|default:"—" }}</td>
           <td class="px-3 py-3 text-xs font-mono">{{ c.chave_licenca|default:"—"|truncatechars:20 }}</td>
           <td class="px-3 py-3 text-center">
@@ -112,4 +103,147 @@
   </div>
   {% endif %}
 </div>
+
+<!-- Modal de licenças identificadas -->
+<div id="modal-sw" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
+  <div style="background:#ffffff; border-radius:0.75rem; box-shadow:0 25px 50px rgba(0,0,0,0.4); width:100%; max-width:680px; max-height:90vh; overflow-y:auto; padding:2rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <h2 style="font-size:1.1rem; font-weight:bold;">🖥️ Licenças Identificadas</h2>
+      <button onclick="fecharModalSw()" style="background:none; border:none; cursor:pointer; font-size:1.4rem; color:#666;">✕</button>
+    </div>
+    <p style="font-size:0.8rem; color:#666; margin-bottom:1rem;">Revise os dados extraídos. Cada item criará um Software + Contrato de Licença.</p>
+    <div id="lista-sw-modal"></div>
+    <button type="button" onclick="adicionarLinhaSwModal()"
+      style="margin-top:0.5rem; font-size:0.8rem; color:#2563eb; background:none; border:none; cursor:pointer;">+ Adicionar licença</button>
+    <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+      <button onclick="salvarLicencasSw()" class="btn-primary" style="flex:1;">✅ Salvar Licenças</button>
+      <button onclick="fecharModalSw()" class="btn-secondary" style="flex:1;">Cancelar</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const EXTRAIR_URL = "{% url 'nota_fiscal_extrair_ajax' %}";
+const CSRF = "{{ csrf_token }}";
+var swContador = 0;
+
+document.getElementById('arquivo_sw')?.addEventListener('change', async function() {
+  if (!this.files.length) return;
+  
+  const msg = document.getElementById('msg_sw');
+  msg.textContent = '⏳ Processando arquivo...';
+  msg.className = 'mt-2 text-sm text-blue-600';
+  msg.classList.remove('hidden');
+
+  const formData = new FormData();
+  formData.append('arquivo', this.files[0]);
+  formData.append('csrfmiddlewaretoken', CSRF);
+
+  try {
+    const resp = await fetch(EXTRAIR_URL, { method: 'POST', body: formData });
+    const data = await resp.json();
+
+    if (!data.sucesso) {
+      msg.textContent = '❌ ' + (data.erro || 'Erro ao processar');
+      msg.className = 'mt-2 text-sm text-red-600';
+      return;
+    }
+
+    const itens = data.itens_software || data.itens || [];
+    if (!itens.length) {
+      msg.textContent = '⚠️ Nenhuma licença identificada. Preencha manualmente.';
+      msg.className = 'mt-2 text-sm text-yellow-600';
+      return;
+    }
+
+    // Preencher modal
+    const lista = document.getElementById('lista-sw-modal');
+    lista.innerHTML = '';
+    swContador = 0;
+    itens.forEach(item => {
+      adicionarLinhaSwModal(item.descricao || item.sugestao_nome || '', item.sugestao_qtd || item.quantidade || 1);
+    });
+
+    document.getElementById('modal-sw').style.display = 'flex';
+    msg.textContent = `✅ ${itens.length} licença(s) identificada(s) — revise e salve.`;
+    msg.className = 'mt-2 text-sm text-green-600';
+
+  } catch(e) {
+    msg.textContent = '❌ Erro: ' + e.message;
+    msg.className = 'mt-2 text-sm text-red-600';
+  }
+});
+
+function adicionarLinhaSwModal(nome, qtd) {
+  const lista = document.getElementById('lista-sw-modal');
+  const idx = swContador++;
+  const div = document.createElement('div');
+  div.id = 'sw_row_' + idx;
+  div.style.cssText = 'display:grid; grid-template-columns:1fr 80px 80px 30px; gap:8px; margin-bottom:10px; align-items:center;';
+  div.innerHTML = `
+    <input type="text" id="sw_nome_${idx}" value="${nome || ''}"
+      style="font-size:12px; padding:6px 10px; border:1px solid #d1d5db; border-radius:6px; width:100%;"
+      placeholder="Nome do software">
+    <input type="number" id="sw_qtd_${idx}" value="${qtd || 1}" min="1"
+      style="font-size:12px; padding:6px; border:1px solid #d1d5db; border-radius:6px; text-align:center; width:100%;"
+      title="Quantidade">
+    <select id="sw_tipo_${idx}"
+      style="font-size:11px; padding:6px; border:1px solid #d1d5db; border-radius:6px; width:100%;">
+      <option value="perpétua">Perpétua</option>
+      <option value="assinatura">Assinatura</option>
+      <option value="oem">OEM</option>
+    </select>
+    <button type="button" onclick="document.getElementById('sw_row_${idx}').remove()"
+      style="background:#fee2e2; border:none; border-radius:4px; cursor:pointer; font-size:14px; color:#dc2626; padding:4px 8px;">✕</button>
+  `;
+  lista.appendChild(div);
+}
+
+function fecharModalSw() {
+  document.getElementById('modal-sw').style.display = 'none';
+}
+
+async function salvarLicencasSw() {
+  const licencas = [];
+  document.querySelectorAll('[id^="sw_row_"]').forEach(row => {
+    const idx = row.id.replace('sw_row_', '');
+    const nome = document.getElementById('sw_nome_' + idx)?.value?.trim();
+    const qtd  = parseInt(document.getElementById('sw_qtd_' + idx)?.value || 1);
+    const tipo = document.getElementById('sw_tipo_' + idx)?.value || 'perpétua';
+    if (nome) licencas.push({ nome, qtd, tipo });
+  });
+
+  if (!licencas.length) {
+    alert('Nenhuma licença para salvar.');
+    return;
+  }
+
+  const btn = event.target;
+  btn.textContent = '⏳ Salvando...';
+  btn.disabled = true;
+
+  const formData = new FormData();
+  formData.append('csrfmiddlewaretoken', CSRF);
+  formData.append('licencas', JSON.stringify(licencas));
+
+  try {
+    const resp = await fetch("{% url 'software_criar_lote' %}", { method: 'POST', body: formData });
+    const data = await resp.json();
+
+    if (data.sucesso) {
+      window.location.href = data.redirect || "{% url 'software_lista' %}";
+    } else {
+      alert('Erro: ' + (data.erro || 'Falha ao salvar'));
+      btn.textContent = '✅ Salvar Licenças';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    alert('Erro: ' + e.message);
+    btn.textContent = '✅ Salvar Licenças';
+    btn.disabled = false;
+  }
+}
+</script>
 {% endblock %}
