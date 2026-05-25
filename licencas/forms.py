@@ -14,6 +14,23 @@ class SoftwareForm(forms.ModelForm):
             "controlado",
             "ativo",
         ]
+        widgets = {
+            "nome": forms.TextInput(attrs={
+                "class": "form-input",
+                "placeholder": "Ex: Microsoft Office 365",
+            }),
+            "fabricante": forms.TextInput(attrs={
+                "class": "form-input",
+                "placeholder": "Ex: Microsoft",
+            }),
+            "versao": forms.TextInput(attrs={
+                "class": "form-input",
+                "placeholder": "Ex: 2025, 22H2, 16.0",
+            }),
+            "tipo_licenca": forms.Select(attrs={
+                "class": "form-input",
+            }),
+        }
 
 
 class SoftwareFiltroForm(forms.Form):
