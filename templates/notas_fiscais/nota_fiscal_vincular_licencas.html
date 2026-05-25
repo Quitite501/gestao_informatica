@@ -7,9 +7,24 @@
     Voltar
   </a>
 {% endblock %}
+
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet"/>
+<style>
+.select2-container .select2-selection--single {
+  height: 38px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 36px; padding-left: 10px; font-size: 13px;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow { height: 36px; }
+.select2-dropdown { border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; }
+.select2-container--default .select2-results__option--highlighted[aria-selected] { background: #c7602b; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-4xl">
-
   <!-- Resumo da NF -->
   <div class="card mb-6 border-l-4 border-l-[var(--primary)]">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -35,7 +50,6 @@
   </div>
   {% endif %}
 
-  <!-- Formulário para adicionar novas licenças -->
   <form method="post">
     {% csrf_token %}
 
@@ -45,14 +59,15 @@
       <h2 class="text-sm font-semibold mb-3 text-green-700 dark:text-green-300 uppercase">
         ✅ Itens identificados como software ({{ itens_software|length }})
       </h2>
-      <p class="text-xs text-green-600 dark:text-green-400 mb-4">Revise e preencha os dados antes de salvar.</p>
       {% for item in itens_software %}
-      <div class="bg-white dark:bg-gray-800 rounded p-4 mb-3 border border-green-200 dark:border-green-700">
-        <p class="text-xs font-bold text-green-700 dark:text-green-300 mb-3 uppercase">Item: {{ item.descricao }}</p>
+      <div class="bg-white dark:bg-gray-800 rounded p-4 mb-3 border border-green-200">
+        <p class="text-xs font-bold text-green-700 mb-3 uppercase">Item detectado: {{ item.descricao }}</p>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
           <div class="md:col-span-2">
             <label class="form-label text-xs">Nome do Software *</label>
-            <input type="text" name="software_{{ forloop.counter }}" value="{{ item.sugestao_nome }}" class="form-input" required>
+            <select name="software_{{ forloop.counter }}" class="sw-select w-full" required>
+              <option value="{{ item.sugestao_nome }}" selected>{{ item.sugestao_nome }}</option>
+            </select>
           </div>
           <div>
             <label class="form-label text-xs">Quantidade</label>
@@ -60,20 +75,20 @@
           </div>
           <div>
             <label class="form-label text-xs">Fabricante</label>
-            <input type="text" name="fabricante_{{ forloop.counter }}" class="form-input" placeholder="Ex: Microsoft">
+            <select name="fabricante_{{ forloop.counter }}" class="fab-select w-full">
+              <option value="">— Selecione —</option>
+            </select>
           </div>
           <div>
             <label class="form-label text-xs">Versão</label>
-            <input type="text" name="versao_{{ forloop.counter }}" class="form-input" placeholder="Ex: 2024">
+            <input type="text" name="versao_{{ forloop.counter }}" class="form-input" placeholder="Ex: 2025">
           </div>
           <div>
-            <label class="form-label text-xs">Tipo de Licença</label>
+            <label class="form-label text-xs">Tipo</label>
             <select name="tipo_{{ forloop.counter }}" class="form-input">
               <option value="perpétua">Perpétua</option>
               <option value="assinatura">Assinatura</option>
               <option value="oem">OEM</option>
-              <option value="freeware">Freeware</option>
-              <option value="opensource">Open Source</option>
             </select>
           </div>
           <div class="md:col-span-3">
@@ -88,11 +103,11 @@
 
     <!-- Adicionar manualmente -->
     <div class="card mb-6">
-      <h2 class="text-sm font-semibold mb-3 uppercase text-[var(--secondary-text)]">Adicionar Licença Manualmente</h2>
+      <h2 class="text-sm font-semibold mb-3 uppercase text-[var(--secondary-text)]">Adicionar Licença</h2>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
         <div class="md:col-span-2">
           <label class="form-label text-xs">Nome do Software</label>
-          <input type="text" name="software_manual" class="form-input" placeholder="Ex: Windows 11 Pro">
+          <select name="software_manual" id="sw_manual" class="sw-select w-full"></select>
         </div>
         <div>
           <label class="form-label text-xs">Quantidade</label>
@@ -100,7 +115,7 @@
         </div>
         <div>
           <label class="form-label text-xs">Fabricante</label>
-          <input type="text" name="fabricante_manual" class="form-input" placeholder="Ex: Microsoft">
+          <select name="fabricante_manual" id="fab_manual" class="fab-select w-full"></select>
         </div>
         <div>
           <label class="form-label text-xs">Versão</label>
@@ -112,8 +127,6 @@
             <option value="perpétua">Perpétua</option>
             <option value="assinatura">Assinatura</option>
             <option value="oem">OEM</option>
-            <option value="freeware">Freeware</option>
-            <option value="opensource">Open Source</option>
           </select>
         </div>
         <div class="md:col-span-3">
@@ -129,4 +142,64 @@
     </div>
   </form>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+<script>
+const SW_URL = "{% url 'software_busca_ajax' %}";
+
+// Inicializar todos os selects de software
+function initSwSelect(el) {
+  $(el).select2({
+    placeholder: 'Digite para pesquisar ou adicionar...',
+    allowClear: true,
+    width: '100%',
+    ajax: {
+      url: SW_URL,
+      dataType: 'json',
+      delay: 250,
+      data: params => ({ q: params.term }),
+      processResults: data => ({
+        results: [
+          ...data.results,
+          ...(params => params.term ? [{id: params.term, text: '+ Criar: "' + params.term + '"'}] : [])({ term: $(el).data('lastTerm') || '' })
+        ]
+      }),
+      cache: true
+    },
+    tags: true,
+    createTag: params => ({ id: params.term, text: '+ Criar: "' + params.term + '"', newTag: true }),
+  });
+
+  $(el).on('select2:open', function() { $(el).data('lastTerm', ''); });
+  $(el).on('change', function() {
+    const val = $(this).val() || '';
+    // Preencher fabricante automaticamente
+    const fabSelect = $(this).closest('.grid, form').find('.fab-select').first();
+    $.get(SW_URL, { q: val }, function(data) {
+      const sw = data.results.find(r => r.id === val);
+      if (sw && sw.fabricante && fabSelect.length) {
+        fabSelect.find('option[value="' + sw.fabricante + '"]').prop('selected', true);
+        fabSelect.trigger('change');
+      }
+    });
+  });
+}
+
+// Inicializar selects de fabricante
+function initFabSelect(el) {
+  $.get(SW_URL, {}, function(data) {
+    const opts = data.fabricantes.map(f => `<option value="${f}">${f}</option>`).join('');
+    $(el).append(opts);
+    $(el).select2({ placeholder: 'Fabricante...', allowClear: true, width: '100%', tags: true });
+  });
+}
+
+$(document).ready(function() {
+  $('.sw-select').each(function() { initSwSelect(this); });
+  $('.fab-select').each(function() { initFabSelect(this); });
+});
+</script>
 {% endblock %}

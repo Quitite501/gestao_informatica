@@ -293,3 +293,24 @@ def software_criar_lote(request):
         "criados": criados,
         "redirect": reverse("software_lista"),
     })
+
+
+@login_required
+def software_busca_ajax(request):
+    """Busca softwares para Select2"""
+    from django.http import JsonResponse
+    q = request.GET.get('q', '').strip()
+    softwares = Software.objects.filter(ativo=True)
+    if q:
+        softwares = softwares.filter(nome__icontains=q)
+    softwares = softwares.order_by('nome')[:30]
+    resultados = [
+        {'id': sw.nome, 'text': f"{sw.nome}", 'fabricante': sw.fabricante or ''}
+        for sw in softwares
+    ]
+    fabricantes = list(
+        Software.objects.filter(ativo=True, fabricante__isnull=False)
+        .values_list('fabricante', flat=True)
+        .distinct().order_by('fabricante')
+    )
+    return JsonResponse({'results': resultados, 'fabricantes': fabricantes})

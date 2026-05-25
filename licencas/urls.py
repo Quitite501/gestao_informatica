@@ -12,4 +12,5 @@ urlpatterns = [
     path("instalacoes/<int:pk>/editar/", views.instalacao_editar, name="instalacao_editar"),
     path("relatorio/conformidade/", views.relatorio_conformidade, name="relatorio_conformidade"),
     path("softwares/criar-lote/", views.software_criar_lote, name="software_criar_lote"),
+    path("softwares/busca/", views.software_busca_ajax, name="software_busca_ajax"),
 ]
