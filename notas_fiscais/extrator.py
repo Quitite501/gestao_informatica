@@ -12,14 +12,14 @@ from decimal import Decimal, InvalidOperation
 # Namespaces NF-e SEFAZ
 NS_NFE = 'http://www.portalfiscal.inf.br/nfe'
 
-# Palavras-chave de software para detecção automática
+# Palavras-chave de software para detecÃ§Ã£o automÃ¡tica
 PALAVRAS_SOFTWARE = [
-    'licença', 'licenca', 'software', 'windows', 'office', 'antivirus',
-    'antivírus', 'adobe', 'autocad', 'corel', 'programa', 'sistema',
+    'licenÃ§a', 'licenca', 'software', 'windows', 'office', 'antivirus',
+    'antivÃ­rus', 'adobe', 'autocad', 'corel', 'programa', 'sistema',
     'aplicativo', 'app', 'suite', 'subscription', 'assinatura',
     'microsoft', 'google', 'oracle', 'sap', 'totvs', 'linux',
     'acrobat', 'photoshop', 'word', 'excel', 'powerpoint', 'outlook',
-    'server', 'sql', 'cal', 'esd', 'oem', 'licenciamento', 'cessão',
+    'server', 'sql', 'cal', 'esd', 'oem', 'licenciamento', 'cessÃ£o',
 ]
 
 
@@ -28,7 +28,7 @@ PALAVRAS_SOFTWARE = [
 # ============================================================================
 
 def extrair_xml(arquivo):
-    """Extrai dados do XML NF-e padrão SEFAZ"""
+    """Extrai dados do XML NF-e padrÃ£o SEFAZ"""
     try:
         tree = ET.parse(arquivo)
         root = tree.getroot()
@@ -44,7 +44,7 @@ def extrair_xml(arquivo):
                 el = root.find(f'.//{path}')
             return el.text.strip() if el is not None and el.text else None
 
-        # Número + Série
+        # NÃºmero + SÃ©rie
         numero = find('nNF')
         serie = find('serie')
         if numero and serie:
@@ -57,7 +57,7 @@ def extrair_xml(arquivo):
             cnpj_fmt = f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"
             fornecedor = f"{fornecedor} (CNPJ: {cnpj_fmt})"
 
-        # Data de emissão
+        # Data de emissÃ£o
         data_emissao = None
         dh_emi = find('dhEmi') or find('dEmi')
         if dh_emi:
@@ -109,19 +109,19 @@ def extrair_xml(arquivo):
 
 
 # ============================================================================
-# EXTRATOR PDF — NFS-e (Nota de Serviço Municipal)
+# EXTRATOR PDF â NFS-e (Nota de ServiÃ§o Municipal)
 # ============================================================================
 
 def extrair_nfse_pdf(texto):
-    """Extrai dados específicos de NFS-e municipal"""
+    """Extrai dados especÃ­ficos de NFS-e municipal"""
     dados = {'tipo': 'nfse'}
 
-    # Número da NFS-e
-    m = re.search(r'N[úu]mero da NFS-e\s*\n?\s*(\d+)', texto, re.IGNORECASE)
+    # NÃºmero da NFS-e
+    m = re.search(r'N[Ãºu]mero da NFS-e\s*\n?\s*(\d+)', texto, re.IGNORECASE)
     if m:
         dados['numero'] = m.group(1).zfill(9)
 
-    # Fornecedor — bloco EMITENTE
+    # Fornecedor â bloco EMITENTE
     m = re.search(
         r'Nome\s*/\s*Nome Empresarial\s*\n([^\n]{5,100})',
         texto, re.IGNORECASE
@@ -135,10 +135,10 @@ def extrair_nfse_pdf(texto):
         else:
             dados['fornecedor'] = nome
 
-    # Data — preferir "Competência da NFS-e"
-    m = re.search(r'Compet[êe]ncia da NFS-e\s*\n?\s*(\d{2}/\d{2}/\d{4})', texto, re.IGNORECASE)
+    # Data â preferir "CompetÃªncia da NFS-e"
+    m = re.search(r'Compet[Ãªe]ncia da NFS-e\s*\n?\s*(\d{2}/\d{2}/\d{4})', texto, re.IGNORECASE)
     if not m:
-        m = re.search(r'Data e Hora da emiss[ãa]o da NFS-e\s*\n?\s*(\d{2}/\d{2}/\d{4})', texto, re.IGNORECASE)
+        m = re.search(r'Data e Hora da emiss[Ã£a]o da NFS-e\s*\n?\s*(\d{2}/\d{2}/\d{4})', texto, re.IGNORECASE)
     if not m:
         m = re.search(r'(\d{2}/\d{2}/\d{4})', texto)
     if m:
@@ -147,10 +147,10 @@ def extrair_nfse_pdf(texto):
         except ValueError:
             pass
 
-    # Valor — "Valor Líquido da NFS-e"
+    # Valor â "Valor LÃ­quido da NFS-e"
     for pattern in [
-        r'Valor L[íi]quido da NFS-e\s*\n?\s*R\$\s*([\d.,]+)',
-        r'Valor do Servi[çc]o\s*\n?\s*R\$\s*([\d.,]+)',
+        r'Valor L[Ã­i]quido da NFS-e\s*\n?\s*R\$\s*([\d.,]+)',
+        r'Valor do Servi[Ã§c]o\s*\n?\s*R\$\s*([\d.,]+)',
         r'VALOR TOTAL DA NFS-E.*?R\$\s*([\d.,]+)',
     ]:
         m = re.search(pattern, texto, re.IGNORECASE | re.DOTALL)
@@ -162,16 +162,16 @@ def extrair_nfse_pdf(texto):
             except InvalidOperation:
                 continue
 
-    # Itens — "Descrição do Serviço"
+    # Itens â "DescriÃ§Ã£o do ServiÃ§o"
     itens = []
-    m = re.search(r'Descri[çc][ãa]o do Servi[çc]o\s*\n(.*?)(?:\n[A-Z]{3,}|\Z)', texto, re.IGNORECASE | re.DOTALL)
+    m = re.search(r'Descri[Ã§c][Ã£a]o do Servi[Ã§c]o\s*\n(.*?)(?:\n[A-Z]{3,}|\Z)', texto, re.IGNORECASE | re.DOTALL)
     if m:
         bloco = m.group(1).strip()
         for linha in bloco.splitlines():
             linha = linha.strip().lstrip('-').strip()
             if not linha:
                 continue
-            # Extrair quantidade do início
+            # Extrair quantidade do inÃ­cio
             qtd_m = re.match(r'^(\d+)\s+', linha)
             qtd = int(qtd_m.group(1)) if qtd_m else 1
             descricao = re.sub(r'^\d+\s+', '', linha).strip()
@@ -187,7 +187,7 @@ def extrair_nfse_pdf(texto):
 
 
 # ============================================================================
-# EXTRATOR PDF — NF-e (Nota Fiscal de Produtos — DANFE)
+# EXTRATOR PDF â NF-e (Nota Fiscal de Produtos â DANFE)
 # ============================================================================
 
 def extrair_nfe_pdf(texto):
@@ -195,7 +195,7 @@ def extrair_nfe_pdf(texto):
     dados = {'tipo': 'nfe'}
 
     # Numero: Nx:638381 onde x pode ser o simbolo ordinal masculino (0xba)
-    m = re.search(r'N�[s:]*(\d{4,9})', texto)
+    m = re.search(r'Nº[s:]*(\d{4,9})', texto)
     if not m:
         m = re.search(r'N[Uu]mero[\s:]+(\d{1,9})\b', texto, re.IGNORECASE)
     if m:
@@ -235,14 +235,14 @@ def extrair_nfe_pdf(texto):
 
 
 def detectar_tipo_nf(texto):
-    """Detecta se o PDF é NFS-e ou NF-e"""
+    """Detecta se o PDF Ã© NFS-e ou NF-e"""
     texto_lower = texto.lower()
-    if any(kw in texto_lower for kw in ['nfs-e', 'nota fiscal de serviço', 'danfse', 'nfse']):
+    if any(kw in texto_lower for kw in ['nfs-e', 'nota fiscal de serviÃ§o', 'danfse', 'nfse']):
         return 'nfse'
-    if any(kw in texto_lower for kw in ['danfe', 'nf-e', 'nota fiscal eletrônica']):
+    if any(kw in texto_lower for kw in ['danfe', 'nf-e', 'nota fiscal eletrÃ´nica']):
         return 'nfe'
-    # Heurística: NFS-e tem "Descrição do Serviço"
-    if 'descrição do serviço' in texto_lower or 'descricao do servico' in texto_lower:
+    # HeurÃ­stica: NFS-e tem "DescriÃ§Ã£o do ServiÃ§o"
+    if 'descriÃ§Ã£o do serviÃ§o' in texto_lower or 'descricao do servico' in texto_lower:
         return 'nfse'
     return 'nfe'  # fallback
 
@@ -252,7 +252,7 @@ def detectar_tipo_nf(texto):
 # ============================================================================
 
 def extrair_pdf(arquivo):
-    """Extrai dados de NF via PDF — detecta NFS-e ou NF-e automaticamente"""
+    """Extrai dados de NF via PDF â detecta NFS-e ou NF-e automaticamente"""
     try:
         import pdfplumber
 
@@ -262,7 +262,7 @@ def extrair_pdf(arquivo):
                 texto += (page.extract_text() or '') + '\n'
 
         if not texto.strip():
-            return {'sucesso': False, 'erro': 'PDF sem texto extraível (pode ser imagem digitalizada)', 'fonte': 'pdf'}
+            return {'sucesso': False, 'erro': 'PDF sem texto extraÃ­vel (pode ser imagem digitalizada)', 'fonte': 'pdf'}
 
         tipo = detectar_tipo_nf(texto)
 
@@ -283,11 +283,11 @@ def extrair_pdf(arquivo):
 
 
 # ============================================================================
-# DETECÇÃO DE SOFTWARE NOS ITENS
+# DETECÃÃO DE SOFTWARE NOS ITENS
 # ============================================================================
 
 def detectar_itens_software(itens):
-    """Analisa itens da NF e identifica possíveis licenças de software"""
+    """Analisa itens da NF e identifica possÃ­veis licenÃ§as de software"""
     resultado = []
     for item in itens:
         descricao = item.get('descricao', '').lower()
