@@ -73,6 +73,16 @@ def nota_fiscal_nova(request):
         nota.criado_por = request.user
         nota.save()
         registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "NotaFiscal", nota.pk, f"Nota fiscal {nota.numero} cadastrada.")
+        
+        # Salvar itens de software na sessão para tela de vincular licenças
+        import json
+        itens_json = request.POST.get("itens_software_json", "")
+        if itens_json:
+            try:
+                request.session["itens_software_sugeridos"] = json.loads(itens_json)
+            except Exception:
+                pass
+        
         return redirect("nota_fiscal_vincular_licencas", pk=nota.pk)
     return render(request, "notas_fiscais/nota_fiscal_form.html", {
         "form": form,
@@ -223,4 +233,40 @@ def nota_fiscal_vincular_licencas(request, pk):
         "licencas_existentes": licencas_existentes,
         "softwares_disponiveis": softwares_disponiveis,
         "itens_software": itens_software,
+    })
+
+
+@login_required
+def nota_fiscal_extrair_ajax(request):
+    """Endpoint AJAX: extrai dados da NF e retorna JSON"""
+    from django.http import JsonResponse
+    from .extrator import extrair_nota_fiscal, detectar_itens_software
+
+    if request.method != "POST":
+        return JsonResponse({"erro": "Método não permitido"}, status=405)
+
+    arquivo = request.FILES.get("arquivo")
+    if not arquivo:
+        return JsonResponse({"erro": "Nenhum arquivo enviado"}, status=400)
+
+    resultado = extrair_nota_fiscal(arquivo, arquivo.name)
+
+    if not resultado.get("sucesso"):
+        return JsonResponse({
+            "sucesso": False,
+            "erro": resultado.get("erro", "Erro desconhecido"),
+        }, status=400)
+
+    itens = detectar_itens_software(resultado.get("itens", []))
+
+    return JsonResponse({
+        "sucesso": True,
+        "tipo": resultado.get("tipo", ""),
+        "fonte": resultado.get("fonte", ""),
+        "numero": resultado.get("numero") or "",
+        "fornecedor": resultado.get("fornecedor") or "",
+        "data_emissao": resultado.get("data_emissao") or "",
+        "valor_total": resultado.get("valor_total") or "",
+        "itens": itens,
+        "itens_software": [i for i in itens if i.get("is_software")],
     })

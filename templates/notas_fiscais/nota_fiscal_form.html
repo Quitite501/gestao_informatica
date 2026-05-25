@@ -9,23 +9,176 @@
 {% endblock %}
 {% block content %}
 <div class="max-w-2xl">
-  <div class="card">
-    <form method="post" enctype="multipart/form-data" class="space-y-5">
-      {% csrf_token %}
-      {% for field in form %}
-      <div>
-        <label class="form-label">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}
-        <p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>
-        {% endif %}
+
+  {% if dados_importados %}
+  <div class="mb-4 p-4 rounded border border-green-300 bg-green-50 dark:bg-green-900 dark:border-green-700">
+    <p class="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">
+      ✅ Dados extraídos via {{ fonte|upper }} — revise e salve
+    </p>
+    {% if itens %}
+    <details class="mt-2">
+      <summary class="text-xs text-green-600 dark:text-green-400 cursor-pointer">Ver {{ itens|length }} item(ns) da nota</summary>
+      <div class="mt-2 space-y-1">
+        {% for item in itens %}
+        <div class="text-xs text-green-700 dark:text-green-300 flex justify-between border-b border-green-200 pb-1">
+          <span>{{ item.descricao }}</span>
+          <span class="ml-4 whitespace-nowrap">{{ item.quantidade }}x</span>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-      <div class="flex items-center gap-3 pt-2">
+    </details>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Importação direta no formulário -->
+  <div class="card mb-4 border-l-4 border-l-blue-500 bg-blue-50 dark:bg-blue-950">
+    <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase mb-2">
+      📎 Carregar dados de XML ou PDF
+    </p>
+    <div class="flex gap-2 items-center">
+      <input type="file" id="arquivo_nf" accept=".xml,.pdf"
+        class="block text-xs text-[var(--secondary-text)] file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:opacity-90 cursor-pointer flex-1">
+      <button type="button" id="btn_carregar"
+        class="px-4 py-2 text-xs font-semibold rounded bg-blue-600 text-white hover:bg-blue-700 whitespace-nowrap">
+        Carregar
+      </button>
+    </div>
+    <p id="msg_importacao" class="mt-2 text-xs hidden"></p>
+  </div>
+
+  <!-- Formulário principal -->
+  <div class="card">
+    <form method="post" enctype="multipart/form-data" class="space-y-5" id="form_nota">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">Número <span class="text-red-500">*</span></label>
+          {{ form.numero }}
+          {% if form.numero.errors %}<p class="mt-1 text-xs text-red-500">{{ form.numero.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">Data de Emissão <span class="text-red-500">*</span></label>
+          {{ form.data_emissao }}
+          {% if form.data_emissao.errors %}<p class="mt-1 text-xs text-red-500">{{ form.data_emissao.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div class="md:col-span-2">
+          <label class="form-label">Fornecedor <span class="text-red-500">*</span></label>
+          {{ form.fornecedor }}
+          {% if form.fornecedor.errors %}<p class="mt-1 text-xs text-red-500">{{ form.fornecedor.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">Valor Total <span class="text-red-500">*</span></label>
+          {{ form.valor_total }}
+          {% if form.valor_total.errors %}<p class="mt-1 text-xs text-red-500">{{ form.valor_total.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">Arquivo PDF</label>
+          {{ form.arquivo_pdf }}
+        </div>
+        <div>
+          <label class="form-label">Arquivo XML</label>
+          {{ form.arquivo_xml }}
+        </div>
+        <div class="md:col-span-2">
+          <label class="form-label">Observações</label>
+          {{ form.observacoes }}
+        </div>
+      </div>
+
+      <!-- Itens detectados (software) -->
+      <div id="bloco_itens" class="hidden">
+        <div class="border border-green-300 dark:border-green-700 rounded p-3 bg-green-50 dark:bg-green-900">
+          <p class="text-xs font-bold text-green-700 dark:text-green-300 uppercase mb-2">
+            🖥️ Licenças de software detectadas — serão criadas ao salvar
+          </p>
+          <div id="lista_itens" class="space-y-1"></div>
+        </div>
+      </div>
+
+      <input type="hidden" id="itens_software_json" name="itens_software_json" value="">
+
+      <div class="flex gap-3 pt-2">
         <button type="submit" class="btn-primary">Salvar</button>
         <a href="{% url 'nota_fiscal_lista' %}" class="btn-secondary">Cancelar</a>
       </div>
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const EXTRAIR_URL = "{% url 'nota_fiscal_extrair_ajax' %}";
+const CSRF = "{{ csrf_token }}";
+
+document.getElementById('btn_carregar').addEventListener('click', async function() {
+    const fileInput = document.getElementById('arquivo_nf');
+    const msg = document.getElementById('msg_importacao');
+    const btn = this;
+
+    if (!fileInput.files.length) {
+        msg.textContent = '⚠️ Selecione um arquivo XML ou PDF.';
+        msg.className = 'mt-2 text-xs text-yellow-600';
+        msg.classList.remove('hidden');
+        return;
+    }
+
+    btn.textContent = 'Processando...';
+    btn.disabled = true;
+    msg.textContent = '⏳ Extraindo dados...';
+    msg.className = 'mt-2 text-xs text-blue-600';
+    msg.classList.remove('hidden');
+
+    const formData = new FormData();
+    formData.append('arquivo', fileInput.files[0]);
+    formData.append('csrfmiddlewaretoken', CSRF);
+
+    try {
+        const response = await fetch(EXTRAIR_URL, { method: 'POST', body: formData });
+        const data = await response.json();
+
+        if (!data.sucesso) {
+            msg.textContent = '❌ ' + (data.erro || 'Erro ao processar arquivo.');
+            msg.className = 'mt-2 text-xs text-red-600';
+            return;
+        }
+
+        // Preencher campos
+        if (data.numero) document.getElementById('id_numero').value = data.numero;
+        if (data.fornecedor) document.getElementById('id_fornecedor').value = data.fornecedor;
+        if (data.data_emissao) document.getElementById('id_data_emissao').value = data.data_emissao;
+        if (data.valor_total) document.getElementById('id_valor_total').value = data.valor_total;
+
+        // Mostrar itens de software
+        const blocoItens = document.getElementById('bloco_itens');
+        const listaItens = document.getElementById('lista_itens');
+        const itensJson = document.getElementById('itens_software_json');
+
+        if (data.itens_software && data.itens_software.length > 0) {
+            listaItens.innerHTML = '';
+            data.itens_software.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'text-xs text-green-800 dark:text-green-200 flex justify-between py-1 border-b border-green-200';
+                div.innerHTML = `<span>${item.descricao}</span><span class="ml-4 font-bold">${item.sugestao_qtd}x</span>`;
+                listaItens.appendChild(div);
+            });
+            blocoItens.classList.remove('hidden');
+            itensJson.value = JSON.stringify(data.itens_software);
+        }
+
+        const tipo = data.tipo === 'nfse' ? 'NFS-e' : 'NF-e';
+        msg.textContent = `✅ ${tipo} carregada via ${data.fonte.toUpperCase()} — revise os dados antes de salvar.`;
+        msg.className = 'mt-2 text-xs text-green-600';
+
+    } catch (e) {
+        msg.textContent = '❌ Erro de conexão: ' + e.message;
+        msg.className = 'mt-2 text-xs text-red-600';
+    } finally {
+        btn.textContent = 'Carregar';
+        btn.disabled = false;
+    }
+});
+</script>
 {% endblock %}
