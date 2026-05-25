@@ -191,66 +191,48 @@ def extrair_nfse_pdf(texto):
 # ============================================================================
 
 def extrair_nfe_pdf(texto):
-    """Extrai dados de NF-e de produtos (DANFE)"""
+    """Extrai dados de NF-e de produtos (DANFE) - multiplos formatos"""
     dados = {'tipo': 'nfe'}
 
-    # Número
-    for pattern in [
-        r'N[úu]mero\s*[:\.]?\s*(\d+)',
-        r'NF[- ]?e?\s*[:\.]?\s*(\d+)',
-        r'N[ºo°]\s*(\d+)',
-    ]:
-        m = re.search(pattern, texto, re.IGNORECASE)
-        if m:
-            dados['numero'] = m.group(1).zfill(9)
-            break
+    # Numero: Nx:638381 onde x pode ser o simbolo ordinal masculino (0xba)
+    m = re.search(r'N�[s:]*(\d{4,9})', texto)
+    if not m:
+        m = re.search(r'N[Uu]mero[\s:]+(\d{1,9})\b', texto, re.IGNORECASE)
+    if m:
+        num = m.group(1)
+        if len(num) <= 9:
+            dados['numero'] = num.zfill(9)
 
-    # Fornecedor/Emitente
-    for pattern in [
-        r'Emitente[:\s]+([A-Z][^\n]{5,80})',
-        r'Raz[ãa]o Social[:\s]+([A-Z][^\n]{5,80})',
-        r'Nome Empresarial[:\s]+([A-Z][^\n]{5,80})',
-    ]:
-        m = re.search(pattern, texto, re.IGNORECASE)
-        if m:
-            dados['fornecedor'] = m.group(1).strip()
-            break
+    # Fornecedor: DANFE tem "RECEBEMOS DE {NOME} OS PRODUTOS"
+    m = re.search(r'RECEBEMOS DE\s+(.+?)\s+OS PRODUTOS', texto, re.IGNORECASE)
+    if not m:
+        m = re.search(r'RECEBEMOS DE\s+(.+?)\s+OS SERVI', texto, re.IGNORECASE)
+    if m:
+        dados['fornecedor'] = m.group(1).strip()
 
-    # Data de emissão
-    for pattern in [
-        r'Data\s+(?:de\s+)?[Ee]miss[ãa]o[:\s]+(\d{2}/\d{2}/\d{4})',
-        r'Emiss[ãa]o[:\s]+(\d{2}/\d{2}/\d{4})',
-    ]:
-        m = re.search(pattern, texto, re.IGNORECASE)
-        if m:
-            try:
-                dados['data_emissao'] = datetime.strptime(m.group(1), '%d/%m/%Y').strftime('%Y-%m-%d')
-                break
-            except ValueError:
-                continue
+    # Data: EMISSAO: 12-02-2026 ou 12/02/2026
+    m = re.search(r'EMISS[^\s]{0,5}[\s:]+([\d]{2}[-/][\d]{2}[-/][\d]{4})', texto, re.IGNORECASE)
+    if m:
+        try:
+            dados['data_emissao'] = datetime.strptime(m.group(1).replace('-','/'), '%d/%m/%Y').strftime('%Y-%m-%d')
+        except ValueError:
+            pass
 
-    # Valor total
-    for pattern in [
-        r'Valor Total da Nota[:\s]+R?\$?\s*([\d.,]+)',
-        r'TOTAL\s+DA\s+NOTA[:\s]+R?\$?\s*([\d.,]+)',
-        r'Valor Total[:\s]+R?\$?\s*([\d.,]+)',
-    ]:
-        m = re.search(pattern, texto, re.IGNORECASE)
-        if m:
-            v = m.group(1).replace('.', '').replace(',', '.')
-            try:
-                dados['valor_total'] = str(Decimal(v))
-                break
-            except InvalidOperation:
-                continue
+    # Valor: VALOR TOTAL: R$ 3.473,16
+    m = re.search(r'VALOR TOTAL[\s:]+R\$\s*([\d.,]+)', texto, re.IGNORECASE)
+    if not m:
+        m = re.search(r'Valor Total[\s:]+R?\$?\s*([\d.,]+)', texto, re.IGNORECASE)
+    if m:
+        try:
+            val = Decimal(m.group(1).replace('.','').replace(',','.'))
+            if val > 0:
+                dados['valor_total'] = str(val)
+        except InvalidOperation:
+            pass
 
     dados['itens'] = []
     return dados
 
-
-# ============================================================================
-# DETECTOR DE TIPO DE NF
-# ============================================================================
 
 def detectar_tipo_nf(texto):
     """Detecta se o PDF é NFS-e ou NF-e"""
