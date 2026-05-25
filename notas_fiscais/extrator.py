@@ -113,32 +113,35 @@ def extrair_xml(arquivo):
 # ============================================================================
 
 def extrair_nfse_pdf(texto):
-    """Extrai dados especÃ­ficos de NFS-e municipal"""
+    """Extrai dados de NFS-e municipal - suporta texto normal e concatenado"""
     dados = {'tipo': 'nfse'}
 
-    # NÃºmero da NFS-e
-    m = re.search(r'N[Ãºu]mero da NFS-e\s*\n?\s*(\d+)', texto, re.IGNORECASE)
+    # Número: "NúmerodaNFS-e ... \n431" OU "Número da NFS-e\n431"
+    m = re.search(r'N.{0,5}merodaNFS-e[^\n]*\n(\d+)\s', texto)
+    if not m:
+        m = re.search(r'N[úu]mero da NFS-e\s*\n?\s*(\d+)', texto, re.IGNORECASE)
     if m:
         dados['numero'] = m.group(1).zfill(9)
 
-    # Fornecedor â bloco EMITENTE
-    m = re.search(
-        r'Nome\s*/\s*Nome Empresarial\s*\n([^\n]{5,100})',
-        texto, re.IGNORECASE
-    )
+    # Fornecedor: CNPJ + nome concatenado ou com espaços
+    m = re.search(r'(\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2})', texto)
+    cnpj = m.group(1) if m else None
+    # Nome do emitente: após "Nome/NomeEmpresarial" (concatenado)
+    m = re.search(r'Nome/NomeEmpresarial.*?\n(.+?)(?:\s+\S+@\S+|\n)', texto, re.IGNORECASE)
+    if not m:
+        m = re.search(r'Nome / Nome Empresarial\s*\n([^\n]{5,100})', texto, re.IGNORECASE)
     if m:
         nome = m.group(1).strip()
-        # CNPJ do emitente
-        cnpj_m = re.search(r'CNPJ\s*/\s*CPF\s*/\s*NIF\s*\n([\d.\/\-]+)', texto)
-        if cnpj_m:
-            dados['fornecedor'] = f"{nome} (CNPJ: {cnpj_m.group(1).strip()})"
-        else:
-            dados['fornecedor'] = nome
+        # Limpar CNPJ do inicio do nome (ex: "11.401.723HELCIO..." -> "HELCIO...")
+        nome_limpo = re.sub(r'^[\d.\-/]+', '', nome).strip()
+        if not nome_limpo:
+            nome_limpo = nome
+        dados['fornecedor'] = f"{nome_limpo} (CNPJ: {cnpj})" if cnpj else nome_limpo
 
-    # Data â preferir "CompetÃªncia da NFS-e"
-    m = re.search(r'Compet[Ãªe]ncia da NFS-e\s*\n?\s*(\d{2}/\d{2}/\d{4})', texto, re.IGNORECASE)
+    # Data: "CompetênciadaNFS-e...\n...DD/MM/YYYY" ou direto
+    m = re.search(r'Compet.{0,5}nciaNFS-e[^\n]*\n[^\n]*?(\d{2}/\d{2}/\d{4})', texto)
     if not m:
-        m = re.search(r'Data e Hora da emiss[Ã£a]o da NFS-e\s*\n?\s*(\d{2}/\d{2}/\d{4})', texto, re.IGNORECASE)
+        m = re.search(r'Compet[êe]ncia da NFS-e\s*\n?\s*(\d{2}/\d{2}/\d{4})', texto, re.IGNORECASE)
     if not m:
         m = re.search(r'(\d{2}/\d{2}/\d{4})', texto)
     if m:
@@ -147,48 +150,61 @@ def extrair_nfse_pdf(texto):
         except ValueError:
             pass
 
-    # Valor â "Valor LÃ­quido da NFS-e"
-    for pattern in [
-        r'Valor L[Ã­i]quido da NFS-e\s*\n?\s*R\$\s*([\d.,]+)',
-        r'Valor do Servi[Ã§c]o\s*\n?\s*R\$\s*([\d.,]+)',
-        r'VALOR TOTAL DA NFS-E.*?R\$\s*([\d.,]+)',
-    ]:
-        m = re.search(pattern, texto, re.IGNORECASE | re.DOTALL)
-        if m:
-            v = m.group(1).replace('.', '').replace(',', '.')
-            try:
-                dados['valor_total'] = str(Decimal(v))
-                break
-            except InvalidOperation:
-                continue
+    # Valor: "ValorLíquidodaNFS-e\n...R$5.494,30" ou "R$ 5.494,30"
+    m = re.search(r'ValorL.{0,5}quidodaNFS-e[^\n]*\n[^\n]*?R\$([\d.,]+)', texto)
+    if not m:
+        m = re.search(r'Valor L[íi]quido da NFS-e[^\n]*\n?[^\n]*?R\$\s*([\d.,]+)', texto, re.IGNORECASE)
+    if not m:
+        # Pegar último R$ valor do texto (geralmente é o valor total)
+        matches = re.findall(r'R\$([\d.,]+)', texto)
+        if matches:
+            # Usar o último valor encontrado
+            for v in reversed(matches):
+                try:
+                    val = Decimal(v.replace('.','').replace(',','.'))
+                    if val > 0:
+                        m = type('M', (), {'group': lambda self, x: v})()
+                        break
+                except Exception:
+                    continue
+    if m:
+        try:
+            val = Decimal(m.group(1).replace('.','').replace(',','.'))
+            if val > 0:
+                dados['valor_total'] = str(val)
+        except InvalidOperation:
+            pass
 
-    # Itens â "DescriÃ§Ã£o do ServiÃ§o"
+    # Itens: após "DescriçãodoServiço" (concatenado) ou "Descrição do Serviço"
     itens = []
-    m = re.search(r'Descri[Ã§c][Ã£a]o do Servi[Ã§c]o\s*\n(.*?)(?:\n[A-Z]{3,}|\Z)', texto, re.IGNORECASE | re.DOTALL)
+    m = re.search(r'Descri.{0,5}odoServi.o\s*\n(.*?)(?:TRIBUTA|\Z)', texto, re.IGNORECASE | re.DOTALL)
+    if not m:
+        m = re.search(r'Descri[çc][ãa]o do Servi[çc]o\s*\n(.*?)(?:\n[A-Z]{4,}|\Z)', texto, re.IGNORECASE | re.DOTALL)
     if m:
         bloco = m.group(1).strip()
         for linha in bloco.splitlines():
-            linha = linha.strip().lstrip('-').strip()
-            if not linha:
+            linha = linha.strip()
+            if not linha or len(linha) < 4:
                 continue
-            # Extrair quantidade do inÃ­cio
-            qtd_m = re.match(r'^(\d+)\s+', linha)
-            qtd = int(qtd_m.group(1)) if qtd_m else 1
-            descricao = re.sub(r'^\d+\s+', '', linha).strip()
+            # Remover traço inicial: "-01LICENÇA..." ou "- 01 LICENÇA..."
+            linha = re.sub(r'^-\s*', '', linha).strip()
+            # Extrair quantidade: "01LICENÇA..." ou "01 LICENÇA..."
+            qtd_m = re.match(r'^(\d{1,2})\s*(.+)', linha)
+            if qtd_m:
+                qtd = int(qtd_m.group(1))
+                descricao = qtd_m.group(2).strip()
+            else:
+                qtd = 1
+                descricao = linha
             if len(descricao) > 3:
                 itens.append({
                     'descricao': descricao,
                     'quantidade': str(qtd),
                     'valor': '0',
                 })
-
     dados['itens'] = itens
     return dados
 
-
-# ============================================================================
-# EXTRATOR PDF â NF-e (Nota Fiscal de Produtos â DANFE)
-# ============================================================================
 
 def extrair_nfe_pdf(texto):
     """Extrai dados de NF-e de produtos (DANFE) - multiplos formatos"""
