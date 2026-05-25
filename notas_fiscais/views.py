@@ -142,12 +142,13 @@ def nota_fiscal_importar(request):
         }
         form = NotaFiscalForm(initial=dados)
         
+        import json as _json
         return render(request, "notas_fiscais/nota_fiscal_form.html", {
             "form": form,
             "titulo": "Importar Nota Fiscal",
             "dados_importados": resultado,
             "itens": itens_analisados,
-            "itens_software": itens_software,
+            "itens_software": _json.dumps(itens_software, ensure_ascii=False),
             "fonte": resultado.get("fonte"),
         })
     
