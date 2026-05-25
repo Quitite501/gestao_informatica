@@ -77,8 +77,13 @@
       <p class="text-xs font-semibold text-[var(--secondary-text)] uppercase mb-3">Adicionar Licenças</p>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div>
-          <label class="form-label text-xs">Quantidade <span class="text-red-500">*</span></label>
+          <label class="form-label text-xs">Qtd. Adquirida <span class="text-red-500">*</span></label>
           <input type="number" name="quantidade_adquirida" min="1" value="1" class="form-input" required>
+        </div>
+        <div>
+          <label class="form-label text-xs">Qtd. Utilizada</label>
+          <input type="number" name="quantidade_utilizada" min="0" value="0" class="form-input"
+            title="Licenças em uso sem vínculo a computador específico">
         </div>
         <div>
           <label class="form-label text-xs">Data Aquisição <span class="text-red-500">*</span></label>

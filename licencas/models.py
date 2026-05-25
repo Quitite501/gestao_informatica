@@ -43,8 +43,12 @@ class Software(models.Model):
         return self.instalacoes.filter(ativo=True).count()
 
     @property
+    def total_utilizado_sem_instalacao(self):
+        return sum(c.quantidade_utilizada for c in self.contratos.all())
+
+    @property
     def saldo(self):
-        return self.total_adquirido - self.total_instalado
+        return self.total_adquirido - self.total_instalado - self.total_utilizado_sem_instalacao
 
     @property
     def situacao(self):
@@ -75,6 +79,11 @@ class LicencaContrato(models.Model):
     data_aquisicao = models.DateField(verbose_name="Data de aquisição")
     data_vencimento = models.DateField(blank=True, null=True, verbose_name="Data de vencimento")
     observacoes = models.TextField(blank=True, null=True, verbose_name="Observações")
+    quantidade_utilizada = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Qtd. utilizada (sem instalação)",
+        help_text="Licenças marcadas como em uso sem vínculo a um computador específico"
+    )
     criado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

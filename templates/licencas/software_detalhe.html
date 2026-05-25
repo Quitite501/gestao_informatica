@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
-
-{% block title %}{{ software.nome }} — Sistema de Gestão de TI{% endblock %}
+{% block title %}{{ software.nome }} — Licenças{% endblock %}
 {% block page_title %}{{ software.nome }}{% endblock %}
 
 {% block topbar_actions %}
+  <a href="{% url 'instalacao_nova' %}?software={{ software.pk }}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Registrar Instalação
+  </a>
   <a href="{% url 'software_editar' software.pk %}" class="btn-secondary">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
     Editar
@@ -15,153 +18,182 @@
 {% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="space-y-6">
 
-  <div class="lg:col-span-2 space-y-6">
+  <!-- Cards de Resumo -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-    <div class="card">
-      <h2 class="section-title">Dados do software</h2>
-      <dl class="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
-        <div>
-          <dt class="text-[var(--text-muted)]">Nome</dt>
-          <dd class="font-medium text-[var(--text-primary)] mt-0.5">{{ software.nome }}</dd>
-        </div>
-        <div>
-          <dt class="text-[var(--text-muted)]">Fabricante</dt>
-          <dd class="text-[var(--text-primary)] mt-0.5">{{ software.fabricante|default:"—" }}</dd>
-        </div>
-        <div>
-          <dt class="text-[var(--text-muted)]">Total adquirido</dt>
-          <dd class="text-[var(--text-primary)] mt-0.5">{{ software.total_adquirido }}</dd>
-        </div>
-        <div>
-          <dt class="text-[var(--text-muted)]">Total instalado</dt>
-          <dd class="text-[var(--text-primary)] mt-0.5">{{ software.total_instalado }}</dd>
-        </div>
-        <div>
-          <dt class="text-[var(--text-muted)]">Saldo</dt>
-          <dd class="mt-0.5">
-            <span class="font-medium {% if software.saldo < 0 %}text-[var(--danger-text)]{% elif software.saldo == 0 %}text-[var(--warning-text)]{% else %}text-[var(--success-text)]{% endif %}">
-              {{ software.saldo }}
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt class="text-[var(--text-muted)]">Situação</dt>
-          <dd class="mt-0.5">
-            {% if software.situacao == "OK" %}
-            <span class="badge-encerrado">OK</span>
-            {% elif "FALTAM" in software.situacao %}
-            <span class="badge-critica">{{ software.situacao }}</span>
-            {% else %}
-            <span class="badge-media">{{ software.situacao }}</span>
-            {% endif %}
-          </dd>
-        </div>
-        {% if software.observacoes %}
-        <div class="col-span-2">
-          <dt class="text-[var(--text-muted)]">Observações</dt>
-          <dd class="text-[var(--text-primary)] mt-0.5">{{ software.observacoes }}</dd>
-        </div>
-        {% endif %}
-      </dl>
+    <div class="card border-l-4 {% if software.saldo < 0 %}border-l-red-500 bg-red-50 dark:bg-red-950{% elif software.saldo == 0 %}border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950{% else %}border-l-green-500 bg-green-50 dark:bg-green-950{% endif %}">
+      <p class="text-xs font-semibold uppercase text-[var(--secondary-text)]">Situação</p>
+      <p class="text-2xl font-bold mt-1 {% if software.saldo < 0 %}text-red-600{% elif software.saldo == 0 %}text-yellow-600{% else %}text-green-600{% endif %}">
+        {% if software.saldo < 0 %}⚠️ Faltam{% elif software.saldo == 0 %}✓ OK{% else %}✓ OK{% endif %}
+      </p>
     </div>
 
-    <div class="card p-0 overflow-hidden">
-      <div class="flex items-center justify-between px-6 pt-6 pb-4">
-        <h2 class="section-title mb-0">Contratos de licença</h2>
-        <a href="{% url 'licenca_contrato_novo' %}?software={{ software.pk }}" class="btn-primary text-xs px-3 py-1.5">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Novo contrato
-        </a>
-      </div>
-      <table class="table-base">
-        <thead>
-          <tr>
-            <th>Nota Fiscal</th>
-            <th>Qtd. adquirida</th>
-            <th>Data aquisição</th>
-            <th>Vencimento</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for contrato in software.contratos.all %}
-          <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
-            <td>{% if contrato.nota_fiscal %}<a href="{% url 'nota_fiscal_detalhe' contrato.nota_fiscal.pk %}" class="text-[var(--accent)] hover:underline">NF {{ contrato.nota_fiscal.numero }}</a>{% else %}—{% endif %}</td>
-            <td>{{ contrato.quantidade_adquirida }}</td>
-            <td>{{ contrato.data_aquisicao|date:"d/m/Y"|default:"—" }}</td>
-            <td>{{ contrato.data_vencimento|date:"d/m/Y"|default:"—" }}</td>
-            <td>
-              {% with st=contrato.status_vencimento %}
-              {% if st == "vencida" %}<span class="badge-critica">Vencida</span>
-              {% elif st == "vence_em_breve" %}<span class="badge-alta">Vence em breve</span>
-              {% elif st == "ok" %}<span class="badge-encerrado">OK</span>
-              {% else %}<span class="badge-baixa">Sem vencimento</span>{% endif %}
-              {% endwith %}
-            </td>
-            <td><a href="{% url 'licenca_contrato_editar' contrato.pk %}" class="text-sm text-[var(--accent)] hover:underline">Editar</a></td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="6" class="text-center text-[var(--text-muted)] py-4">Nenhum contrato cadastrado.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="card border-l-4 border-l-blue-500">
+      <p class="text-xs font-semibold uppercase text-[var(--secondary-text)]">Adquiridas</p>
+      <p class="text-3xl font-bold text-blue-600 mt-1">{{ software.total_adquirido }}</p>
     </div>
 
-    <div class="card p-0 overflow-hidden">
-      <div class="flex items-center justify-between px-6 pt-6 pb-4">
-        <h2 class="section-title mb-0">Instalações</h2>
-        <a href="{% url 'instalacao_nova' %}?software={{ software.pk }}" class="btn-primary text-xs px-3 py-1.5">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Nova instalação
-        </a>
-      </div>
-      <table class="table-base">
-        <thead>
-          <tr>
-            <th>Equipamento</th>
-            <th>Versão</th>
-            <th>Data instalação</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for inst in software.instalacoes.all %}
-          <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
-            <td>{{ inst.patrimonio }}</td>
-            <td>{{ inst.versao|default:"—" }}</td>
-            <td>{{ inst.data_instalacao|date:"d/m/Y"|default:"—" }}</td>
-            <td><a href="{% url 'instalacao_editar' inst.pk %}" class="text-sm text-[var(--accent)] hover:underline">Editar</a></td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="4" class="text-center text-[var(--text-muted)] py-4">Nenhuma instalação registrada.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="card border-l-4 border-l-purple-500">
+      <p class="text-xs font-semibold uppercase text-[var(--secondary-text)]">Instaladas</p>
+      <p class="text-3xl font-bold text-purple-600 mt-1">{{ software.total_instalado }}</p>
     </div>
 
+    <div class="card border-l-4 border-l-orange-500">
+      <p class="text-xs font-semibold uppercase text-[var(--secondary-text)]">Utilizadas</p>
+      <p class="text-3xl font-bold text-orange-600 mt-1">{{ software.total_utilizado_sem_instalacao }}</p>
+      <p class="text-xs text-[var(--secondary-text)] mt-1">Sem computador vinculado</p>
+    </div>
+
+    <div class="card border-l-4 {% if software.saldo < 0 %}border-l-red-500{% else %}border-l-green-500{% endif %}">
+      <p class="text-xs font-semibold uppercase text-[var(--secondary-text)]">Saldo</p>
+      <p class="text-3xl font-bold mt-1 {% if software.saldo < 0 %}text-red-600{% else %}text-green-600{% endif %}">{{ software.saldo }}</p>
+    </div>
   </div>
 
-  <div class="space-y-6">
-    <div class="card">
-      <h2 class="section-title">Resumo de conformidade</h2>
-      <div class="space-y-4 text-sm">
-        <div class="flex justify-between">
-          <span class="text-[var(--text-muted)]">Adquiridas</span>
-          <span class="font-medium text-[var(--text-primary)]">{{ software.total_adquirido }}</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-[var(--text-muted)]">Instaladas</span>
-          <span class="font-medium text-[var(--text-primary)]">{{ software.total_instalado }}</span>
-        </div>
-        <div class="border-t border-[var(--border)] pt-4 flex justify-between">
-          <span class="text-[var(--text-muted)]">Saldo</span>
-          <span class="font-semibold {% if software.saldo < 0 %}text-[var(--danger-text)]{% else %}text-[var(--success-text)]{% endif %}">{{ software.saldo }}</span>
-        </div>
+  <!-- Informações do Software -->
+  <div class="card">
+    <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Informações do Software</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+      <div>
+        <p class="text-xs text-[var(--secondary-text)] uppercase font-semibold">Nome</p>
+        <p class="font-semibold mt-1">{{ software.nome }}</p>
+      </div>
+      <div>
+        <p class="text-xs text-[var(--secondary-text)] uppercase font-semibold">Fabricante</p>
+        <p class="mt-1">{{ software.fabricante|default:"—" }}</p>
+      </div>
+      <div>
+        <p class="text-xs text-[var(--secondary-text)] uppercase font-semibold">Versão</p>
+        <p class="mt-1">{{ software.versao|default:"—" }}</p>
+      </div>
+      <div>
+        <p class="text-xs text-[var(--secondary-text)] uppercase font-semibold">Tipo de Licença</p>
+        <p class="mt-1">{{ software.get_tipo_licenca_display }}</p>
       </div>
     </div>
+  </div>
+
+  <!-- Contratos / Notas Fiscais -->
+  <div class="card">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-sm font-semibold uppercase text-[var(--secondary-text)]">
+        Contratos / Notas Fiscais
+        <span class="ml-2 text-xs bg-[var(--primary)] text-white px-2 py-0.5 rounded-full">{{ contratos.count }}</span>
+      </h2>
+      <a href="{% url 'licenca_contrato_novo' %}?software={{ software.pk }}" class="btn-primary text-xs px-3 py-1.5">+ Novo Contrato</a>
+    </div>
+    <table class="w-full text-sm">
+      <thead class="bg-[var(--surface-secondary)]">
+        <tr>
+          <th class="px-3 py-2 text-left font-semibold">Nota Fiscal</th>
+          <th class="px-3 py-2 text-left font-semibold">Fornecedor</th>
+          <th class="px-3 py-2 text-center font-semibold">Adquiridas</th>
+          <th class="px-3 py-2 text-center font-semibold">Utilizadas</th>
+          <th class="px-3 py-2 text-left font-semibold">Aquisição</th>
+          <th class="px-3 py-2 text-left font-semibold">Vencimento</th>
+          <th class="px-3 py-2 text-left font-semibold">Chave</th>
+          <th class="px-3 py-2 text-center font-semibold">Status</th>
+          <th class="px-3 py-2 text-center font-semibold">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in contratos %}
+        <tr class="border-t border-[var(--surface-secondary)] hover:bg-[var(--surface-secondary)]">
+          <td class="px-3 py-3">
+            {% if c.nota_fiscal %}
+            <a href="{% url 'nota_fiscal_detalhe' c.nota_fiscal.pk %}" class="text-blue-600 hover:underline font-mono text-xs">
+              {{ c.nota_fiscal.numero }}
+            </a>
+            {% else %}
+            <span class="text-xs text-[var(--secondary-text)]">Sem NF</span>
+            {% endif %}
+          </td>
+          <td class="px-3 py-3 text-xs">{{ c.nota_fiscal.fornecedor|default:"—"|truncatechars:25 }}</td>
+          <td class="px-3 py-3 text-center font-bold text-[var(--primary)]">{{ c.quantidade_adquirida }}</td>
+          <td class="px-3 py-3 text-center">
+            {% if c.quantidade_utilizada > 0 %}
+            <span class="px-2 py-0.5 text-xs rounded bg-blue-100 text-blue-700 font-bold">{{ c.quantidade_utilizada }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td class="px-3 py-3">{{ c.data_aquisicao|date:"d/m/Y"|default:"—" }}</td>
+          <td class="px-3 py-3">
+            {% if c.data_vencimento %}
+              {% if c.status_vencimento == 'vencida' %}
+                <span class="text-red-600 font-semibold text-xs">{{ c.data_vencimento|date:"d/m/Y" }} ⚠️</span>
+              {% elif c.status_vencimento == 'vence_em_breve' %}
+                <span class="text-yellow-600 font-semibold text-xs">{{ c.data_vencimento|date:"d/m/Y" }} ⏰</span>
+              {% else %}
+                <span class="text-xs">{{ c.data_vencimento|date:"d/m/Y" }}</span>
+              {% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td class="px-3 py-3 font-mono text-xs">{{ c.chave_licenca|default:"—"|truncatechars:20 }}</td>
+          <td class="px-3 py-3 text-center">
+            {% with st=c.status_vencimento %}
+              {% if st == "vencida" %}<span class="px-2 py-0.5 text-xs rounded bg-red-100 text-red-700">Vencida</span>
+              {% elif st == "vence_em_breve" %}<span class="px-2 py-0.5 text-xs rounded bg-yellow-100 text-yellow-700">Vence em breve</span>
+              {% elif st == "ok" %}<span class="px-2 py-0.5 text-xs rounded bg-green-100 text-green-700">OK</span>
+              {% else %}<span class="px-2 py-0.5 text-xs rounded bg-gray-100 text-gray-600">Perpétua</span>{% endif %}
+            {% endwith %}
+          </td>
+          <td class="px-3 py-3 text-center">
+            <a href="{% url 'licenca_contrato_editar' c.pk %}" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Editar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="px-3 py-6 text-center text-[var(--secondary-text)]">Nenhum contrato cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Instalações -->
+  <div class="card">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-sm font-semibold uppercase text-[var(--secondary-text)]">
+        Computadores com este Software
+        <span class="ml-2 text-xs bg-[var(--primary)] text-white px-2 py-0.5 rounded-full">{{ instalacoes.count }}</span>
+      </h2>
+      <a href="{% url 'instalacao_nova' %}?software={{ software.pk }}" class="btn-primary text-xs px-3 py-1.5">+ Registrar Instalação</a>
+    </div>
+    <table class="w-full text-sm">
+      <thead class="bg-[var(--surface-secondary)]">
+        <tr>
+          <th class="px-3 py-2 text-left font-semibold">Equipamento</th>
+          <th class="px-3 py-2 text-left font-semibold">Hostname</th>
+          <th class="px-3 py-2 text-left font-semibold">Usuário</th>
+          <th class="px-3 py-2 text-left font-semibold">Setor</th>
+          <th class="px-3 py-2 text-left font-semibold">Data Instalação</th>
+          <th class="px-3 py-2 text-center font-semibold">Status</th>
+          <th class="px-3 py-2 text-center font-semibold">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inst in instalacoes %}
+        <tr class="border-t border-[var(--surface-secondary)] hover:bg-[var(--surface-secondary)]">
+          <td class="px-3 py-3 font-semibold">{{ inst.patrimonio.etiqueta }}</td>
+          <td class="px-3 py-3 text-xs font-mono">{{ inst.patrimonio.hostname|default:"—" }}</td>
+          <td class="px-3 py-3 text-xs">{{ inst.patrimonio.usuario_atual.username|default:"—" }}</td>
+          <td class="px-3 py-3 text-xs">{{ inst.patrimonio.setor.nome|default:"—" }}</td>
+          <td class="px-3 py-3 text-xs">{{ inst.data_instalacao|date:"d/m/Y"|default:"—" }}</td>
+          <td class="px-3 py-3 text-center">
+            {% if inst.ativo %}
+            <span class="px-2 py-0.5 text-xs rounded bg-green-100 text-green-700">Ativa</span>
+            {% else %}
+            <span class="px-2 py-0.5 text-xs rounded bg-red-100 text-red-700">Inativa</span>
+            {% endif %}
+          </td>
+          <td class="px-3 py-3 text-center">
+            <a href="{% url 'instalacao_editar' inst.pk %}" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Editar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="px-3 py-6 text-center text-[var(--secondary-text)]">Nenhuma instalação registrada.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 
 </div>

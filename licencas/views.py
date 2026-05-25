@@ -121,9 +121,11 @@ def licenca_contrato_novo(request):
             nota_fiscal = NotaFiscal.objects.filter(numero__icontains=nf_numero).first()
         
         software = get_object_or_404(Software, pk=software_pk)
+        qtd_utilizada = int(request.POST.get("quantidade_utilizada", 0) or 0)
         contrato = LicencaContrato.objects.create(
             software=software,
             quantidade_adquirida=qtd,
+            quantidade_utilizada=qtd_utilizada,
             data_aquisicao=data_aquisicao,
             data_vencimento=data_vencimento,
             chave_licenca=chave,

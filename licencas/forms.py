@@ -49,6 +49,7 @@ class LicencaContratoForm(forms.ModelForm):
             "software",
             "nota_fiscal",
             "quantidade_adquirida",
+            "quantidade_utilizada",
             "chave_licenca",
             "data_aquisicao",
             "data_vencimento",
