@@ -105,13 +105,42 @@ def software_editar(request, pk):
 @login_required
 @permission_required("licencas.add_licencacontrato", raise_exception=True)
 def licenca_contrato_novo(request):
+    # Formulário rápido inline (vindo da tela de edição de software)
+    if request.method == "POST" and request.POST.get("quantidade_adquirida") and request.POST.get("software"):
+        from notas_fiscais.models import NotaFiscal
+        
+        software_pk = request.POST.get("software")
+        qtd = int(request.POST.get("quantidade_adquirida", 1))
+        data_aquisicao = request.POST.get("data_aquisicao")
+        data_vencimento = request.POST.get("data_vencimento") or None
+        chave = request.POST.get("chave_licenca", "").strip() or None
+        nf_numero = request.POST.get("nota_fiscal_numero", "").strip()
+        
+        nota_fiscal = None
+        if nf_numero:
+            nota_fiscal = NotaFiscal.objects.filter(numero__icontains=nf_numero).first()
+        
+        software = get_object_or_404(Software, pk=software_pk)
+        contrato = LicencaContrato.objects.create(
+            software=software,
+            quantidade_adquirida=qtd,
+            data_aquisicao=data_aquisicao,
+            data_vencimento=data_vencimento,
+            chave_licenca=chave,
+            nota_fiscal=nota_fiscal,
+            criado_por=request.user,
+        )
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "LicencaContrato", contrato.pk,
+            f"Contrato criado: {software.nome} — {qtd} licença(s)" + (f" — NF: {nota_fiscal.numero}" if nota_fiscal else ""))
+        return redirect("software_editar", pk=software.pk)
+
     form = LicencaContratoForm(request.POST or None)
     if form.is_valid():
         contrato = form.save(commit=False)
         contrato.criado_por = request.user
         contrato.save()
         registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "LicencaContrato", contrato.pk, f"Contrato de licença cadastrado para {contrato.software.nome}.")
-        return redirect("software_detalhe", pk=contrato.software.pk)
+        return redirect("software_editar", pk=contrato.software.pk)
     return render(request, "licencas/licenca_contrato_form.html", {
         "form": form,
         "titulo": "Novo Contrato de Licença",
