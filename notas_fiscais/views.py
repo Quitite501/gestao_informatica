@@ -93,3 +93,45 @@ def nota_fiscal_editar(request, pk):
         "form": form,
         "titulo": f"Editar Nota Fiscal: {nota.numero}",
     })
+
+
+@login_required
+@permission_required("notas_fiscais.add_notafiscal", raise_exception=True)
+def nota_fiscal_importar(request):
+    """Importa NF via XML ou PDF e pré-preenche o formulário"""
+    from .extrator import extrair_nota_fiscal
+    import json
+
+    if request.method == "POST":
+        arquivo = request.FILES.get("arquivo")
+        if not arquivo:
+            return render(request, "notas_fiscais/nota_fiscal_importar.html", {
+                "erro": "Nenhum arquivo enviado."
+            })
+        
+        resultado = extrair_nota_fiscal(arquivo, arquivo.name)
+        
+        if not resultado.get("sucesso"):
+            return render(request, "notas_fiscais/nota_fiscal_importar.html", {
+                "erro": f"Erro ao processar arquivo: {resultado.get('erro')}",
+                "dica": "Verifique se o arquivo é um XML NF-e válido ou um PDF com texto extraível."
+            })
+        
+        # Pré-preencher formulário com dados extraídos
+        dados = {
+            "numero": resultado.get("numero") or "",
+            "fornecedor": resultado.get("fornecedor") or "",
+            "data_emissao": resultado.get("data_emissao") or "",
+            "valor_total": resultado.get("valor_total") or "",
+        }
+        form = NotaFiscalForm(initial=dados)
+        
+        return render(request, "notas_fiscais/nota_fiscal_form.html", {
+            "form": form,
+            "titulo": "Importar Nota Fiscal",
+            "dados_importados": resultado,
+            "itens": resultado.get("itens", []),
+            "fonte": resultado.get("fonte"),
+        })
+    
+    return render(request, "notas_fiscais/nota_fiscal_importar.html")

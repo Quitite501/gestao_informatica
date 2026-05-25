@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Importar Nota Fiscal — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Importar Nota Fiscal{% endblock %}
+{% block topbar_actions %}
+  <a href="{% url 'nota_fiscal_lista' %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="card">
+    <h2 class="text-sm font-semibold mb-2 uppercase text-[var(--secondary-text)]">Upload do Arquivo</h2>
+    <p class="text-sm text-[var(--secondary-text)] mb-6">
+      Envie o <strong>XML da NF-e</strong> (recomendado) ou o <strong>PDF da nota fiscal</strong>.
+      Os dados serão extraídos automaticamente para revisão antes de salvar.
+    </p>
+
+    {% if erro %}
+    <div class="mb-4 p-4 rounded bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700">
+      <p class="text-sm font-semibold text-red-700 dark:text-red-300">⚠️ {{ erro }}</p>
+      {% if dica %}
+      <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ dica }}</p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
+      {% csrf_token %}
+      <div>
+        <label class="form-label">Arquivo XML ou PDF <span class="text-red-500">*</span></label>
+        <input type="file" name="arquivo" accept=".xml,.pdf"
+          class="block w-full text-sm text-[var(--secondary-text)] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[var(--primary)] file:text-white hover:file:opacity-90 cursor-pointer"
+          required>
+        <p class="mt-1 text-xs text-[var(--secondary-text)]">Formatos aceitos: .xml (NF-e SEFAZ) ou .pdf</p>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-primary flex-1">
+          <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Processar Arquivo
+        </button>
+        <a href="{% url 'nota_fiscal_nova' %}" class="btn-secondary flex-1 text-center">Preencher Manualmente</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Informações sobre os formatos -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+    <div class="card border-l-4 border-l-green-500 bg-green-50 dark:bg-green-900">
+      <p class="text-xs font-bold text-green-700 dark:text-green-300 uppercase mb-2">✅ XML NF-e (Recomendado)</p>
+      <ul class="text-xs text-green-600 dark:text-green-400 space-y-1">
+        <li>• Extração 100% precisa</li>
+        <li>• Número, Fornecedor, CNPJ</li>
+        <li>• Data de emissão exata</li>
+        <li>• Valor total correto</li>
+        <li>• Lista de itens completa</li>
+      </ul>
+    </div>
+    <div class="card border-l-4 border-l-yellow-500 bg-yellow-50 dark:bg-yellow-900">
+      <p class="text-xs font-bold text-yellow-700 dark:text-yellow-300 uppercase mb-2">⚠️ PDF (Fallback)</p>
+      <ul class="text-xs text-yellow-600 dark:text-yellow-400 space-y-1">
+        <li>• Extração por reconhecimento de texto</li>
+        <li>• Precisão depende do formato</li>
+        <li>• Não funciona em PDF digitalizado</li>
+        <li>• Revisar dados antes de salvar</li>
+        <li>• Sem lista de itens</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
