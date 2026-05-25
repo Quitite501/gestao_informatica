@@ -100,10 +100,74 @@
       <input type="hidden" id="itens_software_json" name="itens_software_json" value="">
 
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="btn-primary">Salvar</button>
+        <button type="button" onclick="abrirRevisao()" class="btn-primary">
+          <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+          Revisar e Salvar
+        </button>
         <a href="{% url 'nota_fiscal_lista' %}" class="btn-secondary">Cancelar</a>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal de Revisão -->
+<div id="modal-revisao" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-[var(--surface-primary)] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-bold">📋 Revisar Nota Fiscal</h2>
+        <button onclick="fecharRevisao()" class="text-[var(--secondary-text)] hover:text-[var(--primary-text)]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Dados para revisão -->
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Número</label>
+            <input type="text" id="rev_numero" class="form-input mt-1 w-full">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Data de Emissão</label>
+            <input type="date" id="rev_data_emissao" class="form-input mt-1 w-full">
+          </div>
+          <div class="col-span-2">
+            <label class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Fornecedor</label>
+            <input type="text" id="rev_fornecedor" class="form-input mt-1 w-full">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Valor Total (R$)</label>
+            <input type="text" id="rev_valor_total" class="form-input mt-1 w-full">
+          </div>
+        </div>
+
+        <!-- Itens de software -->
+        <div id="rev_bloco_software" class="hidden">
+          <label class="text-xs font-semibold text-[var(--secondary-text)] uppercase mb-2 block">
+            🖥️ Licenças Identificadas
+          </label>
+          <div id="rev_lista_software" class="border rounded p-3 bg-green-50 dark:bg-green-900 space-y-1 text-sm"></div>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Observações</label>
+          <textarea id="rev_observacoes" rows="2" class="form-input mt-1 w-full"></textarea>
+        </div>
+      </div>
+
+      <!-- Ações do modal -->
+      <div class="flex gap-3 mt-6">
+        <button onclick="confirmarSalvar()" class="btn-primary flex-1">
+          ✅ Confirmar e Salvar
+        </button>
+        <button onclick="fecharRevisao()" class="btn-secondary flex-1">
+          ✏️ Voltar e Editar
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -112,6 +176,79 @@
 <script>
 const EXTRAIR_URL = "{% url 'nota_fiscal_extrair_ajax' %}";
 const CSRF = "{{ csrf_token }}";
+
+// ============================================================
+// MODAL DE REVISÃO
+// ============================================================
+
+function abrirRevisao() {
+  // Copiar dados do formulário para o modal
+  const get = id => document.getElementById(id);
+  
+  get('rev_numero').value        = get('id_numero')?.value || '';
+  get('rev_fornecedor').value    = get('id_fornecedor')?.value || '';
+  get('rev_data_emissao').value  = get('id_data_emissao')?.value || '';
+  get('rev_valor_total').value   = get('id_valor_total')?.value || '';
+  get('rev_observacoes').value   = get('id_observacoes')?.value || '';
+
+  // Mostrar itens de software
+  const itensJson = get('itens_software_json')?.value;
+  if (itensJson) {
+    try {
+      const itens = JSON.parse(itensJson);
+      if (itens && itens.length > 0) {
+        const lista = get('rev_lista_software');
+        lista.innerHTML = '';
+        itens.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'flex justify-between py-1 border-b border-green-200 text-xs text-green-800 dark:text-green-200';
+          div.innerHTML = `<span>${item.descricao || item.sugestao_nome}</span><span class="font-bold ml-4">${item.sugestao_qtd || item.quantidade}x</span>`;
+          lista.appendChild(div);
+        });
+        get('rev_bloco_software').classList.remove('hidden');
+      }
+    } catch(e) {}
+  }
+
+  get('modal-revisao').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharRevisao() {
+  document.getElementById('modal-revisao').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function confirmarSalvar() {
+  // Copiar dados revisados de volta ao formulário
+  const get = id => document.getElementById(id);
+
+  const campos = [
+    ['rev_numero',       'id_numero'],
+    ['rev_fornecedor',   'id_fornecedor'],
+    ['rev_data_emissao', 'id_data_emissao'],
+    ['rev_valor_total',  'id_valor_total'],
+    ['rev_observacoes',  'id_observacoes'],
+  ];
+
+  campos.forEach(([rev, form]) => {
+    const revEl  = get(rev);
+    const formEl = get(form);
+    if (revEl && formEl) formEl.value = revEl.value;
+  });
+
+  fecharRevisao();
+  document.getElementById('form_nota').submit();
+}
+
+// Fechar modal ao clicar fora
+document.getElementById('modal-revisao').addEventListener('click', function(e) {
+  if (e.target === this) fecharRevisao();
+});
+
+// ============================================================
+// IMPORTAÇÃO INLINE
+// ============================================================
 
 document.getElementById('btn_carregar').addEventListener('click', async function() {
     const fileInput = document.getElementById('arquivo_nf');
