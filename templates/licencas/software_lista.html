@@ -41,6 +41,8 @@
         </td>
         <td>
           <a href="{% url 'software_detalhe' sw.pk %}" class="text-sm text-[var(--accent)] hover:underline">Ver</a>
+              <span class="text-gray-300">•</span>
+              <a href="{% url 'software_editar' sw.pk %}" class="text-sm text-[var(--accent)] hover:underline">Editar</a>
         </td>
       </tr>
       {% empty %}
