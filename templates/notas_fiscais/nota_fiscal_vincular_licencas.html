@@ -101,39 +101,15 @@
     </div>
     {% endif %}
 
-    <!-- Adicionar manualmente -->
+    <!-- Adicionar múltiplas licenças -->
     <div class="card mb-6">
-      <h2 class="text-sm font-semibold mb-3 uppercase text-[var(--secondary-text)]">Adicionar Licença</h2>
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <div class="md:col-span-2">
-          <label class="form-label text-xs">Nome do Software</label>
-          <select name="software_manual" id="sw_manual" class="sw-select w-full"></select>
-        </div>
-        <div>
-          <label class="form-label text-xs">Quantidade</label>
-          <input type="number" name="qtd_manual" value="1" min="1" class="form-input">
-        </div>
-        <div>
-          <label class="form-label text-xs">Fabricante</label>
-          <select name="fabricante_manual" id="fab_manual" class="fab-select w-full"></select>
-        </div>
-        <div>
-          <label class="form-label text-xs">Versão</label>
-          <input type="text" name="versao_manual" class="form-input" placeholder="Opcional">
-        </div>
-        <div>
-          <label class="form-label text-xs">Tipo</label>
-          <select name="tipo_manual" class="form-input">
-            <option value="perpétua">Perpétua</option>
-            <option value="assinatura">Assinatura</option>
-            <option value="oem">OEM</option>
-          </select>
-        </div>
-        <div class="md:col-span-3">
-          <label class="form-label text-xs">Chave / Licença</label>
-          <input type="text" name="chave_manual" class="form-input" placeholder="Opcional">
-        </div>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-sm font-semibold uppercase text-[var(--secondary-text)]">Licenças desta Nota Fiscal</h2>
+        <button type="button" onclick="adicionarLinha()" class="btn-primary text-xs px-3 py-1.5">
+          + Adicionar Software
+        </button>
       </div>
+      <div id="lista-licencas"></div>
     </div>
 
     <div class="flex gap-3">
@@ -197,9 +173,63 @@ function initFabSelect(el) {
   });
 }
 
+var linhaIdx = 0;
+
+function adicionarLinha(nome, qtd) {
+  const idx = 'n' + (linhaIdx++);
+  const div = document.createElement('div');
+  div.id = 'linha_' + idx;
+  div.className = 'mb-4 p-4 border border-[var(--surface-secondary)] rounded-lg bg-[var(--surface-secondary)]';
+  div.innerHTML = `
+    <div class="flex justify-between items-center mb-3">
+      <span class="text-xs font-semibold text-[var(--secondary-text)] uppercase">Software ${linhaIdx}</span>
+      <button type="button" onclick="removerLinha('${idx}')"
+        class="text-red-500 hover:text-red-700 text-xs font-medium">✕ Remover</button>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div class="md:col-span-2">
+        <label class="form-label text-xs">Nome do Software *</label>
+        <select name="software_${idx}" id="sw_${idx}" class="w-full" required>
+          ${nome ? `<option value="${nome}" selected>${nome}</option>` : ''}
+        </select>
+      </div>
+      <div>
+        <label class="form-label text-xs">Quantidade</label>
+        <input type="number" name="qtd_${idx}" value="${qtd || 1}" min="1" class="form-input">
+      </div>
+      <div>
+        <label class="form-label text-xs">Fabricante</label>
+        <select name="fabricante_${idx}" id="fab_${idx}" class="w-full"></select>
+      </div>
+      <div>
+        <label class="form-label text-xs">Tipo</label>
+        <select name="tipo_${idx}" class="form-input">
+          <option value="perpétua">Perpétua</option>
+          <option value="assinatura">Assinatura</option>
+          <option value="oem">OEM</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label text-xs">Chave / Licença</label>
+        <input type="text" name="chave_${idx}" class="form-input" placeholder="Opcional">
+      </div>
+    </div>
+  `;
+  document.getElementById('lista-licencas').appendChild(div);
+  initSwSelect('#sw_' + idx);
+  initFabSelect('#fab_' + idx);
+}
+
+function removerLinha(idx) {
+  const el = document.getElementById('linha_' + idx);
+  if (el) el.remove();
+}
+
 $(document).ready(function() {
   $('.sw-select').each(function() { initSwSelect(this); });
   $('.fab-select').each(function() { initFabSelect(this); });
+  // Iniciar com uma linha vazia
+  adicionarLinha();
 });
 </script>
 {% endblock %}
