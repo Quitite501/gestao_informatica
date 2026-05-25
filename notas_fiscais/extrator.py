@@ -203,3 +203,31 @@ def extrair_nota_fiscal(arquivo, nome_arquivo=''):
             pass
         arquivo.seek(0)
         return extrair_pdf(arquivo)
+
+
+# Palavras-chave que indicam software/licença nos itens da NF
+PALAVRAS_SOFTWARE = [
+    'licença', 'licenca', 'software', 'windows', 'office', 'antivirus',
+    'antivírus', 'adobe', 'autocad', 'corel', 'programa', 'sistema',
+    'aplicativo', 'app', 'suite', 'subscription', 'assinatura',
+    'microsoft', 'google', 'oracle', 'sap', 'totvs', 'linux',
+    'acrobat', 'photoshop', 'word', 'excel', 'powerpoint', 'outlook',
+]
+
+
+def detectar_itens_software(itens):
+    """
+    Analisa lista de itens da NF e identifica possíveis licenças de software.
+    Retorna lista de itens com flag is_software=True/False
+    """
+    resultado = []
+    for item in itens:
+        descricao = item.get('descricao', '').lower()
+        is_software = any(kw in descricao for kw in PALAVRAS_SOFTWARE)
+        resultado.append({
+            **item,
+            'is_software': is_software,
+            'sugestao_nome': item.get('descricao', '').title()[:150],
+            'sugestao_qtd': int(float(item.get('quantidade', 1) or 1)),
+        })
+    return resultado

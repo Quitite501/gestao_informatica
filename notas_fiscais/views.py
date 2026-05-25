@@ -73,7 +73,7 @@ def nota_fiscal_nova(request):
         nota.criado_por = request.user
         nota.save()
         registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "NotaFiscal", nota.pk, f"Nota fiscal {nota.numero} cadastrada.")
-        return redirect("nota_fiscal_detalhe", pk=nota.pk)
+        return redirect("nota_fiscal_vincular_licencas", pk=nota.pk)
     return render(request, "notas_fiscais/nota_fiscal_form.html", {
         "form": form,
         "titulo": "Nova Nota Fiscal",
@@ -117,6 +117,12 @@ def nota_fiscal_importar(request):
                 "dica": "Verifique se o arquivo é um XML NF-e válido ou um PDF com texto extraível."
             })
         
+        # Detectar itens de software
+        from .extrator import detectar_itens_software
+        itens = resultado.get("itens", [])
+        itens_analisados = detectar_itens_software(itens)
+        itens_software = [i for i in itens_analisados if i['is_software']]
+        
         # Pré-preencher formulário com dados extraídos
         dados = {
             "numero": resultado.get("numero") or "",
@@ -130,8 +136,91 @@ def nota_fiscal_importar(request):
             "form": form,
             "titulo": "Importar Nota Fiscal",
             "dados_importados": resultado,
-            "itens": resultado.get("itens", []),
+            "itens": itens_analisados,
+            "itens_software": itens_software,
             "fonte": resultado.get("fonte"),
         })
     
     return render(request, "notas_fiscais/nota_fiscal_importar.html")
+
+
+@login_required
+@permission_required("notas_fiscais.add_notafiscal", raise_exception=True)
+def nota_fiscal_vincular_licencas(request, pk):
+    """Vincula licenças de software a uma NF após o cadastro"""
+    from licencas.models import Software, LicencaContrato
+
+    nota = get_object_or_404(NotaFiscal, pk=pk)
+
+    if request.method == "POST":
+        criadas = 0
+        erros = []
+
+        # Unificar itens numerados + manual
+        indices = set()
+        for key in request.POST.keys():
+            if key.startswith("software_"):
+                indices.add(key.replace("software_", ""))
+        
+        for idx in indices:
+            nome = request.POST.get(f"software_{idx}", "").strip()
+            fabricante = request.POST.get(f"fabricante_{idx}", "").strip()
+            versao = request.POST.get(f"versao_{idx}", "").strip()
+            tipo = request.POST.get(f"tipo_{idx}", "perpétua")
+            qtd = request.POST.get(f"qtd_{idx}", "1")
+            chave = request.POST.get(f"chave_{idx}", "").strip()
+
+            if not nome:
+                continue
+
+            try:
+                qtd = int(qtd)
+            except (ValueError, TypeError):
+                qtd = 1
+
+            try:
+                # Buscar ou criar Software
+                software, _ = Software.objects.get_or_create(
+                    nome=nome,
+                    versao=versao or None,
+                    fabricante=fabricante or None,
+                    defaults={"tipo_licenca": tipo, "controlado": True}
+                )
+
+                # Criar LicencaContrato vinculado à NF
+                if not LicencaContrato.objects.filter(software=software, nota_fiscal=nota).exists():
+                    LicencaContrato.objects.create(
+                        software=software,
+                        nota_fiscal=nota,
+                        quantidade_adquirida=qtd,
+                        chave_licenca=chave or None,
+                        data_aquisicao=nota.data_emissao,
+                        criado_por=request.user,
+                    )
+                    criadas += 1
+            except Exception as e:
+                erros.append(f"{nome}: {e}")
+
+        if erros:
+            msg = f"{criadas} licença(s) criada(s). Erros: {', '.join(erros)}"
+        else:
+            msg = f"{criadas} licença(s) criada(s) e vinculada(s) à NF."
+
+        registrar_auditoria(request, RegistroAuditoria.ACAO_CRIACAO, "LicencaContrato", nota.pk,
+            f"Licenças vinculadas à NF {nota.numero}: {msg}")
+
+        return redirect("nota_fiscal_detalhe", pk=nota.pk)
+
+    # GET: mostrar formulário de vinculação
+    licencas_existentes = nota.licencas.select_related("software").all()
+    softwares_disponiveis = Software.objects.filter(ativo=True).order_by("nome")
+
+    # Itens sugeridos da sessão (vindos da importação)
+    itens_software = request.session.pop("itens_software_sugeridos", [])
+
+    return render(request, "notas_fiscais/nota_fiscal_vincular_licencas.html", {
+        "nota": nota,
+        "licencas_existentes": licencas_existentes,
+        "softwares_disponiveis": softwares_disponiveis,
+        "itens_software": itens_software,
+    })
