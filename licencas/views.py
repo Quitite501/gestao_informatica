@@ -359,6 +359,217 @@ def software_gerenciar(request):
 
 
 @login_required
+def relatorio_customizado(request):
+    """Gerador de relatórios customizados de auditoria de licenças"""
+    from django.http import HttpResponse
+    from django.db.models import Q
+    import csv
+    
+    categorias = {
+        'windows': 'Windows (SO)',
+        'office': 'Microsoft Office',
+        'banco_dados': 'Banco de Dados',
+        'antivirus': 'Antivírus/Segurança',
+        'desenvolvimento': 'Desenvolvimento',
+        'todos': 'Todos',
+    }
+    
+    tipos_analise = {
+        'faltam': 'Softwares com FALTA de licenças',
+        'excesso': 'Softwares com EXCESSO de licenças',
+        'conformidade': 'Conformidade Geral',
+        'comparativo': 'Comparativo Adquiridas vs Instaladas',
+        'todos': 'Todos os Softwares',
+    }
+    
+    if request.method == 'GET':
+        fabricantes = Software.objects.filter(
+            fabricante__isnull=False
+        ).values_list('fabricante', flat=True).distinct().order_by('fabricante')
+        
+        return render(request, 'licencas/relatorio_customizado.html', {
+            'categorias': categorias,
+            'tipos_analise': tipos_analise,
+            'fabricantes': list(fabricantes),
+        })
+    
+    elif request.method == 'POST':
+        categoria = request.POST.get('categoria', 'todos')
+        tipo_analise = request.POST.get('tipo_analise', 'todos')
+        fabricante = request.POST.get('fabricante', '')
+        ativo = request.POST.get('ativo', 'todos')
+        formato = request.POST.get('formato', 'html')
+        
+        # Filtrar softwares
+        softwares = Software.objects.all()
+        
+        # Por categoria
+        if categoria == 'windows':
+            softwares = softwares.filter(nome__icontains='windows')
+        elif categoria == 'office':
+            softwares = softwares.filter(nome__icontains='office')
+        elif categoria == 'banco_dados':
+            softwares = softwares.filter(Q(nome__icontains='sql') | Q(nome__icontains='oracle') | Q(nome__icontains='mysql'))
+        elif categoria == 'antivirus':
+            softwares = softwares.filter(Q(nome__icontains='antivírus') | Q(nome__icontains='security'))
+        elif categoria == 'desenvolvimento':
+            softwares = softwares.filter(Q(nome__icontains='visual') | Q(nome__icontains='java') | Q(nome__icontains='python'))
+        
+        # Por fabricante
+        if fabricante:
+            softwares = softwares.filter(fabricante=fabricante)
+        
+        # Por status
+        if ativo == 'ativo':
+            softwares = softwares.filter(ativo=True)
+        elif ativo == 'inativo':
+            softwares = softwares.filter(ativo=False)
+        
+        softwares = softwares.order_by('nome')
+        
+        # Filtrar por tipo de análise
+        resultado = []
+        for sw in softwares:
+            saldo = sw.total_adquirido - sw.total_instalado
+            include = False
+            
+            if tipo_analise == 'faltam' and saldo < 0:
+                include = True
+            elif tipo_analise == 'excesso' and saldo > 0:
+                include = True
+            elif tipo_analise in ['conformidade', 'comparativo', 'todos']:
+                include = True
+            
+            if include:
+                resultado.append(sw)
+        
+        # PDF export
+        if formato == 'pdf':
+            from django.urls import reverse
+            params = f"?categoria={categoria}&tipo_analise={tipo_analise}&fabricante={fabricante}&ativo={ativo}"
+            return redirect(reverse('relatorio_customizado_pdf') + params)
+        
+        # CSV export
+        elif formato == 'csv':
+            response = HttpResponse(content_type='text/csv; charset=utf-8')
+            response['Content-Disposition'] = 'attachment; filename="relatorio_licencas.csv"'
+            response.write('\ufeff')  # BOM para Excel
+            writer = csv.writer(response)
+            writer.writerow(['Software', 'Fabricante', 'Adquiridas', 'Instaladas', 'Saldo', 'Situação', 'Status'])
+            
+            for sw in resultado:
+                saldo = sw.total_adquirido - sw.total_instalado
+                situacao = 'OK' if saldo == 0 else ('FALTAM' if saldo < 0 else 'SOBRAM')
+                writer.writerow([sw.nome, sw.fabricante or '-', sw.total_adquirido, sw.total_instalado, saldo, situacao, 'Ativo' if sw.ativo else 'Inativo'])
+            
+            return response
+        
+        # HTML
+        return render(request, 'licencas/relatorio_customizado_resultado.html', {
+            'softwares': resultado,
+            'categoria': categoria,
+            'tipo_analise': tipo_analise,
+            'categoria_label': categorias.get(categoria, ''),
+            'tipo_analise_label': tipos_analise.get(tipo_analise, ''),
+            'fabricante': fabricante,
+            'ativo': ativo,
+        })
+
+@login_required
+def relatorio_customizado_pdf(request):
+    """Gerar PDF do relatório customizado de licenças"""
+    from django.template.loader import render_to_string
+    from weasyprint import HTML
+    from django.http import HttpResponse
+    from django.db.models import Q
+    from datetime import datetime
+
+    try:
+        from patrimonio.models import ConfigCartorio
+        config_cartorio = ConfigCartorio.objects.first() or ConfigCartorio()
+        logo_path = None
+        if config_cartorio.logo:
+            logo_path = f"file://{config_cartorio.logo.path}"
+    except Exception:
+        config_cartorio = None
+        logo_path = None
+
+    # Parâmetros via GET (passados como query string)
+    categoria = request.GET.get('categoria', 'todos')
+    tipo_analise = request.GET.get('tipo_analise', 'todos')
+    fabricante = request.GET.get('fabricante', '')
+    ativo = request.GET.get('ativo', 'todos')
+
+    categorias_labels = {
+        'windows': 'Windows (SO)',
+        'office': 'Microsoft Office',
+        'banco_dados': 'Banco de Dados',
+        'antivirus': 'Antivírus/Segurança',
+        'desenvolvimento': 'Desenvolvimento',
+        'todos': 'Todos',
+    }
+    tipos_analise_labels = {
+        'faltam': 'Softwares com FALTA de licenças',
+        'excesso': 'Softwares com EXCESSO de licenças',
+        'conformidade': 'Conformidade Geral',
+        'comparativo': 'Comparativo Adquiridas vs Instaladas',
+        'todos': 'Todos os Softwares',
+    }
+
+    softwares = Software.objects.all()
+    if categoria == 'windows':
+        softwares = softwares.filter(nome__icontains='windows')
+    elif categoria == 'office':
+        softwares = softwares.filter(nome__icontains='office')
+    elif categoria == 'banco_dados':
+        softwares = softwares.filter(Q(nome__icontains='sql') | Q(nome__icontains='oracle') | Q(nome__icontains='mysql'))
+    elif categoria == 'antivirus':
+        softwares = softwares.filter(Q(nome__icontains='antivírus') | Q(nome__icontains='security'))
+    elif categoria == 'desenvolvimento':
+        softwares = softwares.filter(Q(nome__icontains='visual') | Q(nome__icontains='java') | Q(nome__icontains='python'))
+
+    if fabricante:
+        softwares = softwares.filter(fabricante=fabricante)
+    if ativo == 'ativo':
+        softwares = softwares.filter(ativo=True)
+    elif ativo == 'inativo':
+        softwares = softwares.filter(ativo=False)
+
+    softwares = softwares.order_by('nome')
+
+    resultado = []
+    for sw in softwares:
+        saldo = sw.total_adquirido - sw.total_instalado
+        if tipo_analise == 'faltam' and saldo < 0:
+            resultado.append(sw)
+        elif tipo_analise == 'excesso' and saldo > 0:
+            resultado.append(sw)
+        elif tipo_analise in ['conformidade', 'comparativo', 'todos']:
+            resultado.append(sw)
+
+    html_string = render_to_string(
+        'licencas/relatorio_customizado_pdf.html',
+        {
+            'softwares': resultado,
+            'categoria_label': categorias_labels.get(categoria, ''),
+            'tipo_analise_label': tipos_analise_labels.get(tipo_analise, ''),
+            'fabricante': fabricante,
+            'ativo': ativo,
+            'config_cartorio': config_cartorio,
+            'logo_path': logo_path,
+            'usuario': request.user,
+            'data_geracao': datetime.now().strftime("%d/%m/%Y %H:%M"),
+        },
+        request=request,
+    )
+
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="relatorio_licencas_{datetime.now().strftime("%d_%m_%Y")}.pdf"'
+    return response
+
+
+@login_required
 def software_busca_ajax(request):
     """Busca softwares para Select2"""
     from django.http import JsonResponse

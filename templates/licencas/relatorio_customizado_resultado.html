@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Relatório de Auditoria de Licenças — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Relatório de Auditoria de Licenças{% endblock %}
+{% block topbar_actions %}
+  <a href="{% url 'relatorio_customizado' %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+    Novo Relatório
+  </a>
+  <form method="post" action="{% url 'relatorio_customizado' %}" style="display:inline;" class="ml-2">
+    {% csrf_token %}
+    <input type="hidden" name="categoria" value="{{ categoria }}">
+    <input type="hidden" name="tipo_analise" value="{{ tipo_analise }}">
+    <input type="hidden" name="fabricante" value="{{ fabricante }}">
+    <input type="hidden" name="ativo" value="{{ ativo }}">
+    <input type="hidden" name="formato" value="csv">
+    <button type="submit" class="btn-secondary inline-flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      CSV
+    </button>
+  </form>
+{% endblock %}
+{% block content %}
+
+<div class="space-y-6">
+  <!-- RESUMO DO RELATÓRIO -->
+  <div class="card p-6 bg-blue-50 dark:bg-blue-900 border-l-4 border-l-blue-500">
+    <p class="text-sm text-blue-600 dark:text-blue-300 font-semibold uppercase">Filtros Aplicados</p>
+    <div class="mt-2 flex flex-wrap gap-4 text-sm">
+      <span><strong>Tipo:</strong> {{ categoria_label }}</span>
+      <span><strong>Análise:</strong> {{ tipo_analise_label }}</span>
+      {% if fabricante %}<span><strong>Fabricante:</strong> {{ fabricante }}</span>{% endif %}
+      {% if ativo != 'todos' %}<span><strong>Status:</strong> {% if ativo == 'ativo' %}Ativo{% else %}Inativo{% endif %}</span>{% endif %}
+    </div>
+  </div>
+
+  <!-- CARDS DE ESTATÍSTICAS -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- Total de Softwares -->
+    <div class="card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 border-l-4 border-l-blue-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase">Total na Busca</p>
+          <p class="text-3xl font-bold text-blue-900 dark:text-blue-100">{{ softwares|length }}</p>
+        </div>
+        <svg class="w-12 h-12 text-blue-300 dark:text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+          <rect x="2" y="3" width="16" height="14" rx="1"/><path d="M6 9h8M6 13h8"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Softwares com Falta -->
+    <div class="card bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 border-l-4 border-l-red-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-red-600 dark:text-red-300 uppercase">Com Falta</p>
+          <p class="text-3xl font-bold text-red-900 dark:text-red-100">
+            {% widthratio softwares|length 1 100 as percent %}
+            {% for sw in softwares %}
+              {% if sw.saldo < 0 %}1{% endif %}
+            {% endfor %}
+          </p>
+        </div>
+        <svg class="w-12 h-12 text-red-300 dark:text-red-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Softwares com Excesso -->
+    <div class="card bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 border-l-4 border-l-green-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-green-600 dark:text-green-300 uppercase">Com Excesso</p>
+          <p class="text-3xl font-bold text-green-900 dark:text-green-100">
+            {% for sw in softwares %}
+              {% if sw.saldo > 0 %}1{% endif %}
+            {% endfor %}
+          </p>
+        </div>
+        <svg class="w-12 h-12 text-green-300 dark:text-green-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA COMPLETA -->
+  <div class="card p-0 overflow-hidden">
+    <div class="px-6 pt-6 pb-4">
+      <h2 class="text-lg font-semibold text-[var(--text-primary)]">Lista Completa</h2>
+    </div>
+    <table class="table-base">
+      <thead>
+        <tr>
+          <th>Software</th>
+          <th>Fabricante</th>
+          <th>Adquiridas</th>
+          <th>Instaladas</th>
+          <th>Saldo</th>
+          <th>Situação</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sw in softwares %}
+        <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+          <td class="font-medium text-[var(--text-primary)]">
+            <a href="{% url 'software_detalhe' sw.pk %}" class="text-[var(--accent)] hover:underline">{{ sw.nome }}</a>
+          </td>
+          <td>{{ sw.fabricante|default:"—" }}</td>
+          <td class="text-center">{{ sw.total_adquirido }}</td>
+          <td class="text-center">{{ sw.total_instalado }}</td>
+          <td class="text-center font-semibold">{{ sw.saldo }}</td>
+          <td>
+            {% if sw.saldo == 0 %}
+            <span class="badge-encerrado">OK</span>
+            {% elif sw.saldo < 0 %}
+            <span class="badge-critica">FALTAM {% if sw.saldo < 0 %}{{ sw.saldo|safe }}{% else %}{{ sw.saldo }}{% endif %}</span>
+            {% else %}
+            <span class="badge-media">SOBRAM {{ sw.saldo }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if sw.ativo %}
+            <span class="badge-encerrado">Ativo</span>
+            {% else %}
+            <span class="badge-critica">Inativo</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-[var(--text-muted)] py-8">Nenhum resultado encontrado para os filtros aplicados.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

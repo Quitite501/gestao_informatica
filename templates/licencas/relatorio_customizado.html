@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Relatório de Auditoria de Licenças — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Relatório de Auditoria de Licenças{% endblock %}
+{% block topbar_actions %}
+  <a href="{% url 'licenca_dashboard' %}" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+    Voltar
+  </a>
+{% endblock %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+  <div class="card p-8">
+    <h2 class="text-2xl font-bold text-[var(--text-primary)] mb-8">Gerar Relatório Customizado</h2>
+    
+    <form method="post" class="space-y-8">
+      {% csrf_token %}
+      
+      <!-- 1. TIPO DE SOFTWARE -->
+      <div class="border-b pb-6">
+        <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-4">
+          <span class="inline-block w-8 h-8 bg-[var(--accent)] text-white rounded-full text-center text-sm font-bold mr-3">1</span>
+          Tipo de Software
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 ml-11">
+          {% for key, nome in categorias.items %}
+          <label class="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded transition">
+            <input type="radio" name="categoria" value="{{ key }}" {% if key == 'todos' %}checked{% endif %} class="w-4 h-4">
+            <span class="ml-3 text-[var(--text-primary)] text-sm">{{ nome }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 2. TIPO DE ANÁLISE -->
+      <div class="border-b pb-6">
+        <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-4">
+          <span class="inline-block w-8 h-8 bg-[var(--accent)] text-white rounded-full text-center text-sm font-bold mr-3">2</span>
+          Tipo de Análise
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+          {% for key, label in tipos_analise.items %}
+          <label class="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded transition">
+            <input type="radio" name="tipo_analise" value="{{ key }}" {% if key == 'todos' %}checked{% endif %} class="w-4 h-4">
+            <span class="ml-3 text-[var(--text-primary)] text-sm">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 3. FILTROS ADICIONAIS -->
+      <div class="border-b pb-6">
+        <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-4">
+          <span class="inline-block w-8 h-8 bg-[var(--accent)] text-white rounded-full text-center text-sm font-bold mr-3">3</span>
+          Filtros Adicionais
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 ml-11">
+          <div>
+            <label for="fabricante" class="block text-sm font-medium text-[var(--text-primary)] mb-2">Fabricante</label>
+            <select name="fabricante" id="fabricante" class="w-full px-3 py-2 border border-[var(--border-color)] rounded text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]">
+              <option value="">Todos os fabricantes</option>
+              {% for fab in fabricantes %}
+              <option value="{{ fab }}">{{ fab }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="ativo" class="block text-sm font-medium text-[var(--text-primary)] mb-2">Status do Software</label>
+            <select name="ativo" id="ativo" class="w-full px-3 py-2 border border-[var(--border-color)] rounded text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]">
+              <option value="todos">Todos</option>
+              <option value="ativo">Apenas Ativos</option>
+              <option value="inativo">Apenas Inativos</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. FORMATO DE SAÍDA -->
+      <div class="pb-6">
+        <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-4">
+          <span class="inline-block w-8 h-8 bg-[var(--accent)] text-white rounded-full text-center text-sm font-bold mr-3">4</span>
+          Formato de Saída
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 ml-11">
+          <label class="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded transition">
+            <input type="radio" name="formato" value="html" checked class="w-4 h-4">
+            <span class="ml-3 text-[var(--text-primary)] text-sm">Ver na tela</span>
+          </label>
+          <label class="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded transition">
+            <input type="radio" name="formato" value="csv" class="w-4 h-4">
+            <span class="ml-3 text-[var(--text-primary)] text-sm">Download CSV</span>
+          </label>
+          <label class="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded transition">
+            <input type="radio" name="formato" value="pdf" class="w-4 h-4">
+            <span class="ml-3 text-[var(--text-primary)] text-sm">Download PDF</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- BOTÕES -->
+      <div class="flex gap-3 justify-center pt-4">
+        <button type="submit" class="btn-primary px-8 py-3 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Gerar Relatório
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
