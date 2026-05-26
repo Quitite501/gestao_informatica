@@ -91,6 +91,8 @@
     <div class="resumo-card"><div class="label">Adquiridas</div><div class="valor">{{ server_adquiridas }}</div></div>
     <div class="resumo-card"><div class="label">Utilizadas</div><div class="valor">{{ server_utilizadas }}</div></div>
   </div>
+
+
   <table>
     <thead><tr><th>Software</th><th>Fabricante</th><th>Adquiridas</th><th>Utilizadas</th><th>Saldo</th><th>Situação</th></tr></thead>
     <tbody>
@@ -106,6 +108,29 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <!-- CARD LINUX -->
+  {% if total_linux %}
+  <div class="secao-titulo" style="background:#f0fdf4;color:#166534;border-left:3pt solid #16a34a;margin-top:12pt;">Linux</div>
+  <div class="resumo">
+    <div class="resumo-card"><div class="label">Desktops com Linux</div><div class="valor" style="color:#16a34a;">{{ total_linux }}</div></div>
+    <div class="resumo-card"><div class="label">Licença necessária</div><div class="valor" style="color:#666;">Não</div></div>
+    <div class="resumo-card"><div class="label">Situação</div><div class="valor" style="color:#16a34a;">OK</div></div>
+  </div>
+  <table>
+    <thead><tr><th>Hostname</th><th>Sistema Operacional</th><th>Usuário</th><th>Setor</th></tr></thead>
+    <tbody>
+      {% for pc in computadores_linux %}
+      <tr>
+        <td>{{ pc.hostname|default:pc.patrimonio.etiqueta }}</td>
+        <td>{{ pc.sistema_operacional|default:"—" }}</td>
+        <td>{{ pc.patrimonio.usuario_atual.username|default:"—" }}</td>
+        <td>{{ pc.patrimonio.setor.nome|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
 
   {% else %}
 

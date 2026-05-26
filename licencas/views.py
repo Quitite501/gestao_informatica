@@ -605,6 +605,17 @@ def relatorio_customizado_pdf(request):
     estacao_lista = [sw for sw in resultado if not any(x in sw.nome.lower() for x in ['server', 'cal'])] if categoria == 'windows_completo' else []
     server_lista = [sw for sw in resultado if any(x in sw.nome.lower() for x in ['server', 'cal'])] if categoria == 'windows_completo' else []
 
+    # Calcular Linux nos desktops
+    total_linux = 0
+    computadores_linux = []
+    if categoria == 'windows_completo':
+        from patrimonio.models import ComputadorEspecificacao
+        linux_qs = ComputadorEspecificacao.objects.filter(
+            sistema_operacional__icontains='linux'
+        ).select_related('patrimonio', 'patrimonio__usuario_atual', 'patrimonio__setor')
+        total_linux = linux_qs.count()
+        computadores_linux = list(linux_qs)
+
     total_softwares = len(resultado)
     com_falta = sum(1 for sw in resultado if sw.saldo < 0)
     com_excesso = sum(1 for sw in resultado if sw.saldo > 0)
@@ -636,6 +647,8 @@ def relatorio_customizado_pdf(request):
             'total_utilizadas': total_utilizadas,
             'windows_completo': categoria == 'windows_completo',
             'estacao_resultado': estacao_lista,
+            'total_linux': total_linux,
+            'computadores_linux': computadores_linux,
             'server_resultado': server_lista,
             'estacao_adquiridas': estacao_adquiridas,
             'estacao_utilizadas': estacao_utilizadas,
