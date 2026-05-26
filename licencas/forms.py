@@ -60,8 +60,8 @@ class LicencaContratoForm(forms.ModelForm):
             "observacoes",
         ]
         widgets = {
-            "data_aquisicao": forms.DateInput(attrs={"type": "date"}),
-            "data_vencimento": forms.DateInput(attrs={"type": "date"}),
+            "data_aquisicao": forms.DateInput(attrs={"type": "date"}, format='%Y-%m-%d'),
+            "data_vencimento": forms.DateInput(attrs={"type": "date"}, format='%Y-%m-%d'),
         }
 
 

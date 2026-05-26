@@ -27,3 +27,36 @@
   </div>
 </div>
 {% endblock %}
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const selectNF = document.getElementById('id_nota_fiscal');
+  const inputData = document.getElementById('id_data_aquisicao');
+
+  console.log('selectNF:', selectNF);
+  console.log('inputData:', inputData);
+
+  if (!selectNF || !inputData) {
+    console.log('Campos não encontrados!');
+    return;
+  }
+
+  selectNF.addEventListener('change', function() {
+    const pk = this.value;
+    console.log('NF selecionada:', pk);
+    if (!pk) return;
+
+    fetch('/nota-fiscal/data/?pk=' + pk)
+      .then(r => r.json())
+      .then(data => {
+        console.log('Resposta AJAX:', data);
+        if (data.data_emissao) {
+          inputData.value = data.data_emissao;
+          console.log('Data preenchida:', data.data_emissao);
+        }
+      })
+      .catch(err => console.error('Erro:', err));
+  });
+});
+</script>
+{% endblock %}

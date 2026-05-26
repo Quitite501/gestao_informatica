@@ -17,4 +17,5 @@ urlpatterns = [
     path("relatorio-customizado/", views.relatorio_customizado, name="relatorio_customizado"),
     path("relatorio-customizado/pdf/", views.relatorio_customizado_pdf, name="relatorio_customizado_pdf"),
     path("softwares/busca/", views.software_busca_ajax, name="software_busca_ajax"),
+    path("nota-fiscal/data/", views.nota_fiscal_data_ajax, name="nota_fiscal_data_ajax"),
 ]

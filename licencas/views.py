@@ -606,6 +606,21 @@ def relatorio_customizado_pdf(request):
 
 
 @login_required
+def nota_fiscal_data_ajax(request):
+    """Retorna data de emissão da nota fiscal para preencher data_aquisicao"""
+    from django.http import JsonResponse
+    pk = request.GET.get('pk')
+    if not pk:
+        return JsonResponse({'erro': 'ID não informado'}, status=400)
+    try:
+        from notas_fiscais.models import NotaFiscal
+        nf = NotaFiscal.objects.get(pk=pk)
+        return JsonResponse({'data_emissao': nf.data_emissao.strftime('%Y-%m-%d')})
+    except Exception:
+        return JsonResponse({'erro': 'Nota fiscal não encontrada'}, status=404)
+
+
+@login_required
 def software_busca_ajax(request):
     """Busca softwares para Select2"""
     from django.http import JsonResponse
