@@ -160,7 +160,7 @@ def software_editar(request, pk):
     if form.is_valid():
         software = form.save()
         registrar_auditoria(request, RegistroAuditoria.ACAO_EDICAO, "Software", software.pk, f"Software {software.nome} editado.")
-        return redirect("software_detalhe", pk=software.pk)
+        return redirect("software_gerenciar")
     
     contratos = software.contratos.select_related("nota_fiscal").order_by("-data_aquisicao")
     
@@ -375,9 +375,13 @@ def software_gerenciar(request):
         softwares = softwares.filter(nome__icontains=q)
     
     softwares = softwares.order_by('nome')
+    ativos = softwares.filter(ativo=True)
+    inativos = softwares.filter(ativo=False)
     
     return render(request, 'licencas/software_gerenciar.html', {
         'softwares': softwares,
+        'ativos': ativos,
+        'inativos': inativos,
         'q': q,
     })
 
@@ -390,7 +394,9 @@ def relatorio_customizado(request):
     import csv
     
     categorias = {
-        'windows': 'Windows (SO)',
+        'windows': 'Windows Estação (sem Server)',
+        'windows_server': 'Windows Server',
+        'windows_completo': 'Windows Completo (Estação + Server)',
         'office': 'Microsoft Office',
         'banco_dados': 'Banco de Dados',
         'antivirus': 'Antivírus/Segurança',
@@ -404,6 +410,7 @@ def relatorio_customizado(request):
         'conformidade': 'Conformidade Geral',
         'comparativo': 'Comparativo Adquiridas vs Instaladas',
         'todos': 'Todos os Softwares',
+        'windows_pcs': 'Windows para Estação (vs PCs)',
     }
     
     if request.method == 'GET':
@@ -425,7 +432,7 @@ def relatorio_customizado(request):
         formato = request.POST.get('formato', 'html')
         
         # Filtrar softwares
-        softwares = Software.objects.all()
+        softwares = Software.objects.filter(ativo=True)
         
         # Por categoria
         if categoria == 'windows':
@@ -509,6 +516,11 @@ def relatorio_customizado(request):
             'com_excesso': com_excesso,
             'total_adquiridas': total_adquiridas,
             'total_instaladas': total_instaladas,
+            'total_pcs': total_pcs,
+            'diff_windows_pcs': total_adquiridas - total_pcs if tipo_analise == 'windows_pcs' else None,
+            'estacao_resultado': estacao_resultado if categoria == 'windows_completo' else None,
+            'server_resultado': server_resultado if categoria == 'windows_completo' else None,
+            'windows_completo': categoria == 'windows_completo',
         })
 
 @login_required
@@ -537,7 +549,9 @@ def relatorio_customizado_pdf(request):
     ativo = request.GET.get('ativo', 'todos')
 
     categorias_labels = {
-        'windows': 'Windows (SO)',
+        'windows': 'Windows Estação (sem Server)',
+        'windows_server': 'Windows Server',
+        'windows_completo': 'Windows Completo (Estação + Server)',
         'office': 'Microsoft Office',
         'banco_dados': 'Banco de Dados',
         'antivirus': 'Antivírus/Segurança',
@@ -552,8 +566,12 @@ def relatorio_customizado_pdf(request):
         'todos': 'Todos os Softwares',
     }
 
-    softwares = Software.objects.all()
+    softwares = Software.objects.filter(ativo=True)
     if categoria == 'windows':
+        softwares = softwares.filter(nome__icontains='windows').exclude(nome__icontains='server').exclude(nome__icontains='CAL')
+    elif categoria == 'windows_server':
+        softwares = softwares.filter(nome__icontains='windows').filter(Q(nome__icontains='server') | Q(nome__icontains='CAL'))
+    elif categoria == 'windows_completo':
         softwares = softwares.filter(nome__icontains='windows')
     elif categoria == 'office':
         softwares = softwares.filter(nome__icontains='office')
@@ -583,6 +601,22 @@ def relatorio_customizado_pdf(request):
         elif tipo_analise in ['conformidade', 'comparativo', 'todos']:
             resultado.append(sw)
 
+    # Calcular estatísticas para os cards
+    estacao_lista = [sw for sw in resultado if not any(x in sw.nome.lower() for x in ['server', 'cal'])] if categoria == 'windows_completo' else []
+    server_lista = [sw for sw in resultado if any(x in sw.nome.lower() for x in ['server', 'cal'])] if categoria == 'windows_completo' else []
+
+    total_softwares = len(resultado)
+    com_falta = sum(1 for sw in resultado if sw.saldo < 0)
+    com_excesso = sum(1 for sw in resultado if sw.saldo > 0)
+    total_adquiridas = sum(sw.total_adquirido for sw in resultado)
+    total_utilizadas = sum(sw.total_utilizado_sem_instalacao for sw in resultado)
+
+    # Cards separados estação/server
+    estacao_adquiridas = sum(sw.total_adquirido for sw in estacao_lista)
+    estacao_utilizadas = sum(sw.total_utilizado_sem_instalacao for sw in estacao_lista)
+    server_adquiridas = sum(sw.total_adquirido for sw in server_lista)
+    server_utilizadas = sum(sw.total_utilizado_sem_instalacao for sw in server_lista)
+
     html_string = render_to_string(
         'licencas/relatorio_customizado_pdf.html',
         {
@@ -595,6 +629,18 @@ def relatorio_customizado_pdf(request):
             'logo_path': logo_path,
             'usuario': request.user,
             'data_geracao': datetime.now().strftime("%d/%m/%Y %H:%M"),
+            'total_softwares': total_softwares,
+            'com_falta': com_falta,
+            'com_excesso': com_excesso,
+            'total_adquiridas': total_adquiridas,
+            'total_utilizadas': total_utilizadas,
+            'windows_completo': categoria == 'windows_completo',
+            'estacao_resultado': estacao_lista,
+            'server_resultado': server_lista,
+            'estacao_adquiridas': estacao_adquiridas,
+            'estacao_utilizadas': estacao_utilizadas,
+            'server_adquiridas': server_adquiridas,
+            'server_utilizadas': server_utilizadas,
         },
         request=request,
     )

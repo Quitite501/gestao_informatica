@@ -8,19 +8,23 @@
   </a>
 {% endblock %}
 {% block content %}
+
+<!-- Busca -->
 <div class="card p-6 mb-6">
-  <div class="mb-4">
-    <label for="busca_nome" class="block text-sm font-medium text-[var(--text-primary)] mb-2">Buscar software por nome</label>
-    <form method="get" class="flex gap-2">
-      <input type="text" name="q" value="{{ q }}" placeholder="Digite o nome do software..." class="flex-1 px-3 py-2 border border-[var(--border-color)] rounded text-sm">
-      <button type="submit" class="btn-primary">Buscar</button>
-      {% if q %}<a href="{% url 'software_gerenciar' %}" class="btn-secondary">Limpar</a>{% endif %}
-    </form>
-  </div>
+  <form method="get" class="flex gap-2">
+    <input type="text" name="q" value="{{ q }}" placeholder="Digite o nome do software..." class="flex-1 px-3 py-2 border border-[var(--border-color)] rounded text-sm">
+    <button type="submit" class="btn-primary">Buscar</button>
+    {% if q %}<a href="{% url 'software_gerenciar' %}" class="btn-secondary">Limpar</a>{% endif %}
+  </form>
 </div>
 
-{% if softwares %}
-<div class="card p-0 overflow-hidden">
+<!-- Ativos -->
+<div class="card p-0 overflow-hidden mb-6">
+  <div class="px-4 py-3 border-b border-[var(--border-color)] flex items-center gap-2" style="background:var(--color-background-secondary)">
+    <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+    <span class="text-sm font-medium text-[var(--text-primary)]">Softwares ativos</span>
+    <span class="text-xs px-2 py-0.5 rounded-full border border-[var(--border-color)] text-[var(--text-muted)]">{{ ativos.count }}</span>
+  </div>
   <table class="table-base">
     <thead>
       <tr>
@@ -33,19 +37,53 @@
       </tr>
     </thead>
     <tbody>
-      {% for sw in softwares %}
+      {% for sw in ativos %}
       <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
         <td class="font-medium text-[var(--text-primary)]">{{ sw.nome }}</td>
         <td>{{ sw.fabricante|default:"—" }}</td>
         <td>{{ sw.versao|default:"—" }}</td>
         <td>{{ sw.get_tipo_licenca_display|default:"—" }}</td>
+        <td><span class="badge-encerrado">Ativo</span></td>
         <td>
-          {% if sw.ativo %}
-          <span class="badge-encerrado">Ativo</span>
-          {% else %}
-          <span class="badge-critica">Inativo</span>
-          {% endif %}
+          <a href="{% url 'software_detalhe' sw.pk %}" class="text-sm text-[var(--accent)] hover:underline">Ver</a>
+          <span class="text-gray-300">•</span>
+          <a href="{% url 'software_editar' sw.pk %}" class="text-sm text-[var(--accent)] hover:underline">Editar</a>
         </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="text-center text-[var(--text-muted)] py-6">Nenhum software ativo encontrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Inativos -->
+{% if inativos %}
+<div class="card p-0 overflow-hidden">
+  <div class="px-4 py-3 border-b border-[var(--border-color)] flex items-center gap-2" style="background:var(--color-background-secondary)">
+    <span class="w-2 h-2 rounded-full bg-red-400 inline-block"></span>
+    <span class="text-sm font-medium text-[var(--text-primary)]">Softwares inativos</span>
+    <span class="text-xs px-2 py-0.5 rounded-full border border-[var(--border-color)] text-[var(--text-muted)]">{{ inativos.count }}</span>
+  </div>
+  <table class="table-base">
+    <thead>
+      <tr>
+        <th>Software</th>
+        <th>Fabricante</th>
+        <th>Versão</th>
+        <th>Tipo de Licença</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sw in inativos %}
+      <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+        <td class="font-medium text-[var(--text-muted)]">{{ sw.nome }}</td>
+        <td>{{ sw.fabricante|default:"—" }}</td>
+        <td>{{ sw.versao|default:"—" }}</td>
+        <td>{{ sw.get_tipo_licenca_display|default:"—" }}</td>
+        <td><span class="badge-critica">Inativo</span></td>
         <td>
           <a href="{% url 'software_detalhe' sw.pk %}" class="text-sm text-[var(--accent)] hover:underline">Ver</a>
           <span class="text-gray-300">•</span>
@@ -56,13 +94,6 @@
     </tbody>
   </table>
 </div>
-{% elif q %}
-<div class="card p-6 text-center">
-  <p class="text-[var(--text-muted)]">Nenhum software encontrado com o termo "<strong>{{ q }}</strong>".</p>
-</div>
-{% else %}
-<div class="card p-6 text-center">
-  <p class="text-[var(--text-muted)]">Digite o nome de um software para buscar.</p>
-</div>
 {% endif %}
+
 {% endblock %}

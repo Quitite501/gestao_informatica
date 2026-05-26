@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Relatório de Auditoria de Licenças — Sistema de Gestão de TI{% endblock %}
+{% block title %}Relatório de Auditoria de Licenças — Sistema de Gestão de TI{% endif %}
+{% endblock %}
 {% block page_title %}Relatório de Auditoria de Licenças{% endblock %}
 {% block topbar_actions %}
   <a href="{% url 'relatorio_customizado' %}" class="btn-secondary">
@@ -57,6 +58,77 @@
     </div>
   </div>
 
+  <!-- ALERTA WINDOWS VS PCs -->
+  {% if diff_windows_pcs is not None %}
+  <div class="card p-6 mb-6 border-l-4 {% if diff_windows_pcs < 0 %}border-red-500 bg-red-50{% elif diff_windows_pcs == 0 %}border-green-500 bg-green-50{% else %}border-blue-500 bg-blue-50{% endif %}">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-semibold {% if diff_windows_pcs < 0 %}text-red-700{% elif diff_windows_pcs == 0 %}text-green-700{% else %}text-blue-700{% endif %} uppercase mb-1">Comparativo Windows Estação vs Computadores</p>
+        <div class="flex gap-8 mt-2 text-sm">
+          <span><strong>Licenças Windows:</strong> {{ total_adquiridas }}</span>
+          <span><strong>Total de PCs:</strong> {{ total_pcs }}</span>
+          <span class="font-bold {% if diff_windows_pcs < 0 %}text-red-700{% elif diff_windows_pcs == 0 %}text-green-700{% else %}text-blue-700{% endif %}">
+            {% if diff_windows_pcs < 0 %}⚠️ FALTAM {{ diff_windows_pcs|slice:"1:" }} licenças{% elif diff_windows_pcs == 0 %}✓ EXATO{% else %}✅ SOBRAM {{ diff_windows_pcs }} licenças{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if windows_completo and estacao_resultado %}
+
+  <!-- SEÇÃO ESTAÇÃO -->
+  <div class="card p-0 overflow-hidden mb-6">
+    <div class="px-4 py-3 border-b border-[var(--border-color)] flex items-center gap-2" style="background:#e6f1fb">
+      <span class="text-sm font-semibold" style="color:#0c447c">Windows Estação</span>
+      <span class="text-xs px-2 py-0.5 rounded-full border border-blue-200 text-blue-700">{{ estacao_resultado|length }} softwares</span>
+    </div>
+    <table class="table-base">
+      <thead><tr><th>Software</th><th>Fabricante</th><th>Adquiridas</th><th>Utilizadas</th><th>Saldo</th><th>Situação</th></tr></thead>
+      <tbody>
+        {% for sw in estacao_resultado %}
+        <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+          <td class="font-medium text-[var(--text-primary)]">{{ sw.nome }}</td>
+          <td>{{ sw.fabricante|default:"—" }}</td>
+          <td class="text-center">{{ sw.total_adquirido }}</td>
+          <td class="text-center">{{ sw.total_utilizado_sem_instalacao }}</td>
+          <td class="text-center font-semibold">{{ sw.saldo }}</td>
+          <td>{% if sw.saldo == 0 %}<span class="badge-encerrado">OK</span>{% elif sw.saldo < 0 %}<span class="badge-critica">FALTAM</span>{% else %}<span class="badge-media">SOBRAM</span>{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-[var(--text-muted)] py-6">Nenhum resultado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SEÇÃO SERVER -->
+  <div class="card p-0 overflow-hidden mb-6">
+    <div class="px-4 py-3 border-b border-[var(--border-color)] flex items-center gap-2" style="background:#eaf3de">
+      <span class="text-sm font-semibold" style="color:#27500a">Windows Server</span>
+      <span class="text-xs px-2 py-0.5 rounded-full border border-green-200 text-green-700">{{ server_resultado|length }} softwares</span>
+    </div>
+    <table class="table-base">
+      <thead><tr><th>Software</th><th>Fabricante</th><th>Adquiridas</th><th>Utilizadas</th><th>Saldo</th><th>Situação</th></tr></thead>
+      <tbody>
+        {% for sw in server_resultado %}
+        <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+          <td class="font-medium text-[var(--text-primary)]">{{ sw.nome }}</td>
+          <td>{{ sw.fabricante|default:"—" }}</td>
+          <td class="text-center">{{ sw.total_adquirido }}</td>
+          <td class="text-center">{{ sw.total_utilizado_sem_instalacao }}</td>
+          <td class="text-center font-semibold">{{ sw.saldo }}</td>
+          <td>{% if sw.saldo == 0 %}<span class="badge-encerrado">OK</span>{% elif sw.saldo < 0 %}<span class="badge-critica">FALTAM</span>{% else %}<span class="badge-media">SOBRAM</span>{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-[var(--text-muted)] py-6">Nenhum resultado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
   <!-- LISTA COMPLETA -->
   <div class="card p-0 overflow-hidden">
     <div class="px-6 pt-6 pb-4">

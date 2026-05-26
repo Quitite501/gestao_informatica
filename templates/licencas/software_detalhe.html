@@ -3,7 +3,7 @@
 {% block page_title %}{{ software.nome }}{% endblock %}
 
 {% block topbar_actions %}
-  <a href="{% url 'instalacao_nova' %}?software={{ software.pk }}" class="btn-secondary">
+  {# Instalação vinculada desabilitada #}
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Registrar Instalação
   </a>
@@ -156,7 +156,7 @@
         Computadores com este Software
         <span class="ml-2 text-xs bg-[var(--primary)] text-white px-2 py-0.5 rounded-full">{{ instalacoes.count }}</span>
       </h2>
-      <a href="{% url 'instalacao_nova' %}?software={{ software.pk }}" class="btn-primary text-xs px-3 py-1.5">+ Registrar Instalação</a>
+  {# Instalação vinculada desabilitada #}
     </div>
     <table class="w-full text-sm">
       <thead class="bg-[var(--surface-secondary)]">
@@ -186,7 +186,7 @@
             {% endif %}
           </td>
           <td class="px-3 py-3 text-center">
-            <a href="{% url 'instalacao_editar' inst.pk %}" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Editar</a>
+  {# Instalação vinculada desabilitada #}
           </td>
         </tr>
         {% empty %}
