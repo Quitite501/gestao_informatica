@@ -296,6 +296,23 @@ def software_criar_lote(request):
 
 
 @login_required
+def software_gerenciar(request):
+    """Página de gerenciamento de softwares com busca"""
+    q = request.GET.get('q', '').strip()
+    softwares = Software.objects.all()
+    
+    if q:
+        softwares = softwares.filter(nome__icontains=q)
+    
+    softwares = softwares.order_by('nome')
+    
+    return render(request, 'licencas/software_gerenciar.html', {
+        'softwares': softwares,
+        'q': q,
+    })
+
+
+@login_required
 def software_busca_ajax(request):
     """Busca softwares para Select2"""
     from django.http import JsonResponse

@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path("softwares/", views.software_lista, name="software_lista"),
     path("softwares/novo/", views.software_novo, name="software_novo"),
+    path("softwares/gerenciar/", views.software_gerenciar, name="software_gerenciar"),
     path("softwares/<int:pk>/", views.software_detalhe, name="software_detalhe"),
     path("softwares/<int:pk>/editar/", views.software_editar, name="software_editar"),
     path("licencas/contrato/novo/", views.licenca_contrato_novo, name="licenca_contrato_novo"),

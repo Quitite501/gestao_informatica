@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Gerenciar Softwares — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Gerenciar Softwares{% endblock %}
+{% block topbar_actions %}
+  <a href="{% url 'software_novo' %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo software
+  </a>
+{% endblock %}
+{% block content %}
+<div class="card p-6 mb-6">
+  <div class="mb-4">
+    <label for="busca_nome" class="block text-sm font-medium text-[var(--text-primary)] mb-2">Buscar software por nome</label>
+    <form method="get" class="flex gap-2">
+      <input type="text" name="q" value="{{ q }}" placeholder="Digite o nome do software..." class="flex-1 px-3 py-2 border border-[var(--border-color)] rounded text-sm">
+      <button type="submit" class="btn-primary">Buscar</button>
+      {% if q %}<a href="{% url 'software_gerenciar' %}" class="btn-secondary">Limpar</a>{% endif %}
+    </form>
+  </div>
+</div>
+
+{% if softwares %}
+<div class="card p-0 overflow-hidden">
+  <table class="table-base">
+    <thead>
+      <tr>
+        <th>Software</th>
+        <th>Fabricante</th>
+        <th>Versão</th>
+        <th>Tipo de Licença</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sw in softwares %}
+      <tr class="hover:bg-[var(--table-row-hover)] transition-colors">
+        <td class="font-medium text-[var(--text-primary)]">{{ sw.nome }}</td>
+        <td>{{ sw.fabricante|default:"—" }}</td>
+        <td>{{ sw.versao|default:"—" }}</td>
+        <td>{{ sw.get_tipo_licenca_display|default:"—" }}</td>
+        <td>
+          {% if sw.ativo %}
+          <span class="badge-encerrado">Ativo</span>
+          {% else %}
+          <span class="badge-critica">Inativo</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'software_detalhe' sw.pk %}" class="text-sm text-[var(--accent)] hover:underline">Ver</a>
+          <span class="text-gray-300">•</span>
+          <a href="{% url 'software_editar' sw.pk %}" class="text-sm text-[var(--accent)] hover:underline">Editar</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif q %}
+<div class="card p-6 text-center">
+  <p class="text-[var(--text-muted)]">Nenhum software encontrado com o termo "<strong>{{ q }}</strong>".</p>
+</div>
+{% else %}
+<div class="card p-6 text-center">
+  <p class="text-[var(--text-muted)]">Digite o nome de um software para buscar.</p>
+</div>
+{% endif %}
+{% endblock %}
