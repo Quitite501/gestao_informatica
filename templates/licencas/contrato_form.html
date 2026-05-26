@@ -8,23 +8,79 @@
   </a>
 {% endblock %}
 {% block content %}
-<div class="max-w-2xl">
-  <div class="card">
-    <form method="post" class="space-y-5">
-      {% csrf_token %}
-      {% for field in form %}
-      <div>
-        <label class="form-label">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}<p class="mt-1 text-xs text-[var(--danger-text)]">{{ field.errors|join:", " }}</p>{% endif %}
+<div class="max-w-3xl">
+  <form method="post">
+    {% csrf_token %}
+
+    <!-- Vínculo -->
+    <div class="card mb-6">
+      <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Vínculo</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">{{ form.software.label }} <span class="text-red-500">*</span></label>
+          {{ form.software }}
+          {% if form.software.errors %}<p class="mt-1 text-xs text-red-500">{{ form.software.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">{{ form.nota_fiscal.label }}</label>
+          {{ form.nota_fiscal }}
+          <p class="mt-1 text-xs text-[var(--secondary-text)]">Data de aquisição preenchida automaticamente.</p>
+          {% if form.nota_fiscal.errors %}<p class="mt-1 text-xs text-red-500">{{ form.nota_fiscal.errors|join:", " }}</p>{% endif %}
+        </div>
       </div>
-      {% endfor %}
-      <div class="flex items-center gap-3 pt-2">
-        <button type="submit" class="btn-primary">Salvar</button>
-        <a href="{% url 'software_lista' %}" class="btn-secondary">Cancelar</a>
+    </div>
+
+    <!-- Quantidades e Datas -->
+    <div class="card mb-6">
+      <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Quantidades e Datas</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">{{ form.quantidade_adquirida.label }} <span class="text-red-500">*</span></label>
+          {{ form.quantidade_adquirida }}
+          {% if form.quantidade_adquirida.errors %}<p class="mt-1 text-xs text-red-500">{{ form.quantidade_adquirida.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">{{ form.quantidade_utilizada.label }}</label>
+          {{ form.quantidade_utilizada }}
+          <p class="mt-1 text-xs text-[var(--secondary-text)]">Licenças em uso sem vínculo a equipamento.</p>
+          {% if form.quantidade_utilizada.errors %}<p class="mt-1 text-xs text-red-500">{{ form.quantidade_utilizada.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">{{ form.data_aquisicao.label }} <span class="text-red-500">*</span></label>
+          {{ form.data_aquisicao }}
+          {% if form.data_aquisicao.errors %}<p class="mt-1 text-xs text-red-500">{{ form.data_aquisicao.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">{{ form.data_vencimento.label }}</label>
+          {{ form.data_vencimento }}
+          {% if form.data_vencimento.errors %}<p class="mt-1 text-xs text-red-500">{{ form.data_vencimento.errors|join:", " }}</p>{% endif %}
+        </div>
       </div>
-    </form>
-  </div>
+    </div>
+
+    <!-- Detalhes Adicionais -->
+    <div class="card mb-6">
+      <h2 class="text-sm font-semibold mb-4 uppercase text-[var(--secondary-text)]">Detalhes Adicionais</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="form-label">{{ form.chave_licenca.label }}</label>
+          {{ form.chave_licenca }}
+          {% if form.chave_licenca.errors %}<p class="mt-1 text-xs text-red-500">{{ form.chave_licenca.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="form-label">{{ form.observacoes.label }}</label>
+          {{ form.observacoes }}
+          {% if form.observacoes.errors %}<p class="mt-1 text-xs text-red-500">{{ form.observacoes.errors|join:", " }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button type="submit" class="btn-primary">Salvar</button>
+      <a href="{% url 'software_lista' %}" class="btn-secondary">Cancelar</a>
+    </div>
+
+  </form>
 </div>
 {% endblock %}
 {% block extra_scripts %}
@@ -32,30 +88,15 @@
 document.addEventListener('DOMContentLoaded', function() {
   const selectNF = document.getElementById('id_nota_fiscal');
   const inputData = document.getElementById('id_data_aquisicao');
-
-  console.log('selectNF:', selectNF);
-  console.log('inputData:', inputData);
-
-  if (!selectNF || !inputData) {
-    console.log('Campos não encontrados!');
-    return;
-  }
-
+  if (!selectNF || !inputData) return;
   selectNF.addEventListener('change', function() {
     const pk = this.value;
-    console.log('NF selecionada:', pk);
     if (!pk) return;
-
     fetch('/nota-fiscal/data/?pk=' + pk)
       .then(r => r.json())
       .then(data => {
-        console.log('Resposta AJAX:', data);
-        if (data.data_emissao) {
-          inputData.value = data.data_emissao;
-          console.log('Data preenchida:', data.data_emissao);
-        }
-      })
-      .catch(err => console.error('Erro:', err));
+        if (data.data_emissao) inputData.value = data.data_emissao;
+      });
   });
 });
 </script>

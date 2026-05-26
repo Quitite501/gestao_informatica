@@ -48,7 +48,8 @@ class Software(models.Model):
 
     @property
     def saldo(self):
-        return self.total_adquirido - self.total_instalado - self.total_utilizado_sem_instalacao
+        # Instalação vinculada desabilitada — usar apenas quantidade_utilizada
+        return self.total_adquirido - self.total_utilizado_sem_instalacao
 
     @property
     def situacao(self):
