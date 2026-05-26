@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard de Licenças — Sistema de Gestão de TI{% endblock %}
+{% block page_title %}Dashboard de Licenças{% endblock %}
+{% block topbar_actions %}
+  <a href="{% url 'software_novo' %}" class="btn-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo software
+  </a>
+  <a href="{% url 'relatorio_conformidade' %}" class="btn-secondary">Relatório</a>
+{% endblock %}
+{% block content %}
+
+<!-- KPIs -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+  <!-- Total de Softwares -->
+  <div class="card p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm text-[var(--text-muted)] mb-1">Total de Softwares</p>
+        <p class="text-3xl font-bold text-[var(--text-primary)]">{{ total_softwares }}</p>
+      </div>
+      <svg class="w-12 h-12 text-[var(--accent)] opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h4M15 8h2M15 12h2"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Softwares Controlados -->
+  <div class="card p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm text-[var(--text-muted)] mb-1">Controlados</p>
+        <p class="text-3xl font-bold text-[var(--text-primary)]">{{ softwares_controlados }}</p>
+      </div>
+      <svg class="w-12 h-12 text-blue-500 opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Softwares Ativos -->
+  <div class="card p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm text-[var(--text-muted)] mb-1">Ativos</p>
+        <p class="text-3xl font-bold text-green-600">{{ softwares_ativos }}</p>
+      </div>
+      <svg class="w-12 h-12 text-green-500 opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Conformidade -->
+  <div class="card p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm text-[var(--text-muted)] mb-1">Faltam Licenças</p>
+        <p class="text-3xl font-bold {% if softwares_faltam %}text-red-600{% else %}text-green-600{% endif %}">{{ softwares_faltam|length }}</p>
+      </div>
+      <svg class="w-12 h-12 {% if softwares_faltam %}text-red-500{% else %}text-green-500{% endif %} opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 9v2m0 4v2m0-10a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Alertas -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+  <!-- Contratos Vencidos -->
+  {% if contratos_vencidos > 0 %}
+  <div class="card border-l-4 border-red-500 p-6">
+    <div class="flex items-start">
+      <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+      </svg>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-red-800">Contratos Vencidos</h3>
+        <p class="mt-1 text-sm text-red-700">{{ contratos_vencidos }} contrato(s) com vencimento expirado.</p>
+        <a href="{% url 'relatorio_conformidade' %}" class="mt-2 inline-block text-sm font-medium text-red-600 hover:underline">Ver relatório →</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Contratos Próximos ao Vencimento -->
+  {% if contratos_proximos > 0 %}
+  <div class="card border-l-4 border-yellow-500 p-6">
+    <div class="flex items-start">
+      <svg class="w-6 h-6 text-yellow-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+      </svg>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-yellow-800">Vencimento Próximo</h3>
+        <p class="mt-1 text-sm text-yellow-700">{{ contratos_proximos }} contrato(s) vencendo nos próximos 30 dias.</p>
+        <a href="{% url 'relatorio_conformidade' %}" class="mt-2 inline-block text-sm font-medium text-yellow-600 hover:underline">Ver relatório →</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Softwares com Falta de Licenças -->
+  {% if softwares_faltam %}
+  <div class="card border-l-4 border-orange-500 p-6">
+    <div class="flex items-start">
+      <svg class="w-6 h-6 text-orange-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+      </svg>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-orange-800">Falta de Licenças</h3>
+        <p class="mt-1 text-sm text-orange-700">{{ softwares_faltam|length }} software(s) com deficiência de licenças.</p>
+        <a href="{% url 'software_gerenciar' %}" class="mt-2 inline-block text-sm font-medium text-orange-600 hover:underline">Gerenciar →</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Ações Rápidas -->
+<div class="card p-6">
+  <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-4">Ações Rápidas</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+    <a href="{% url 'software_novo' %}" class="btn-primary text-center py-3">
+      <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Novo Software
+    </a>
+    <a href="{% url 'software_gerenciar' %}" class="btn-secondary text-center py-3">
+      <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+      Gerenciar
+    </a>
+    <a href="{% url 'relatorio_conformidade' %}" class="btn-secondary text-center py-3">
+      <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      Conformidade
+    </a>
+    <a href="{% url 'software_criar_lote' %}" class="btn-secondary text-center py-3">
+      <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+      Criar Lote
+    </a>
+  </div>
+</div>
+
+{% endblock %}

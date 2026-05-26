@@ -8,6 +8,52 @@ from .models import Software, LicencaContrato, InstalacaoSoftware
 
 
 @login_required
+def licenca_dashboard(request):
+    """Dashboard de licenças com status geral e alertas"""
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    # Métricas gerais
+    total_softwares = Software.objects.count()
+    softwares_controlados = Software.objects.filter(controlado=True).count()
+    softwares_ativos = Software.objects.filter(ativo=True).count()
+    
+    # Softwares com falta de licenças
+    softwares_faltam = []
+    for sw in Software.objects.filter(controlado=True):
+        if sw.saldo < 0:
+            softwares_faltam.append({
+                'nome': sw.nome,
+                'faltam': abs(sw.saldo)
+            })
+    
+    # Contratos vencidos e próximos ao vencimento
+    hoje = timezone.now().date()
+    em_30_dias = hoje + timedelta(days=30)
+    
+    contratos_vencidos = LicencaContrato.objects.filter(
+        data_vencimento__lt=hoje
+    ).count()
+    
+    contratos_proximos = LicencaContrato.objects.filter(
+        data_vencimento__gte=hoje,
+        data_vencimento__lte=em_30_dias
+    ).count()
+    
+    # Contexto para o template
+    contexto = {
+        'total_softwares': total_softwares,
+        'softwares_controlados': softwares_controlados,
+        'softwares_ativos': softwares_ativos,
+        'softwares_faltam': softwares_faltam,
+        'contratos_vencidos': contratos_vencidos,
+        'contratos_proximos': contratos_proximos,
+    }
+    
+    return render(request, 'licencas/licenca_dashboard.html', contexto)
+
+
+@login_required
 def software_lista(request):
     # ── Limpar filtros ────────────────────────────────────────────────
     if "limpar" in request.GET:

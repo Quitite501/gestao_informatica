@@ -252,11 +252,17 @@
       </svg>
       Notas Fiscais
     </a>
-    <a href="{% url 'software_lista' %}" class="nav-item {% if 'software' in request.resolver_match.url_name or 'licenca' in request.resolver_match.url_name or 'instalacao' in request.resolver_match.url_name %}active{% endif %}">
+    <a href="{% url 'licenca_dashboard' %}" class="nav-item {% if 'licenca' in request.resolver_match.url_name or 'software' in request.resolver_match.url_name or 'instalacao' in request.resolver_match.url_name %}active{% endif %}">
       <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h4M15 8h2M15 12h2"/>
       </svg>
       Licenças
+    </a>
+    <a href="{% url 'software_novo' %}" class="nav-item nav-subitem {% if request.resolver_match.url_name == 'software_novo' %}active{% endif %}">
+      <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Novo Software
     </a>
     <a href="{% url 'software_gerenciar' %}" class="nav-item nav-subitem {% if request.resolver_match.url_name == 'software_gerenciar' %}active{% endif %}">
       <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
