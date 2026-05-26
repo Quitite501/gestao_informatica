@@ -71,24 +71,23 @@
   <div class="resumo">
     <div class="resumo-card">
       <div class="label">Total de Softwares</div>
-      <div class="valor">{{ softwares|length }}</div>
+      <div class="valor">{{ total_softwares }}</div>
     </div>
     <div class="resumo-card">
-      <div class="label">Com Falta de Licenças</div>
-      <div class="valor" style="color: #dc2626;">
-        {% with faltam=0 %}
-        {% for sw in softwares %}{% if sw.saldo < 0 %}{% with faltam=faltam|add:1 %}{% endwith %}{% endif %}{% endfor %}
-        {{ softwares|length }}
-        {% endwith %}
-      </div>
+      <div class="label">Com Falta</div>
+      <div class="valor" style="color: #dc2626;">{{ com_falta }}</div>
+    </div>
+    <div class="resumo-card">
+      <div class="label">Com Excesso</div>
+      <div class="valor" style="color: #16a34a;">{{ com_excesso }}</div>
     </div>
     <div class="resumo-card">
       <div class="label">Total Adquiridas</div>
-      <div class="valor">
-        {% with total=0 %}
-        {{ softwares|length }}
-        {% endwith %}
-      </div>
+      <div class="valor">{{ total_adquiridas }}</div>
+    </div>
+    <div class="resumo-card">
+      <div class="label">Total Instaladas</div>
+      <div class="valor">{{ total_instaladas }}</div>
     </div>
   </div>
 

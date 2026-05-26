@@ -6,66 +6,69 @@
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Novo software
   </a>
-  <a href="{% url 'relatorio_conformidade' %}" class="btn-secondary">Relatório</a>
+  <a href="{% url 'relatorio_customizado' %}" class="btn-secondary">Relatório</a>
 {% endblock %}
 {% block content %}
 
 <!-- KPIs -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-  <!-- Total de Softwares -->
-  <div class="card p-6">
+<!-- KPIs -->
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+
+  <a href="{% url 'software_lista' %}" class="card p-6 hover:shadow-md transition-shadow">
     <div class="flex items-center justify-between">
       <div>
         <p class="text-sm text-[var(--text-muted)] mb-1">Total de Softwares</p>
         <p class="text-3xl font-bold text-[var(--text-primary)]">{{ total_softwares }}</p>
       </div>
-      <svg class="w-12 h-12 text-[var(--accent)] opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h4M15 8h2M15 12h2"/>
-      </svg>
+      <svg class="w-12 h-12 text-[var(--accent)] opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
     </div>
-  </div>
+  </a>
 
-  <!-- Softwares Controlados -->
-  <div class="card p-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="text-sm text-[var(--text-muted)] mb-1">Controlados</p>
-        <p class="text-3xl font-bold text-[var(--text-primary)]">{{ softwares_controlados }}</p>
-      </div>
-      <svg class="w-12 h-12 text-blue-500 opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-    </div>
-  </div>
-
-  <!-- Softwares Ativos -->
-  <div class="card p-6">
+  <a href="{% url 'software_lista' %}?ativo=true" class="card p-6 hover:shadow-md transition-shadow">
     <div class="flex items-center justify-between">
       <div>
         <p class="text-sm text-[var(--text-muted)] mb-1">Ativos</p>
         <p class="text-3xl font-bold text-green-600">{{ softwares_ativos }}</p>
       </div>
-      <svg class="w-12 h-12 text-green-500 opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-      </svg>
+      <svg class="w-12 h-12 text-green-500 opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     </div>
-  </div>
+  </a>
 
-  <!-- Conformidade -->
-  <div class="card p-6">
+  <a href="{% url 'software_lista' %}?ativo=false" class="card p-6 hover:shadow-md transition-shadow">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm text-[var(--text-muted)] mb-1">Inativos</p>
+        <p class="text-3xl font-bold text-gray-500">{{ softwares_inativos }}</p>
+      </div>
+      <svg class="w-12 h-12 text-gray-400 opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/></svg>
+    </div>
+  </a>
+
+  <a href="{% url 'relatorio_conformidade' %}" class="card p-6 hover:shadow-md transition-shadow">
     <div class="flex items-center justify-between">
       <div>
         <p class="text-sm text-[var(--text-muted)] mb-1">Faltam Licenças</p>
         <p class="text-3xl font-bold {% if softwares_faltam %}text-red-600{% else %}text-green-600{% endif %}">{{ softwares_faltam|length }}</p>
       </div>
-      <svg class="w-12 h-12 {% if softwares_faltam %}text-red-500{% else %}text-green-500{% endif %} opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M12 9v2m0 4v2m0-10a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
+      <svg class="w-12 h-12 {% if softwares_faltam %}text-red-500{% else %}text-green-500{% endif %} opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4v2m0-10a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     </div>
-  </div>
+  </a>
+
+  <a href="{% url 'relatorio_customizado' %}" class="card p-6 hover:shadow-md transition-shadow">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm text-[var(--text-muted)] mb-1">Windows vs PCs</p>
+        <p class="text-3xl font-bold {% if diff_windows < 0 %}text-red-600{% elif diff_windows == 0 %}text-green-600{% else %}text-blue-600{% endif %}">
+          {% if diff_windows < 0 %}⚠ {{ diff_windows }}{% elif diff_windows == 0 %}✓ OK{% else %}+{{ diff_windows }}{% endif %}
+        </p>
+        <p class="text-xs text-[var(--text-muted)] mt-1">{{ licencas_windows }} lic. / {{ total_pcs }} PCs</p>
+      </div>
+      <svg class="w-12 h-12 {% if diff_windows < 0 %}text-red-500{% else %}text-blue-500{% endif %} opacity-20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    </div>
+  </a>
+
 </div>
 
-<!-- Alertas -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
   <!-- Contratos Vencidos -->
   {% if contratos_vencidos > 0 %}

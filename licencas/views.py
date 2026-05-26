@@ -17,8 +17,9 @@ def licenca_dashboard(request):
     total_softwares = Software.objects.count()
     softwares_controlados = Software.objects.filter(controlado=True).count()
     softwares_ativos = Software.objects.filter(ativo=True).count()
+    softwares_inativos = Software.objects.filter(ativo=False).count()
     
-    # Softwares com falta de licenças
+    # Softwares com falta de licenças (saldo individual negativo)
     softwares_faltam = []
     for sw in Software.objects.filter(controlado=True):
         if sw.saldo < 0:
@@ -26,6 +27,21 @@ def licenca_dashboard(request):
                 'nome': sw.nome,
                 'faltam': abs(sw.saldo)
             })
+
+    # Comparativo Windows vs PCs
+    from django.db.models import Sum, Q
+    from patrimonio.models import ComputadorEspecificacao
+    total_pcs = ComputadorEspecificacao.objects.count()
+    licencas_windows = LicencaContrato.objects.filter(
+        software__nome__icontains='windows'
+    ).exclude(
+        software__nome__icontains='server'
+    ).exclude(
+        software__nome__icontains='CAL'
+    ).exclude(
+        software__nome__icontains='sql'
+    ).aggregate(total=Sum('quantidade_adquirida'))['total'] or 0
+    diff_windows = licencas_windows - total_pcs
     
     # Contratos vencidos e próximos ao vencimento
     hoje = timezone.now().date()
@@ -45,9 +61,13 @@ def licenca_dashboard(request):
         'total_softwares': total_softwares,
         'softwares_controlados': softwares_controlados,
         'softwares_ativos': softwares_ativos,
+        'softwares_inativos': softwares_inativos,
         'softwares_faltam': softwares_faltam,
         'contratos_vencidos': contratos_vencidos,
         'contratos_proximos': contratos_proximos,
+        'total_pcs': total_pcs,
+        'licencas_windows': licencas_windows,
+        'diff_windows': diff_windows,
     }
     
     return render(request, 'licencas/licenca_dashboard.html', contexto)
@@ -90,6 +110,10 @@ def software_lista(request):
             softwares = softwares.filter(controlado=True)
         elif form_filtro.cleaned_data.get("controlado") == "false":
             softwares = softwares.filter(controlado=False)
+        if form_filtro.cleaned_data.get("ativo") == "true":
+            softwares = softwares.filter(ativo=True)
+        elif form_filtro.cleaned_data.get("ativo") == "false":
+            softwares = softwares.filter(ativo=False)
 
     softwares = softwares.order_by("nome")
 
@@ -464,6 +488,13 @@ def relatorio_customizado(request):
             
             return response
         
+        # Calcular estatísticas
+        total_softwares = len(resultado)
+        com_falta = sum(1 for sw in resultado if (sw.total_adquirido - sw.total_instalado) < 0)
+        com_excesso = sum(1 for sw in resultado if (sw.total_adquirido - sw.total_instalado) > 0)
+        total_adquiridas = sum(sw.total_adquirido for sw in resultado)
+        total_instaladas = sum(sw.total_instalado for sw in resultado)
+
         # HTML
         return render(request, 'licencas/relatorio_customizado_resultado.html', {
             'softwares': resultado,
@@ -473,6 +504,11 @@ def relatorio_customizado(request):
             'tipo_analise_label': tipos_analise.get(tipo_analise, ''),
             'fabricante': fabricante,
             'ativo': ativo,
+            'total_softwares': total_softwares,
+            'com_falta': com_falta,
+            'com_excesso': com_excesso,
+            'total_adquiridas': total_adquiridas,
+            'total_instaladas': total_instaladas,
         })
 
 @login_required

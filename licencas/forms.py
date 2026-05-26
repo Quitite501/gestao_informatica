@@ -40,6 +40,10 @@ class SoftwareFiltroForm(forms.Form):
         required=False,
         choices=[("", "Todos"), ("true", "Controlados"), ("false", "Não controlados")],
     )
+    ativo = forms.ChoiceField(
+        required=False,
+        choices=[("", "Todos"), ("true", "Ativos"), ("false", "Inativos")],
+    )
 
 
 class LicencaContratoForm(forms.ModelForm):
