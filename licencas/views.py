@@ -388,9 +388,10 @@ def software_gerenciar(request):
 
 @login_required
 def relatorio_customizado(request):
-    """Gerador de relatórios customizados de auditoria de licenças"""
+    """Gerador de relatórios customizados - formulário + resultados na mesma página (Tipo 5 - Inline)"""
     from django.http import HttpResponse
-    from django.db.models import Q
+    from django.db.models import Q, Sum
+    from patrimonio.models import ComputadorEspecificacao
     import csv
     
     categorias = {
@@ -413,54 +414,63 @@ def relatorio_customizado(request):
         'windows_pcs': 'Windows para Estação (vs PCs)',
     }
     
-    if request.method == 'GET':
-        fabricantes = Software.objects.filter(
-            fabricante__isnull=False
-        ).values_list('fabricante', flat=True).distinct().order_by('fabricante')
-        
-        return render(request, 'licencas/relatorio_customizado.html', {
-            'categorias': categorias,
-            'tipos_analise': tipos_analise,
-            'fabricantes': list(fabricantes),
-        })
+    # Obter fabricantes disponíveis
+    fabricantes = Software.objects.filter(
+        fabricante__isnull=False, ativo=True
+    ).values_list('fabricante', flat=True).distinct().order_by('fabricante')
     
-    elif request.method == 'POST':
-        categoria = request.POST.get('categoria', 'todos')
-        tipo_analise = request.POST.get('tipo_analise', 'todos')
-        fabricante = request.POST.get('fabricante', '')
-        ativo = request.POST.get('ativo', 'todos')
-        formato = request.POST.get('formato', 'html')
-        
+    # Valores padrão (GET)
+    categoria = request.POST.get('categoria', 'todos') if request.method == 'POST' else 'todos'
+    tipo_analise = request.POST.get('tipo_analise', 'todos') if request.method == 'POST' else 'todos'
+    fabricante = request.POST.get('fabricante', '') if request.method == 'POST' else ''
+    ativo = request.POST.get('ativo', 'todos') if request.method == 'POST' else 'todos'
+    formato = request.POST.get('formato', 'html') if request.method == 'POST' else 'html'
+    
+    softwares = []
+    total_softwares = 0
+    com_falta = 0
+    com_excesso = 0
+    total_adquiridas = 0
+    total_instaladas = 0
+    estacao_resultado = None
+    server_resultado = None
+    total_pcs = ComputadorEspecificacao.objects.count()
+    
+    if request.method == 'POST':
         # Filtrar softwares
-        softwares = Software.objects.filter(ativo=True)
+        query = Software.objects.filter(ativo=True)
         
         # Por categoria
         if categoria == 'windows':
-            softwares = softwares.filter(nome__icontains='windows')
+            query = query.filter(nome__icontains='windows').exclude(nome__icontains='server').exclude(nome__icontains='CAL')
+        elif categoria == 'windows_server':
+            query = query.filter(Q(nome__icontains='windows server') | Q(nome__icontains='CAL'))
+        elif categoria == 'windows_completo':
+            query = query.filter(nome__icontains='windows')
         elif categoria == 'office':
-            softwares = softwares.filter(nome__icontains='office')
+            query = query.filter(nome__icontains='office')
         elif categoria == 'banco_dados':
-            softwares = softwares.filter(Q(nome__icontains='sql') | Q(nome__icontains='oracle') | Q(nome__icontains='mysql'))
+            query = query.filter(Q(nome__icontains='sql') | Q(nome__icontains='oracle') | Q(nome__icontains='mysql'))
         elif categoria == 'antivirus':
-            softwares = softwares.filter(Q(nome__icontains='antivírus') | Q(nome__icontains='security'))
+            query = query.filter(Q(nome__icontains='antivírus') | Q(nome__icontains='security'))
         elif categoria == 'desenvolvimento':
-            softwares = softwares.filter(Q(nome__icontains='visual') | Q(nome__icontains='java') | Q(nome__icontains='python'))
+            query = query.filter(Q(nome__icontains='visual') | Q(nome__icontains='java') | Q(nome__icontains='python'))
         
         # Por fabricante
         if fabricante:
-            softwares = softwares.filter(fabricante=fabricante)
+            query = query.filter(fabricante=fabricante)
         
         # Por status
         if ativo == 'ativo':
-            softwares = softwares.filter(ativo=True)
+            query = query.filter(ativo=True)
         elif ativo == 'inativo':
-            softwares = softwares.filter(ativo=False)
+            query = query.filter(ativo=False)
         
-        softwares = softwares.order_by('nome')
+        query = query.order_by('nome')
         
         # Filtrar por tipo de análise
-        resultado = []
-        for sw in softwares:
+        softwares = []
+        for sw in query:
             saldo = sw.total_adquirido - sw.total_instalado
             include = False
             
@@ -468,11 +478,11 @@ def relatorio_customizado(request):
                 include = True
             elif tipo_analise == 'excesso' and saldo > 0:
                 include = True
-            elif tipo_analise in ['conformidade', 'comparativo', 'todos']:
+            elif tipo_analise in ['conformidade', 'comparativo', 'todos', 'windows_pcs']:
                 include = True
             
             if include:
-                resultado.append(sw)
+                softwares.append(sw)
         
         # PDF export
         if formato == 'pdf':
@@ -484,44 +494,51 @@ def relatorio_customizado(request):
         elif formato == 'csv':
             response = HttpResponse(content_type='text/csv; charset=utf-8')
             response['Content-Disposition'] = 'attachment; filename="relatorio_licencas.csv"'
-            response.write('\ufeff')  # BOM para Excel
+            response.write('\ufeff')
             writer = csv.writer(response)
-            writer.writerow(['Software', 'Fabricante', 'Adquiridas', 'Instaladas', 'Saldo', 'Situação', 'Status'])
+            writer.writerow(['Software', 'Fabricante', 'Adquiridas', 'Instaladas', 'Saldo', 'Situação'])
             
-            for sw in resultado:
+            for sw in softwares:
                 saldo = sw.total_adquirido - sw.total_instalado
                 situacao = 'OK' if saldo == 0 else ('FALTAM' if saldo < 0 else 'SOBRAM')
-                writer.writerow([sw.nome, sw.fabricante or '-', sw.total_adquirido, sw.total_instalado, saldo, situacao, 'Ativo' if sw.ativo else 'Inativo'])
+                writer.writerow([sw.nome, sw.fabricante or '-', sw.total_adquirido, sw.total_instalado, saldo, situacao])
             
             return response
         
         # Calcular estatísticas
-        total_softwares = len(resultado)
-        com_falta = sum(1 for sw in resultado if (sw.total_adquirido - sw.total_instalado) < 0)
-        com_excesso = sum(1 for sw in resultado if (sw.total_adquirido - sw.total_instalado) > 0)
-        total_adquiridas = sum(sw.total_adquirido for sw in resultado)
-        total_instaladas = sum(sw.total_instalado for sw in resultado)
+        total_softwares = len(softwares)
+        com_falta = sum(1 for sw in softwares if (sw.total_adquirido - sw.total_instalado) < 0)
+        com_excesso = sum(1 for sw in softwares if (sw.total_adquirido - sw.total_instalado) > 0)
+        total_adquiridas = sum(sw.total_adquirido for sw in softwares)
+        total_instaladas = sum(sw.total_instalado for sw in softwares)
+        
+        # Windows Completo (seções estação/server)
+        if categoria == 'windows_completo':
+            estacao_resultado = [sw for sw in softwares if not any(x in sw.nome.lower() for x in ['server', 'cal'])]
+            server_resultado = [sw for sw in softwares if any(x in sw.nome.lower() for x in ['server', 'cal'])]
+    
+    context = {
+        'categorias': categorias,
+        'tipos_analise': tipos_analise,
+        'fabricantes': list(fabricantes),
+        'categoria': categoria,
+        'tipo_analise': tipo_analise,
+        'fabricante': fabricante,
+        'ativo': ativo,
+        'softwares': softwares,
+        'total_softwares': total_softwares,
+        'com_falta': com_falta,
+        'com_excesso': com_excesso,
+        'total_adquiridas': total_adquiridas,
+        'total_instaladas': total_instaladas,
+        'estacao_resultado': estacao_resultado,
+        'server_resultado': server_resultado,
+        'windows_completo': categoria == 'windows_completo',
+        'total_pcs': total_pcs,
+    }
+    
+    return render(request, 'licencas/relatorio_customizado_novo.html', context)
 
-        # HTML
-        return render(request, 'licencas/relatorio_customizado_resultado.html', {
-            'softwares': resultado,
-            'categoria': categoria,
-            'tipo_analise': tipo_analise,
-            'categoria_label': categorias.get(categoria, ''),
-            'tipo_analise_label': tipos_analise.get(tipo_analise, ''),
-            'fabricante': fabricante,
-            'ativo': ativo,
-            'total_softwares': total_softwares,
-            'com_falta': com_falta,
-            'com_excesso': com_excesso,
-            'total_adquiridas': total_adquiridas,
-            'total_instaladas': total_instaladas,
-            'total_pcs': total_pcs,
-            'diff_windows_pcs': total_adquiridas - total_pcs if tipo_analise == 'windows_pcs' else None,
-            'estacao_resultado': estacao_resultado if categoria == 'windows_completo' else None,
-            'server_resultado': server_resultado if categoria == 'windows_completo' else None,
-            'windows_completo': categoria == 'windows_completo',
-        })
 
 @login_required
 def relatorio_customizado_pdf(request):
