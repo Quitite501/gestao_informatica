@@ -13,13 +13,11 @@ def licenca_dashboard(request):
     from django.utils import timezone
     from datetime import timedelta
     
-    # Métricas gerais
     total_softwares = Software.objects.count()
     softwares_controlados = Software.objects.filter(controlado=True).count()
     softwares_ativos = Software.objects.filter(ativo=True).count()
     softwares_inativos = Software.objects.filter(ativo=False).count()
     
-    # Softwares com falta de licenças (saldo individual negativo)
     softwares_faltam = []
     for sw in Software.objects.filter(controlado=True):
         if sw.saldo < 0:
@@ -28,7 +26,6 @@ def licenca_dashboard(request):
                 'faltam': abs(sw.saldo)
             })
 
-    # Comparativo Windows vs PCs
     from django.db.models import Sum, Q
     from patrimonio.models import ComputadorEspecificacao
     total_pcs = ComputadorEspecificacao.objects.count()
@@ -43,7 +40,6 @@ def licenca_dashboard(request):
     ).aggregate(total=Sum('quantidade_adquirida'))['total'] or 0
     diff_windows = licencas_windows - total_pcs
     
-    # Contratos vencidos e próximos ao vencimento
     hoje = timezone.now().date()
     em_30_dias = hoje + timedelta(days=30)
     
@@ -56,7 +52,6 @@ def licenca_dashboard(request):
         data_vencimento__lte=em_30_dias
     ).count()
     
-    # Contexto para o template
     contexto = {
         'total_softwares': total_softwares,
         'softwares_controlados': softwares_controlados,
@@ -75,19 +70,16 @@ def licenca_dashboard(request):
 
 @login_required
 def software_lista(request):
-    # ── Limpar filtros ────────────────────────────────────────────────
     if "limpar" in request.GET:
         request.session.pop("software_filtros", None)
         return redirect("software_lista")
 
-    # ── Salvar filtros na sessão e redirecionar para URL limpa ────────
     if request.GET:
         request.session["software_filtros"] = {
             k: request.GET.getlist(k) for k in request.GET.keys()
         }
         return redirect("software_lista")
 
-    # ── Reconstruir filtros da sessão ─────────────────────────────────
     from django.http import QueryDict
     filtros_salvos = request.session.get("software_filtros", {})
     qd = QueryDict(mutable=True).copy()
@@ -175,7 +167,6 @@ def software_editar(request, pk):
 @login_required
 @permission_required("licencas.add_licencacontrato", raise_exception=True)
 def licenca_contrato_novo(request):
-    # Formulário rápido inline (vindo da tela de edição de software)
     if request.method == "POST" and request.POST.get("quantidade_adquirida") and request.POST.get("software"):
         from notas_fiscais.models import NotaFiscal
         
@@ -339,7 +330,6 @@ def software_criar_lote(request):
             }
         )
 
-        # Criar contrato de licença
         LicencaContrato.objects.create(
             software=software,
             quantidade_adquirida=qtd,
@@ -414,12 +404,10 @@ def relatorio_customizado(request):
         'windows_pcs': 'Windows para Estação (vs PCs)',
     }
     
-    # Obter fabricantes disponíveis
     fabricantes = Software.objects.filter(
         fabricante__isnull=False, ativo=True
     ).values_list('fabricante', flat=True).distinct().order_by('fabricante')
     
-    # Valores padrão (GET)
     categoria = request.POST.get('categoria', 'todos') if request.method == 'POST' else 'todos'
     tipo_analise = request.POST.get('tipo_analise', 'todos') if request.method == 'POST' else 'todos'
     fabricante = request.POST.get('fabricante', '') if request.method == 'POST' else ''
@@ -437,10 +425,8 @@ def relatorio_customizado(request):
     total_pcs = ComputadorEspecificacao.objects.count()
     
     if request.method == 'POST':
-        # Filtrar softwares
         query = Software.objects.filter(ativo=True)
         
-        # Por categoria
         if categoria == 'windows':
             query = query.filter(nome__icontains='windows').exclude(nome__icontains='server').exclude(nome__icontains='CAL')
         elif categoria == 'windows_server':
@@ -456,11 +442,9 @@ def relatorio_customizado(request):
         elif categoria == 'desenvolvimento':
             query = query.filter(Q(nome__icontains='visual') | Q(nome__icontains='java') | Q(nome__icontains='python'))
         
-        # Por fabricante
         if fabricante:
             query = query.filter(fabricante=fabricante)
         
-        # Por status
         if ativo == 'ativo':
             query = query.filter(ativo=True)
         elif ativo == 'inativo':
@@ -468,7 +452,6 @@ def relatorio_customizado(request):
         
         query = query.order_by('nome')
         
-        # Filtrar por tipo de análise
         softwares = []
         for sw in query:
             saldo = sw.total_adquirido - sw.total_instalado
@@ -484,13 +467,11 @@ def relatorio_customizado(request):
             if include:
                 softwares.append(sw)
         
-        # PDF export
         if formato == 'pdf':
             from django.urls import reverse
             params = f"?categoria={categoria}&tipo_analise={tipo_analise}&fabricante={fabricante}&ativo={ativo}"
             return redirect(reverse('relatorio_customizado_pdf') + params)
         
-        # CSV export
         elif formato == 'csv':
             response = HttpResponse(content_type='text/csv; charset=utf-8')
             response['Content-Disposition'] = 'attachment; filename="relatorio_licencas.csv"'
@@ -505,14 +486,12 @@ def relatorio_customizado(request):
             
             return response
         
-        # Calcular estatísticas
         total_softwares = len(softwares)
         com_falta = sum(1 for sw in softwares if (sw.total_adquirido - sw.total_instalado) < 0)
         com_excesso = sum(1 for sw in softwares if (sw.total_adquirido - sw.total_instalado) > 0)
         total_adquiridas = sum(sw.total_adquirido for sw in softwares)
         total_instaladas = sum(sw.total_instalado for sw in softwares)
         
-        # Windows Completo (seções estação/server)
         if categoria == 'windows_completo':
             estacao_resultado = [sw for sw in softwares if not any(x in sw.nome.lower() for x in ['server', 'cal'])]
             server_resultado = [sw for sw in softwares if any(x in sw.nome.lower() for x in ['server', 'cal'])]
@@ -559,7 +538,6 @@ def relatorio_customizado_pdf(request):
         config_cartorio = None
         logo_path = None
 
-    # Parâmetros via GET (passados como query string)
     categoria = request.GET.get('categoria', 'todos')
     tipo_analise = request.GET.get('tipo_analise', 'todos')
     fabricante = request.GET.get('fabricante', '')
@@ -618,11 +596,9 @@ def relatorio_customizado_pdf(request):
         elif tipo_analise in ['conformidade', 'comparativo', 'todos']:
             resultado.append(sw)
 
-    # Calcular estatísticas para os cards
     estacao_lista = [sw for sw in resultado if not any(x in sw.nome.lower() for x in ['server', 'cal'])] if categoria == 'windows_completo' else []
     server_lista = [sw for sw in resultado if any(x in sw.nome.lower() for x in ['server', 'cal'])] if categoria == 'windows_completo' else []
 
-    # Calcular Linux nos desktops
     total_linux = 0
     computadores_linux = []
     if categoria == 'windows_completo':
@@ -639,7 +615,6 @@ def relatorio_customizado_pdf(request):
     total_adquiridas = sum(sw.total_adquirido for sw in resultado)
     total_utilizadas = sum(sw.total_utilizado_sem_instalacao for sw in resultado)
 
-    # Cards separados estação/server
     estacao_adquiridas = sum(sw.total_adquirido for sw in estacao_lista)
     estacao_utilizadas = sum(sw.total_utilizado_sem_instalacao for sw in estacao_lista)
     server_adquiridas = sum(sw.total_adquirido for sw in server_lista)
