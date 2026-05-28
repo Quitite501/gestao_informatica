@@ -106,37 +106,56 @@
   {% endif %}
 
   <!-- Cards de Estatísticas -->
-  <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-    <div class="card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 border-l-4 border-l-blue-500">
-      <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase">Total</p>
-      <p class="text-3xl font-bold text-blue-900 dark:text-blue-100">{{ total_softwares }}</p>
-    </div>
-    <div class="card bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 border-l-4 border-l-red-500">
-      <p class="text-xs font-semibold text-red-600 dark:text-red-300 uppercase">Com Falta</p>
-      <p class="text-3xl font-bold text-red-900 dark:text-red-100">{{ com_falta }}</p>
-    </div>
-    <div class="card bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 border-l-4 border-l-green-500">
-      <p class="text-xs font-semibold text-green-600 dark:text-green-300 uppercase">Com Excesso</p>
-      <p class="text-3xl font-bold text-green-900 dark:text-green-100">{{ com_excesso }}</p>
-    </div>
-    <div class="card bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 border-l-4 border-l-purple-500">
-      <p class="text-xs font-semibold text-purple-600 dark:text-purple-300 uppercase">Adquiridas</p>
-      <p class="text-3xl font-bold text-purple-900 dark:text-purple-100">{{ total_adquiridas }}</p>
-    </div>
-    <div class="card bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 border-l-4 border-l-yellow-500">
-      <p class="text-xs font-semibold text-yellow-600 dark:text-yellow-300 uppercase">Instaladas</p>
-      <p class="text-3xl font-bold text-yellow-900 dark:text-yellow-100">{{ total_instaladas }}</p>
+  <div class="card p-0 overflow-hidden">
+    <div style="display:flex; width:100%;">
+      <div style="flex:1; padding:20px; text-align:center; border-right:1px solid var(--border-color);">
+        <p style="font-size:10px; font-weight:700; color:#2563eb; text-transform:uppercase; letter-spacing:0.05em; margin:0;">Total</p>
+        <p style="font-size:2rem; font-weight:800; color:#1e3a8a; margin:4px 0 0 0;">{{ total_softwares }}</p>
+      </div>
+      <div style="flex:1; padding:20px; text-align:center; border-right:1px solid var(--border-color);">
+        <p style="font-size:10px; font-weight:700; color:#dc2626; text-transform:uppercase; letter-spacing:0.05em; margin:0;">Com Falta</p>
+        <p style="font-size:2rem; font-weight:800; color:#7f1d1d; margin:4px 0 0 0;">{{ com_falta }}</p>
+      </div>
+      <div style="flex:1; padding:20px; text-align:center; border-right:1px solid var(--border-color);">
+        <p style="font-size:10px; font-weight:700; color:#16a34a; text-transform:uppercase; letter-spacing:0.05em; margin:0;">Com Excesso</p>
+        <p style="font-size:2rem; font-weight:800; color:#14532d; margin:4px 0 0 0;">{{ com_excesso }}</p>
+      </div>
+      <div style="flex:1; padding:20px; text-align:center; border-right:1px solid var(--border-color);">
+        <p style="font-size:10px; font-weight:700; color:#7c3aed; text-transform:uppercase; letter-spacing:0.05em; margin:0;">Adquiridas</p>
+        <p style="font-size:2rem; font-weight:800; color:#3b0764; margin:4px 0 0 0;">{{ total_adquiridas }}</p>
+      </div>
+      <div style="flex:1; padding:20px; text-align:center;">
+        <p style="font-size:10px; font-weight:700; color:#d97706; text-transform:uppercase; letter-spacing:0.05em; margin:0;">Instaladas</p>
+        <p style="font-size:2rem; font-weight:800; color:#78350f; margin:4px 0 0 0;">{{ total_instaladas }}</p>
+      </div>
     </div>
   </div>
 
   <!-- Tabela de Resultados -->
   {% if windows_completo and estacao_resultado %}
     <!-- Estação -->
-    <div class="card p-0 overflow-hidden mb-6">
+    <div class="card p-0 overflow-hidden mb-8">
       <div class="px-4 py-3 border-b border-[var(--border-color)] flex items-center gap-2" style="background:#e6f1fb">
         <span class="text-sm font-semibold" style="color:#0c447c">Windows Estação</span>
         <span class="text-xs px-2 py-0.5 rounded-full border border-blue-200 text-blue-700">{{ estacao_resultado|length }}</span>
       </div>
+      
+      <!-- Cards de Estatísticas Estação -->
+      <div class="grid grid-cols-3 divide-x divide-blue-200 bg-blue-50 dark:bg-blue-900 border-b border-[var(--border-color)]">
+        <div class="text-center py-4 px-6">
+          <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase tracking-wide">Softwares</p>
+          <p class="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-1">{{ estacao_resultado|length }}</p>
+        </div>
+        <div class="text-center py-4 px-6">
+          <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase tracking-wide">Adquiridas</p>
+          <p class="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-1">{{ estacao_adquiridas }}</p>
+        </div>
+        <div class="text-center py-4 px-6">
+          <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase tracking-wide">Utilizadas</p>
+          <p class="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-1">{{ estacao_utilizadas }}</p>
+        </div>
+      </div>
+      
       <table class="table-base">
         <thead><tr><th>Software</th><th>Fabricante</th><th>Adquiridas</th><th>Utilizadas</th><th>Saldo</th><th>Status</th></tr></thead>
         <tbody>
@@ -155,11 +174,28 @@
     </div>
 
     <!-- Server -->
-    <div class="card p-0 overflow-hidden mb-6">
+    <div class="card p-0 overflow-hidden mb-8">
       <div class="px-4 py-3 border-b border-[var(--border-color)] flex items-center gap-2" style="background:#eaf3de">
         <span class="text-sm font-semibold" style="color:#27500a">Windows Server</span>
         <span class="text-xs px-2 py-0.5 rounded-full border border-green-200 text-green-700">{{ server_resultado|length }}</span>
       </div>
+      
+      <!-- Cards de Estatísticas Estação -->
+      <div class="grid grid-cols-3 divide-x divide-blue-200 bg-blue-50 dark:bg-blue-900 border-b border-[var(--border-color)]">
+        <div class="text-center py-4 px-6">
+          <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase tracking-wide">Softwares</p>
+          <p class="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-1">{{ estacao_resultado|length }}</p>
+        </div>
+        <div class="text-center py-4 px-6">
+          <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase tracking-wide">Adquiridas</p>
+          <p class="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-1">{{ estacao_adquiridas }}</p>
+        </div>
+        <div class="text-center py-4 px-6">
+          <p class="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase tracking-wide">Utilizadas</p>
+          <p class="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-1">{{ estacao_utilizadas }}</p>
+        </div>
+      </div>
+      
       <table class="table-base">
         <thead><tr><th>Software</th><th>Fabricante</th><th>Adquiridas</th><th>Utilizadas</th><th>Saldo</th><th>Status</th></tr></thead>
         <tbody>
@@ -176,6 +212,49 @@
         </tbody>
       </table>
     </div>
+
+    <!-- ===== LINUX ===== -->
+    {% if total_linux > 0 %}
+    <div class="card p-0 overflow-hidden mb-8">
+      <div class="px-4 py-3 border-b border-[var(--border-color)] flex items-center gap-2" style="background:#fefce8">
+        <svg class="w-4 h-4" fill="none" stroke="#854d0e" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+        <span class="text-sm font-semibold" style="color:#854d0e">Linux</span>
+        <span class="text-xs px-2 py-0.5 rounded-full border border-yellow-300 text-yellow-700">{{ total_linux }}</span>
+      </div>
+      <div class="grid grid-cols-3 divide-x divide-yellow-200 bg-yellow-50 dark:bg-yellow-900 border-b border-[var(--border-color)]">
+        <div class="text-center py-4 px-6">
+          <p class="text-xs font-semibold text-yellow-600 uppercase tracking-wide">Desktops com Linux</p>
+          <p class="text-3xl font-bold text-yellow-900 mt-1">{{ total_linux }}</p>
+        </div>
+        <div class="text-center py-4 px-6">
+          <p class="text-xs font-semibold text-yellow-600 uppercase tracking-wide">Licença Necessária</p>
+          <p class="text-3xl font-bold text-yellow-900 mt-1">Não</p>
+        </div>
+        <div class="text-center py-4 px-6">
+          <p class="text-xs font-semibold text-yellow-600 uppercase tracking-wide">Situação</p>
+          <p class="text-3xl font-bold text-green-600 mt-1">OK</p>
+        </div>
+      </div>
+      <table class="table-base">
+        <thead>
+          <tr><th>Hostname</th><th>Sistema Operacional</th><th>Usuário</th><th>Setor</th></tr>
+        </thead>
+        <tbody>
+          {% for comp in computadores_linux %}
+          <tr class="hover:bg-[var(--table-row-hover)]">
+            <td class="font-medium">{{ comp.patrimonio.hostname|default:"—" }}</td>
+            <td>{{ comp.sistema_operacional|default:"—" }}</td>
+            <td>{{ comp.nome_curto|default:"—" }}</td>
+            <td>{{ comp.patrimonio.setor.nome|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-center text-[var(--text-muted)] py-8">Sem dados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
   {% else %}
     <!-- Lista Completa -->
     <div class="card p-0 overflow-hidden">

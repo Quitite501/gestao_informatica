@@ -422,7 +422,25 @@ def relatorio_customizado(request):
     total_instaladas = 0
     estacao_resultado = None
     server_resultado = None
+    total_linux = 0
+    computadores_linux = []
     total_pcs = ComputadorEspecificacao.objects.count()
+    
+    # Sempre calcular Linux quando windows_completo (mesmo em GET)
+    if categoria == 'windows_completo':
+        linux_qs = ComputadorEspecificacao.objects.filter(
+            sistema_operacional__icontains='linux'
+        ).select_related('patrimonio', 'patrimonio__usuario_atual', 'patrimonio__setor')
+        total_linux = linux_qs.count()
+        computadores_linux = list(linux_qs)
+        # Nome curto: primeiro + último nome
+        for comp in computadores_linux:
+            u = comp.patrimonio.usuario_atual
+            if u and u.nome_completo:
+                partes = u.nome_completo.split()
+                comp.nome_curto = f"{partes[0]} {partes[-1]}" if len(partes) >= 2 else partes[0]
+            else:
+                comp.nome_curto = "—"
     
     if request.method == 'POST':
         query = Software.objects.filter(ativo=True)
@@ -495,6 +513,25 @@ def relatorio_customizado(request):
         if categoria == 'windows_completo':
             estacao_resultado = [sw for sw in softwares if not any(x in sw.nome.lower() for x in ['server', 'cal'])]
             server_resultado = [sw for sw in softwares if any(x in sw.nome.lower() for x in ['server', 'cal'])]
+            # Recalcular Linux dentro do POST quando windows_completo
+            linux_qs = ComputadorEspecificacao.objects.filter(
+                sistema_operacional__icontains='linux'
+            ).select_related('patrimonio', 'patrimonio__usuario_atual', 'patrimonio__setor')
+            total_linux = linux_qs.count()
+            computadores_linux = list(linux_qs)
+            for comp in computadores_linux:
+                u = comp.patrimonio.usuario_atual
+                if u and u.nome_completo:
+                    partes = u.nome_completo.split()
+                    comp.nome_curto = f"{partes[0]} {partes[-1]}" if len(partes) >= 2 else partes[0]
+                else:
+                    comp.nome_curto = "—"
+    
+    # Calcular totais por seção para os cards
+    estacao_adquiridas = sum(sw.total_adquirido for sw in estacao_resultado) if estacao_resultado else 0
+    estacao_utilizadas = sum(sw.total_utilizado_sem_instalacao for sw in estacao_resultado) if estacao_resultado else 0
+    server_adquiridas = sum(sw.total_adquirido for sw in server_resultado) if server_resultado else 0
+    server_utilizadas = sum(sw.total_utilizado_sem_instalacao for sw in server_resultado) if server_resultado else 0
     
     context = {
         'categorias': categorias,
@@ -512,8 +549,14 @@ def relatorio_customizado(request):
         'total_instaladas': total_instaladas,
         'estacao_resultado': estacao_resultado,
         'server_resultado': server_resultado,
+        'estacao_adquiridas': estacao_adquiridas,
+        'estacao_utilizadas': estacao_utilizadas,
+        'server_adquiridas': server_adquiridas,
+        'server_utilizadas': server_utilizadas,
         'windows_completo': categoria == 'windows_completo',
         'total_pcs': total_pcs,
+        'total_linux': total_linux,
+        'computadores_linux': computadores_linux,
     }
     
     return render(request, 'licencas/relatorio_customizado_novo.html', context)
@@ -602,8 +645,8 @@ def relatorio_customizado_pdf(request):
     total_linux = 0
     computadores_linux = []
     if categoria == 'windows_completo':
-        from patrimonio.models import ComputadorEspecificacao
-        linux_qs = ComputadorEspecificacao.objects.filter(
+        from patrimonio.models import ComputadorEspecificacao as CE
+        linux_qs = CE.objects.filter(
             sistema_operacional__icontains='linux'
         ).select_related('patrimonio', 'patrimonio__usuario_atual', 'patrimonio__setor')
         total_linux = linux_qs.count()
