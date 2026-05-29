@@ -100,8 +100,6 @@
         
         .card-items {
             font-size: 7pt;
-            max-height: 100pt;
-            overflow: hidden;
         }
         
         .card-item {
@@ -225,7 +223,7 @@
                     {% if grupo.items %}
                         {% for so in grupo.items %}
                         <div class="card-item">
-                            <div class="card-item-name" style="font-size: 6pt;">{{ so.sistema_operacional|truncatewords:3 }}</div>
+                            <div class="card-item-name" style="font-size: 6pt;">{{ so.sistema_operacional }}</div>
                             <div class="card-item-count">{{ so.count }}</div>
                         </div>
                         {% endfor %}

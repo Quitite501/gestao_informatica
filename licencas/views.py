@@ -636,7 +636,7 @@ def relatorio_customizado_pdf(request):
             resultado.append(sw)
         elif tipo_analise == 'excesso' and saldo > 0:
             resultado.append(sw)
-        elif tipo_analise in ['conformidade', 'comparativo', 'todos']:
+        elif tipo_analise in ['conformidade', 'comparativo', 'todos', 'windows_pcs']:
             resultado.append(sw)
 
     estacao_lista = [sw for sw in resultado if not any(x in sw.nome.lower() for x in ['server', 'cal'])] if categoria == 'windows_completo' else []
