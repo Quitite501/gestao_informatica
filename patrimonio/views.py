@@ -258,6 +258,12 @@ def normalizar_so(so_name):
             return "Linux Mint"
         elif 'CentOS' in so_name or 'RedHat' in so_name:
             return "RedHat/CentOS"
+        elif 'Debian' in so_name:
+            import re as _re
+            m = _re.search(r'Debian GNU/Linux (\d+)', so_name)
+            if m:
+                return f'Debian GNU/Linux {m.group(1)}'
+            return 'Debian'
         else:
             return "Linux"
     
