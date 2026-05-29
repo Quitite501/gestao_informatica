@@ -271,3 +271,45 @@ def nota_fiscal_extrair_ajax(request):
         "itens": itens,
         "itens_software": [i for i in itens if i.get("is_software")],
     })
+
+
+@login_required
+def nota_fiscal_pdf_consolidado(request):
+    """Mescla todos os PDFs de notas fiscais em um único arquivo."""
+    from pypdf import PdfWriter
+    import io
+    from django.http import HttpResponse
+    from datetime import datetime
+
+    nfs = NotaFiscal.objects.exclude(
+        arquivo_pdf=''
+    ).exclude(
+        arquivo_pdf__isnull=True
+    ).order_by('data_emissao')
+
+    writer = PdfWriter()
+    incluidos = 0
+
+    for nf in nfs:
+        try:
+            writer.append(nf.arquivo_pdf.path)
+            incluidos += 1
+        except Exception:
+            continue
+
+    if incluidos == 0:
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        messages.warning(request, "Nenhum PDF encontrado para consolidar.")
+        return redirect("nota_fiscal_lista")
+
+    buffer = io.BytesIO()
+    writer.write(buffer)
+    buffer.seek(0)
+
+    response = HttpResponse(buffer.read(), content_type='application/pdf')
+    response['Content-Disposition'] = (
+        f'attachment; filename="notas_fiscais_consolidado_'
+        f'{datetime.now().strftime("%d_%m_%Y")}.pdf"'
+    )
+    return response
