@@ -16,6 +16,47 @@
 {% block content %}
 <link href="{% static 'vendor/quill/css/quill.snow.css' %}" rel="stylesheet">
 <link href="{% static 'vendor/tom-select/css/tom-select.default.min.css' %}" rel="stylesheet">
+<style>
+html.dark .ts-wrapper .ts-control,
+html.dark .ts-wrapper.single .ts-control,
+html.dark .ts-wrapper.multi .ts-control,
+html.dark .ts-wrapper.single.input-active .ts-control {
+    background: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: var(--input-border) !important;
+}
+html.dark .ts-wrapper .ts-control input,
+html.dark .ts-wrapper .ts-control input:focus {
+    color: var(--input-text) !important;
+    background: transparent !important;
+}
+html.dark .ts-wrapper .ts-control .item {
+    color: var(--input-text) !important;
+    background: transparent !important;
+}
+html.dark .ts-wrapper .ts-control .placeholder {
+    color: var(--input-placeholder) !important;
+}
+html.dark .ts-dropdown {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+html.dark .ts-dropdown .option {
+    color: var(--text-primary) !important;
+    background: var(--surface) !important;
+}
+html.dark .ts-dropdown .option:hover,
+html.dark .ts-dropdown .option.active {
+    background: var(--surface-alt) !important;
+    color: var(--text-primary) !important;
+}
+html.dark .ts-dropdown input {
+    background: var(--surface) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border) !important;
+}
+</style>
 
 <div class="chamado-form-shell space-y-6">
   <div class="card chamado-form-card">
@@ -131,6 +172,21 @@
               <p class="chamado-msg" data-type="erro">{{ form.servidor.errors|join:", " }}</p>
             {% endif %}
           </div>
+          {% if pode_data_retroativa %}
+          <div class="chamado-campo">
+            <div class="chamado-field-header">
+              <label class="form-label" for="{{ form.criado_em.id_for_label }}">
+                {{ form.criado_em.label }}
+              </label>
+              <span class="text-xs text-[var(--text-muted)]">opcional</span>
+            </div>
+            {{ form.criado_em }}
+            <p class="chamado-help">{{ form.criado_em.help_text }}</p>
+            {% if form.criado_em.errors %}
+              <p class="chamado-msg" data-type="erro">{{ form.criado_em.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+          {% endif %}
           <div id="sla-previsao" class="chamado-sla-box" data-status="neutro">
             Selecione categoria e prioridade para calcular o SLA previsto.
           </div>

@@ -274,6 +274,9 @@ def chamado_novo(request):
     if form.is_valid():
         chamado = form.save(commit=False)
         chamado.status = Chamado.STATUS_ABERTO
+        criado_em = form.cleaned_data.get('criado_em')
+        if criado_em:
+            chamado.criado_em = criado_em
         chamado.save()
         
         for arquivo in request.FILES.getlist("anexos"):
@@ -288,7 +291,7 @@ def chamado_novo(request):
     return render(
         request,
         "chamados/chamado_form.html",
-        {"form": form, "titulo": "Novo Chamado"}
+        {"form": form, "titulo": "Novo Chamado", "pode_data_retroativa": request.user.has_perm("chamados.can_manage_chamados")}
     )
 
 

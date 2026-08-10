@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.utils import timezone
 from django.db import models
 from django.conf import settings
 
@@ -75,7 +76,7 @@ class Chamado(models.Model):
         blank=True,
         related_name="chamados_encerrados",
     )
-    criado_em = models.DateTimeField(auto_now_add=True)
+    criado_em = models.DateTimeField(default=timezone.now)
     atualizado_em = models.DateTimeField(auto_now=True)
     encerrado_em = models.DateTimeField(null=True, blank=True)
 

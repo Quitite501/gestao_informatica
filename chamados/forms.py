@@ -67,6 +67,20 @@ class ChamadoForm(forms.ModelForm):
 
         self.fields["servidor"].required = False
         self.fields["servidor"].empty_label = "— nenhum —"
+        # Campo data retroativa — visível apenas para gestores
+        from django.utils import timezone as tz
+        self.fields["criado_em"] = forms.DateTimeField(
+            required=False,
+            label="Data de abertura",
+            initial=None,
+            widget=forms.DateTimeInput(attrs={
+                "type": "datetime-local",
+                "class": "form-input chamado-input-padrao",
+            }),
+            help_text="Deixe em branco para usar a data/hora atual.",
+        )
+        if not (user and user.has_perm("chamados.can_manage_chamados")):
+            del self.fields["criado_em"]
         from servidores.models import Servidor
         self.fields["servidor"].queryset = Servidor.objects.filter(status="ativo").order_by("nome")
         for nome in ["solicitante", "titulo", "descricao", "categoria", "prioridade"]:
