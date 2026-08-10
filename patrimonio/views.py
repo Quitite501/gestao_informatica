@@ -227,6 +227,13 @@ def normalizar_so(so_name):
     if not so_name:
         return "Desconhecido"
     
+    # Windows Server (antes do Windows genérico)
+    if 'Windows' in so_name and 'Server' in so_name:
+        match = re.search(r'Server (\d+)', so_name)
+        if match:
+            return f"Windows Server {match.group(1)}"
+        return "Windows Server"
+
     # Windows
     if 'Windows' in so_name or 'windows' in so_name.lower():
         # Extrair versão principal (Windows 11, Windows 10, etc)
@@ -327,9 +334,11 @@ def relatorio_computadores(request):
     
     # Categorizar por tipo
     for so_nome, so_data in so_normalized.items():
-        if 'Windows' in so_nome:
+        if 'Windows Server' in so_nome:
+            tipo = 'Windows Server'
+        elif 'Windows' in so_nome:
             tipo = 'Windows'
-        elif 'Linux' in so_nome or 'Ubuntu' in so_nome:
+        elif 'Linux' in so_nome or 'Ubuntu' in so_nome or 'Debian' in so_nome:
             tipo = 'Linux'
         elif 'macOS' in so_nome:
             tipo = 'macOS'
@@ -342,7 +351,7 @@ def relatorio_computadores(request):
     
     # Ordenar grupos e itens dentro deles (itens por quantidade decrescente)
     so_stats = []
-    ordem = ['Windows', 'Linux', 'macOS', 'Outro']
+    ordem = ['Windows', 'Windows Server', 'Linux', 'macOS', 'Outro']
     for tipo in ordem:
         if tipo in so_grouped:
             items_ordenados = sorted(so_grouped[tipo], key=lambda x: x['count'], reverse=True)
@@ -471,9 +480,11 @@ def relatorio_computadores_pdf(request):
         so_normalized[so_normalizado]['count'] += so['count']
     
     for so_nome, so_data in so_normalized.items():
-        if 'Windows' in so_nome:
+        if 'Windows Server' in so_nome:
+            tipo = 'Windows Server'
+        elif 'Windows' in so_nome:
             tipo = 'Windows'
-        elif 'Linux' in so_nome or 'Ubuntu' in so_nome:
+        elif 'Linux' in so_nome or 'Ubuntu' in so_nome or 'Debian' in so_nome:
             tipo = 'Linux'
         elif 'macOS' in so_nome:
             tipo = 'macOS'
@@ -484,7 +495,7 @@ def relatorio_computadores_pdf(request):
         so_grouped[tipo].append({'sistema_operacional': so_nome, 'count': so_data['count']})
     
     so_stats = []
-    for tipo in ['Windows', 'Linux', 'macOS', 'Outro']:
+    for tipo in ['Windows', 'Windows Server', 'Linux', 'macOS', 'Outro']:
         if tipo in so_grouped:
             so_stats.append({'tipo': tipo, 'items': sorted(so_grouped[tipo], key=lambda x: x['count'], reverse=True)})
     
