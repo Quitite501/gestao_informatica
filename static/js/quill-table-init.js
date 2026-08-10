@@ -127,5 +127,58 @@ function initQuillWithTable(editorId, hiddenId, placeholder) {
     quill.on('text-change', function() { hidden.value = quill.root.innerHTML; });
   }
 
+  addZoomSlider(quill, editorId);
   return quill;
+}
+
+function addZoomSlider(quill, editorId) {
+  var container = quill.root.parentNode;
+  var toolbar = container && container.previousSibling;
+  if (!toolbar || !toolbar.classList.contains('ql-toolbar')) return;
+
+  var wrap = document.createElement('span');
+  wrap.className = 'ql-formats ql-zoom-wrap';
+  wrap.style.cssText = 'display:inline-flex;align-items:center;gap:4px;vertical-align:middle;';
+
+  var btnMinus = document.createElement('button');
+  btnMinus.type = 'button';
+  btnMinus.title = 'Diminuir zoom';
+  btnMinus.innerHTML = '<svg viewBox="0 0 18 18" width="14" height="14"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  btnMinus.style.cssText = 'border:none;background:none;cursor:pointer;opacity:0.75;padding:2px;line-height:1;';
+
+  var label = document.createElement('span');
+  label.textContent = '100%';
+  label.style.cssText = 'font-size:11px;min-width:34px;text-align:center;color:inherit;opacity:0.75;';
+
+  var slider = document.createElement('input');
+  slider.type = 'range';
+  slider.min = 70;
+  slider.max = 160;
+  slider.value = 100;
+  slider.step = 5;
+  slider.title = 'Zoom do editor';
+  slider.style.cssText = 'width:70px;height:4px;cursor:pointer;accent-color:var(--accent,#e07828);vertical-align:middle;';
+
+  var btnPlus = document.createElement('button');
+  btnPlus.type = 'button';
+  btnPlus.title = 'Aumentar zoom';
+  btnPlus.innerHTML = '<svg viewBox="0 0 18 18" width="14" height="14"><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  btnPlus.style.cssText = 'border:none;background:none;cursor:pointer;opacity:0.75;padding:2px;line-height:1;';
+
+  function applyZoom(val) {
+    val = Math.max(70, Math.min(160, val));
+    slider.value = val;
+    label.textContent = val + '%';
+    quill.root.style.fontSize = (val / 100 * 1.125) + 'rem';
+  }
+
+  slider.addEventListener('input', function() { applyZoom(parseInt(this.value)); });
+  btnMinus.addEventListener('click', function() { applyZoom(parseInt(slider.value) - 5); });
+  btnPlus.addEventListener('click', function() { applyZoom(parseInt(slider.value) + 5); });
+
+  wrap.appendChild(btnMinus);
+  wrap.appendChild(slider);
+  wrap.appendChild(label);
+  wrap.appendChild(btnPlus);
+  toolbar.appendChild(wrap);
 }
