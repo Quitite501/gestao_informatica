@@ -1569,14 +1569,45 @@ input::placeholder,
   width: 100%;
 }
 
+.tom-select + .ts-wrapper .ts-control {
+  min-height: 2.75rem;
+  border: 1px solid var(--input-border) !important;
+  background: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-radius: .5rem;
+  box-shadow: none !important;
+}
+
 .tom-select + .ts-wrapper.focus .ts-control {
   border-color: var(--accent) !important;
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent) !important;
 }
 
+.tom-select + .ts-wrapper .ts-dropdown {
+  border-color: var(--input-border);
+  background: var(--surface);
+  color: var(--text-primary);
+  border-radius: .5rem;
+  overflow: hidden;
+}
+
 .tom-select + .ts-wrapper .option.active {
   background: var(--surface-alt);
   color: var(--text-primary);
+}
+
+.tom-select + .ts-wrapper .ts-control input {
+  color: var(--input-text) !important;
+}
+
+.tom-select + .ts-wrapper .ts-control input::-moz-placeholder {
+  color: var(--input-placeholder) !important;
+  opacity: 1;
+}
+
+.tom-select + .ts-wrapper .ts-control input::placeholder {
+  color: var(--input-placeholder) !important;
+  opacity: 1;
 }
 
 .chamado-prioridade-row {
@@ -1626,7 +1657,7 @@ input::placeholder,
   background: var(--surface-alt);
   color: var(--text-secondary);
   padding: .75rem;
-  font-size: .875rem;
+  font-size: 1.125rem;
 }
 
 .chamado-sla-box[data-status="ok"] {
@@ -1656,7 +1687,7 @@ input::placeholder,
   border-radius: 0 0 .5rem .5rem !important;
   border-color: var(--input-border) !important;
   color: var(--input-text);
-  font-size: .875rem;
+  font-size: 1.125rem;
 }
 
 .ql-editor.ql-blank::before {
