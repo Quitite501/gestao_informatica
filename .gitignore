@@ -8,5 +8,29 @@ db.sqlite3
 .vscode/
 .idea/
 node_modules/
-package-lock.json
 logs/
+
+# Segredos e configuracoes locais
+.env
+.env.*
+!.env.example
+
+# Backups e dumps
+backups/
+*.sql
+*.dump
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+
+# Arquivos temporarios de edicao
+*.bak
+*.bak.*
+*.bkp
+*.bkp_*
+*.backup
+
+# Credenciais e certificados privados
+*.key
+*.pem

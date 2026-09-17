@@ -1,0 +1,16 @@
+[Unit]
+Description=Sistema de Gestao de TI - Gunicorn
+After=network.target postgresql.service
+
+[Service]
+User=cartorio
+Group=cartorio
+WorkingDirectory=/opt/sistema_ti
+EnvironmentFile=/opt/sistema_ti/.env
+ExecStart=/opt/sistema_ti/venv/bin/gunicorn config.wsgi:application -c /opt/sistema_ti/gunicorn.conf.py
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
